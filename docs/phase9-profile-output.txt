@@ -1,0 +1,23 @@
+Engine size 31600 bytes (boxed). Six synthetic scenarios, fresh engine each, 1 ms event spacing.
+config=phase7_strict startup allocations: 10 (engine box, research box, markout ring, six fixed flow buffers, one batch scratch).
+config=phase7_strict scenario=A events=2712 commands=1678 maker_fills=52 elapsed_ns=3589625 ns/event=1323.6 allocations=0
+config=phase7_strict scenario=B events=1251 commands=707 maker_fills=18 elapsed_ns=1539042 ns/event=1230.2 allocations=0
+config=phase7_strict scenario=C events=2704 commands=1548 maker_fills=0 elapsed_ns=3189667 ns/event=1179.6 allocations=0
+config=phase7_strict scenario=D events=3216 commands=1616 maker_fills=18 elapsed_ns=3847375 ns/event=1196.3 allocations=0
+config=phase7_strict scenario=E events=2916 commands=1821 maker_fills=48 elapsed_ns=3395167 ns/event=1164.3 allocations=0
+config=phase7_strict scenario=F events=1089 commands=524 maker_fills=12 elapsed_ns=1166000 ns/event=1070.7 allocations=0
+config=phase7_strict slowest 14 events: [(41583, Trade, 0), (21917, Cancel, 1), (21584, Modify, 0), (12625, Add, 1), (11459, Add, 1), (10625, Add, 1), (9875, Modify, 0), (9334, SnapshotEnd, 1), (9167, Cancel, 1), (8208, SnapshotEnd, 1), (8167, Cancel, 1), (7958, SnapshotEnd, 1), (7917, Cancel, 1), (7458, SnapshotEnd, 1)]
+config=phase7_strict all_events n=13888 latency ns including timer: p50=1208 p90=1416 p99=1792 p99.9=7458 max=41583
+config=phase7_strict no_command n=6376 latency ns including timer: p50=1042 p90=1167 p99=1291 p99.9=2000 max=41583
+config=phase7_strict with_commands n=7512 latency ns including timer: p50=1292 p90=1458 p99=2042 p99.9=8167 max=21917
+config=phase9_queue startup allocations: 10 (engine box, research box, markout ring, six fixed flow buffers, one batch scratch).
+config=phase9_queue scenario=A events=2712 commands=1604 maker_fills=20 elapsed_ns=3152917 ns/event=1162.6 allocations=0
+config=phase9_queue scenario=B events=1251 commands=662 maker_fills=12 elapsed_ns=1356084 ns/event=1084.0 allocations=0
+config=phase9_queue scenario=C events=2704 commands=1548 maker_fills=0 elapsed_ns=2918083 ns/event=1079.2 allocations=0
+config=phase9_queue scenario=D events=3216 commands=1608 maker_fills=18 elapsed_ns=3771458 ns/event=1172.7 allocations=0
+config=phase9_queue scenario=E events=2916 commands=1779 maker_fills=30 elapsed_ns=3114084 ns/event=1067.9 allocations=0
+config=phase9_queue scenario=F events=1089 commands=512 maker_fills=8 elapsed_ns=1072666 ns/event=985.0 allocations=0
+config=phase9_queue slowest 14 events: [(12250, Trade, 0), (9834, Modify, 0), (7458, Cancel, 1), (7292, Modify, 1), (6875, Add, 1), (6875, Add, 1), (6792, SnapshotEnd, 1), (6750, SnapshotEnd, 1), (6709, SnapshotEnd, 1), (6709, SnapshotEnd, 1), (6333, SnapshotEnd, 1), (6291, SnapshotEnd, 1), (5875, Add, 1), (5791, SnapshotEnd, 1)]
+config=phase9_queue all_events n=13888 latency ns including timer: p50=1125 p90=1333 p99=1625 p99.9=5791 max=12250
+config=phase9_queue no_command n=6384 latency ns including timer: p50=959 p90=1167 p99=1333 p99.9=1417 max=12250
+config=phase9_queue with_commands n=7504 latency ns including timer: p50=1208 p90=1417 p99=1708 p99.9=6709 max=7458

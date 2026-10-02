@@ -63,22 +63,26 @@ See [Phase 8 contracts](phase8.md) and [validation](phase8-validation.md).
 
 Limits: windows are 20 levels per side; the corridor is fixed per session; recording I/O runs on the engine thread; engine thresholds are uncalibrated; lead/lag reflects arrival at this machine and venue push cadence.
 
-## Next: Phase 9 execution simulation
+## Completed: Phase 9 execution simulation
 
-Replace strict trade-through with a configurable maker queue and size simulator:
+Strict trade-through is now one of two configurable fill models, alongside an L2 queue model:
 
-- queue position estimated from displayed size ahead
-- partial fills
-- size-aware prints
-- retail fee schedules as the base case, with rebates only by programme
-- slippage, funding and markout horizons (§18)
-- net maker yield (§25)
-- the objective J(a) (§24)
+- **Queue position.** Orders join behind the displayed size; prints at the order price consume the queue ahead first; depth decreases are matched against printed volume before a cancellation model attributes the rest. Pessimistic, proportional and optimistic models bound the result.
+- **Size-aware prints.** Partial progress is tracked; children fill completely, and discarded partial quantity is counted.
+- **Stale touch.** No passive quote is placed or moved at a price a print has traded through since the venue's last depth update.
+- **Fees.** Exact ppm schedules (fees rounded up, rebates down) plus fixed atoms, with retail maker and taker fees as the base case and the charges split by liquidity role.
+- **Funding and markouts.** Constant-rate funding on the engine clock, and §18 markouts at configurable horizons, split exactly into captured spread and adverse drift.
+- **Economics and objective.** Net maker yield (§25) and the objective J(a) (§24) as an entry gate valuing queue position, so moving an order must beat its queue loss (§26).
+- **Fill study.** Shadow maker probes on recorded live sessions under every model, with order latency, post-only rejects and an unconditional volatility control.
+- **Live findings.** Across four sessions (about 25 minutes), touch-joining probes saw 41–66 ticks of adverse drift at 1 s on every venue. Together with the 173-tick retail maker fee, that is about −280 ppm per fill. The live engine itself never traded: its void thresholds are uncalibrated.
+- **Live-path fix.** Staleness is now checked at the frame's own timestamp. A network-wide stall had faulted the engine.
 
-Calibrate on recorded live sessions rather than synthetic paths.
+See [Phase 9 contracts](phase9.md) and [validation](phase9-validation.md).
+
+Limits: queues are inferred from 20 public levels; partial fills are not booked; engine orders have zero latency; funding uses a constant rate; J(a) weights, inventory risk and queue cost are uncalibrated; the live evidence is about 25 minutes of one asset.
 
 ## Following deliveries
 
-- Phase 10: demo exchange routing after risk gates, using the kill executor, order lifecycle and fault injection. Account and jurisdiction prerequisites are in [providers](providers.md).
+- Phase 10: demo exchange routing after risk gates, using the kill executor, order lifecycle (acknowledgements, post-only rejects, cancel/replace latency) and fault injection. Account and jurisdiction prerequisites are in [providers](providers.md).
 
-Realistic fills, in-engine stage separation, order gateways and real-money connectivity remain unimplemented. No order is ever sent.
+In-engine order latency, in-engine stage separation, order gateways and real-money connectivity remain unimplemented. No order is ever sent.

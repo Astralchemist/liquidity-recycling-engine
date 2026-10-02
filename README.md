@@ -1,6 +1,23 @@
 # Liquidity & Inventory Recycling Engine
 
-Rust-only deterministic research engine. Completed: Phase 1–2 arithmetic and bounded L2 books; Phase 3 exact multi-venue normalization and weighted consolidation, with synthetic recording/replay; Phase 4 configurable liquidity pools, historical voids, touch/partial revisits and refill statistics; Phase 5 bounded OFI, queue imbalance and flow intensity; Phase 6 exact one-quantum inventory ledger, hard limits, recovery accounts and episodes; Phase 7 one engine with environment classification, a rule-based recycling policy, simulated strict trade-through fills, the kill procedure and specification scenarios A–F; Phase 8 live public feeds from Binance, Bybit and OKX with atomic batches, recording format v2 and exact live-versus-replay comparison. Realistic fill simulation and order submission remain later milestones; no order is ever sent.
+Rust-only deterministic research engine. Completed: Phase 1–2 arithmetic and bounded L2 books; Phase 3 exact multi-venue normalization and weighted consolidation, with synthetic recording/replay; Phase 4 configurable liquidity pools, historical voids, touch/partial revisits and refill statistics; Phase 5 bounded OFI, queue imbalance and flow intensity; Phase 6 exact one-quantum inventory ledger, hard limits, recovery accounts and episodes; Phase 7 one engine with environment classification, a rule-based recycling policy, simulated strict trade-through fills, the kill procedure and specification scenarios A–F; Phase 8 live public feeds from Binance, Bybit and OKX with atomic batches, recording format v2 and exact live-versus-replay comparison; Phase 9 execution simulation with an L2 queue model under three cancellation assumptions, exact ppm fee schedules, funding, §18 markouts split into spread and drift, net maker yield, the objective J(a) as an entry gate, and a fill study on recorded live sessions. Order submission remains a later milestone; no order is ever sent.
+
+## Run Phase 9 (execution simulation)
+
+```sh
+cargo run -p cli --release --locked -- live-record config/phase8-market.toml config/phase8-structures.toml config/phase8-flow.toml config/phase9-engine.toml /tmp/lre-live9 600
+cargo run -p cli --release --locked -- fill-study /tmp/lre-live9 1 200 50
+```
+
+`config/phase9-engine.toml` runs the live engine with the proportional queue model, retail fees (maker 0.02%, taker 0.05%), funding, the §18 markout horizons and J(a).
+
+`fill-study DIRECTORY REQUOTE_TICKS MAKER_FEE_PPM LATENCY_MS` replays any recorded session, including Phase 8 recordings. It places shadow maker probes at each venue's touch under every fill model and reports:
+
+- fill rates, waits and queue position at entry
+- post-only rejects under the given order latency
+- markouts at every horizon, split into captured spread and adverse drift
+
+Probes never reach the ledger. See [Phase 9 contracts](docs/phase9.md).
 
 ## Run Phase 8 (live public data)
 
@@ -100,6 +117,8 @@ The single-venue demo refuses to overwrite a file. Replay modes: `max`, `step`, 
 
 ## Documentation
 
+- [Phase 9 execution simulation: queue model, fees, funding, markouts, J(a), fill study](docs/phase9.md)
+- [Phase 9 validation, live fill study and benchmarks](docs/phase9-validation.md)
 - [Phase 8 live feeds, sync rules, atomic batches, composite reference, recording v2](docs/phase8.md)
 - [Phase 8 validation, live sessions and benchmarks](docs/phase8-validation.md)
 - [Provider documentation review: Binance, Bybit, OKX, Tiingo access and sync rules](docs/providers.md)

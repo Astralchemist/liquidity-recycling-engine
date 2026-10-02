@@ -52,7 +52,7 @@ Merged replay orders by `(receive_ts, venue, sequence)`, so replay order equals 
 
 A book source therefore sends at most one **refresh** every 250 ms while its messages are valid but unchanged. A refresh is a zero-change `Modify` of the best bid at its current size: a legitimate canonical "book confirmed" event, recorded and replayed like any other. It is the same form the synthetic generator's idle steps use, and Phase 5 counts it as an eligible event with zero contribution.
 
-**Withdrawal triggers resynchronization.** Before applying a trade or batch, the engine thread checks the venue's engine book. If staleness has withdrawn it, the step is dropped and counted, the sequencer marks the venue not-live, and the feed thread is told to reconnect. Resubscription yields a fresh snapshot, which is always applied. Dropped steps are never recorded, so replay sees the same canonical stream.
+**Withdrawal triggers resynchronization.** (Phase 9 corrected the check to evaluate staleness at the frame's own receive time; see [Phase 9](phase9.md#live-path-fix-staleness-at-the-frames-own-timestamp).) Before applying a trade or batch, the engine thread checks the venue's engine book. If staleness has withdrawn it, the step is dropped and counted, the sequencer marks the venue not-live, and the feed thread is told to reconnect. Resubscription yields a fresh snapshot, which is always applied. Dropped steps are never recorded, so replay sees the same canonical stream.
 
 The engine thread also performs buffered recording I/O. A dedicated recorder thread is a known improvement.
 

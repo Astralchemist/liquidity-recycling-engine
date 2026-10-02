@@ -1,0 +1,3 @@
+    Checking engine v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/engine)
+    Checking cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.73s

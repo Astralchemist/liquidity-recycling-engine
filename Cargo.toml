@@ -24,6 +24,7 @@ voids = { path = "crates/voids" }
 simulation = { path = "crates/simulation" }
 toxicity = { path = "crates/toxicity" }
 engine = { path = "crates/engine" }
+execution = { path = "crates/execution" }
 wire = { path = "crates/wire" }
 venue-binance = { path = "crates/venue-binance" }
 venue-bybit = { path = "crates/venue-bybit" }

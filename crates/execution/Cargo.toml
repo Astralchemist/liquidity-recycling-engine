@@ -12,3 +12,10 @@ workspace = true
 common.workspace = true
 fixed-point.workspace = true
 market-events.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "execution"
+harness = false

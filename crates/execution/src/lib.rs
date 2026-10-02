@@ -1,4 +1,8 @@
-//! Gateway boundary only. No authenticated or live order routing implementation.
+//! Execution simulation (Phase 9) and the gateway boundary. No authenticated or live order
+//! routing exists: `OrderGateway` is an interface only.
+pub mod fees;
+pub mod markout;
+pub mod queue;
 use common::Side;
 use fixed_point::{PriceTicks, QtyUnits};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

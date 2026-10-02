@@ -299,6 +299,7 @@ name = "execution"
 version = "0.1.0"
 dependencies = [
  "common",
+ "criterion",
  "fixed-point",
  "market-events",
 ]

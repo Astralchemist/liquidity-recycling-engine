@@ -1,0 +1,11 @@
+   Compiling replay v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/replay)
+   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+    Finished `release` profile [optimized] target(s) in 2.80s
+     Running `target/release/lre demo /private/tmp/lre-phase12-validation-20261001.lre`
+Recorded 10004 synthetic events to /private/tmp/lre-phase12-validation-20261001.lre
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running `target/release/lre replay /private/tmp/lre-phase12-validation-20261001.lre max`
+events=10004 state=Live sequence=Some(10004) bid=Ok(Some(Level { price: PriceTicks(6174252), qty: QtyUnits(101) })) ask=Ok(Some(Level { price: PriceTicks(6174254), qty: QtyUnits(100) })) midpoint_x2=Ok(Some(12348506))
+    Finished `release` profile [optimized] target(s) in 0.02s
+     Running `target/release/lre replay /private/tmp/lre-phase12-validation-20261001.lre 100x`
+events=10004 state=Live sequence=Some(10004) bid=Ok(Some(Level { price: PriceTicks(6174252), qty: QtyUnits(101) })) ask=Ok(Some(Level { price: PriceTicks(6174254), qty: QtyUnits(100) })) midpoint_x2=Ok(Some(12348506))

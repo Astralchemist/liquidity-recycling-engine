@@ -1,0 +1,30 @@
+[package]
+name = "cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+common.workspace = true
+fixed-point.workspace = true
+market-events.workspace = true
+book.workspace = true
+recorder.workspace = true
+replay.workspace = true
+consolidator.workspace = true
+liquidity.workspace = true
+orderflow.workspace = true
+inventory.workspace = true
+risk.workspace = true
+voids.workspace = true
+simulation.workspace = true
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.9"
+
+[[bin]]
+name = "lre"
+path = "src/main.rs"

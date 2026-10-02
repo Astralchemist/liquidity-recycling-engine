@@ -1,0 +1,22 @@
+# All money limits are integer common price-tick × quantity atoms, not currency decimals.
+[inventory]
+venues = [1, 2, 3]
+parent_quantity = 100
+quantum_numerator = 1
+quantum_denominator = 10
+target_units = 0
+target_tolerance = 0
+completion_max_gross = 0
+
+[risk]
+max_net_units = 4
+max_gross_units = 8
+max_venue_units = 6
+max_target_deviation = 4
+max_open_orders = 8
+max_liability_atoms = "50"
+max_drawdown_atoms = "1000"
+max_position_age_ns = 1000000000
+max_episode_ns = 1000000000
+max_adverse_episodes = 3
+mark_stale_ns = 1000000000

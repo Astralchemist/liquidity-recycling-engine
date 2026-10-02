@@ -1,0 +1,2 @@
+    Checking inventory v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/inventory)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.19s

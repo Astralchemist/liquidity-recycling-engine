@@ -1,0 +1,82 @@
+   Compiling book v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/book)
+    Finished `bench` profile [optimized] target(s) in 4.18s
+     Running benches/book.rs (target/release/deps/book-9e1a623cdbfafb2f)
+Benchmarking book_modify_128_levels/1
+Benchmarking book_modify_128_levels/1: Warming up for 1.0000 s
+Benchmarking book_modify_128_levels/1: Collecting 30 samples in estimated 2.0000 s (88M iterations)
+Benchmarking book_modify_128_levels/1: Analyzing
+book_modify_128_levels/1
+                        time:   [22.116 ns 22.407 ns 22.611 ns]
+                        thrpt:  [44.225 Melem/s 44.629 Melem/s 45.217 Melem/s]
+                 change:
+                        time:   [−0.8441% −0.2276% +0.3127%] (p = 0.49 > 0.05)
+                        thrpt:  [−0.3117% +0.2281% +0.8513%]
+                        No change in performance detected.
+Found 6 outliers among 30 measurements (20.00%)
+  3 (10.00%) low severe
+  3 (10.00%) low mild
+Benchmarking book_modify_128_levels/10000
+Benchmarking book_modify_128_levels/10000: Warming up for 1.0000 s
+Benchmarking book_modify_128_levels/10000: Collecting 30 samples in estimated 2.0305 s (8835 iterations)
+Benchmarking book_modify_128_levels/10000: Analyzing
+book_modify_128_levels/10000
+                        time:   [209.29 µs 209.72 µs 210.27 µs]
+                        thrpt:  [47.557 Melem/s 47.683 Melem/s 47.780 Melem/s]
+                 change:
+                        time:   [−4.5410% −3.6753% −2.7286%] (p = 0.00 < 0.05)
+                        thrpt:  [+2.8052% +3.8155% +4.7570%]
+                        Performance has improved.
+Found 4 outliers among 30 measurements (13.33%)
+  1 (3.33%) low severe
+  1 (3.33%) high mild
+  2 (6.67%) high severe
+Benchmarking book_modify_128_levels/1000000
+Benchmarking book_modify_128_levels/1000000: Warming up for 1.0000 s
+Benchmarking book_modify_128_levels/1000000: Collecting 30 samples in estimated 2.5739 s (120 iterations)
+Benchmarking book_modify_128_levels/1000000: Analyzing
+book_modify_128_levels/1000000
+                        time:   [21.054 ms 21.396 ms 21.833 ms]
+                        thrpt:  [45.802 Melem/s 46.739 Melem/s 47.496 Melem/s]
+                 change:
+                        time:   [−1.1546% +0.8289% +3.0550%] (p = 0.47 > 0.05)
+                        thrpt:  [−2.9644% −0.8221% +1.1681%]
+                        No change in performance detected.
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+Benchmarking book_insert_cancel_top_128_levels
+Benchmarking book_insert_cancel_top_128_levels: Warming up for 1.0000 s
+Benchmarking book_insert_cancel_top_128_levels: Collecting 30 samples in estimated 2.0000 s (15M iterations)
+Benchmarking book_insert_cancel_top_128_levels: Analyzing
+book_insert_cancel_top_128_levels
+                        time:   [134.63 ns 135.80 ns 136.80 ns]
+                        change: [+3.3243% +5.4943% +7.7795%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 7 outliers among 30 measurements (23.33%)
+  6 (20.00%) low mild
+  1 (3.33%) high severe
+
+Benchmarking integer_pnl
+Benchmarking integer_pnl: Warming up for 1.0000 s
+Benchmarking integer_pnl: Collecting 30 samples in estimated 2.0000 s (1.6B iterations)
+Benchmarking integer_pnl: Analyzing
+integer_pnl             time:   [1.2253 ns 1.2344 ns 1.2429 ns]
+                        change: [−2.1774% −0.8316% +0.3707%] (p = 0.21 > 0.05)
+                        No change in performance detected.
+
+Benchmarking event_encode_crc
+Benchmarking event_encode_crc: Warming up for 1.0000 s
+Benchmarking event_encode_crc: Collecting 30 samples in estimated 2.0002 s (3.9M iterations)
+Benchmarking event_encode_crc: Analyzing
+event_encode_crc        time:   [509.17 ns 509.46 ns 509.71 ns]
+
+Benchmarking event_decode_crc
+Benchmarking event_decode_crc: Warming up for 1.0000 s
+Benchmarking event_decode_crc: Collecting 30 samples in estimated 2.0000 s (3.9M iterations)
+Benchmarking event_decode_crc: Analyzing
+event_decode_crc        time:   [509.23 ns 509.51 ns 509.85 ns]
+                        change: [−0.3055% −0.2134% −0.1235%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high mild
+

@@ -1,0 +1,47 @@
+# Synthetic example; IDs 1/2/3 reserve Binance/Bybit/OKX slots.
+# These scales/weights are test data, not current exchange specifications.
+shared_clock_domain = true
+
+[market]
+base_asset = 1
+quote_asset = 2
+settlement_asset = 2
+kind = "spot"
+equivalence_group = 1
+
+[grid]
+instrument = 1
+price_atoms = 1
+price_decimals = 0
+quantity_atoms = 1
+quantity_decimals = 0
+
+[[venues]]
+id = 1
+instrument = 101
+price_atoms = 1
+price_decimals = 0
+quantity_atoms = 1
+quantity_decimals = 0
+weight_ppm = 1000000
+stale_after_ns = 1000000000
+
+[[venues]]
+id = 2
+instrument = 202
+price_atoms = 1
+price_decimals = 0
+quantity_atoms = 1
+quantity_decimals = 0
+weight_ppm = 750000
+stale_after_ns = 1000000000
+
+[[venues]]
+id = 3
+instrument = 303
+price_atoms = 1
+price_decimals = 0
+quantity_atoms = 1
+quantity_decimals = 0
+weight_ppm = 500000
+stale_after_ns = 1000000000

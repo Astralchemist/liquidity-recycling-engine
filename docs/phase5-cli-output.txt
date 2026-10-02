@@ -1,0 +1,117 @@
+   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+    Finished `release` profile [optimized] target(s) in 3.54s
+     Running `target/release/lre flow-demo config/phase4-market.toml config/phase5-structures.toml config/phase5-flow.toml /private/tmp/lre-phase5-final-20261002`
+Direct and recorded/replayed complete research state match.
+events=58 registered_voids=1 revisited_zones=1 revisit_events=1 refilled_before_revisit=0 pool_activations=1
+void_metrics=VoidMetrics { candidates: 1, candidate_restarts: 2, registered: 1, revisited_zones: 1, revisits: 1, first_revisit_latency_ns: 1000000, refilled: 1, refilled_before_revisit: 0, expired: 0, invalidated: 0, capacity_rejections: 0, overlap_rejections: 0, evicted_terminal: 0, skipped_crossings: 0, penetration_distribution: [0, 0, 1, 0, 0, 0] }
+liquidity_metrics=LiquidityMetrics { samples: 28, pool_activations: 1, pool_observed_ns: 19000000, structural_resets: 3, observations_without_coverage: 0 }
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Refilled revisits=1 maximum_penetration_ppm=333333 first_revisit_at=Some(Timestamp(53000000))
+bucket=0 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=1 BucketObservation { bid_depth: 225000000, ask_depth: 225000000, complete_corridor: true, displayed_levels: 2, average_displayed_level_age_ns: Some(15000000), order_count: None }
+bucket=2 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=3 BucketObservation { bid_depth: 1350000000, ask_depth: 450000000, complete_corridor: true, displayed_levels: 4, average_displayed_level_age_ns: Some(28000000), order_count: None }
+bucket=4 BucketObservation { bid_depth: 225000000, ask_depth: 0, complete_corridor: false, displayed_levels: 1, average_displayed_level_age_ns: Some(28000000), order_count: None }
+bucket=5 BucketObservation { bid_depth: 0, ask_depth: 225000000, complete_corridor: false, displayed_levels: 1, average_displayed_level_age_ns: Some(28000000), order_count: None }
+Direct and recorded/replayed complete flow + research state match.
+flow_events=58 weighted_time_ofi_and_mask=(0, 7)
+venue=1 epoch=1 event_count=16 time_count=22 exposure_ns=48000000 event_ofi=0 time_ofi=0 time_depth_delta=400 qi_best_ppm=Some(0) qi_top_n_ppm=Some(0)
+  AddedQty: quantity_or_count=500 rate_micro_per_second=Some(10416666666)
+  RemovedQty: quantity_or_count=100 rate_micro_per_second=Some(2083333333)
+  BuyQty: quantity_or_count=17 rate_micro_per_second=Some(354166666)
+  SellQty: quantity_or_count=2 rate_micro_per_second=Some(41666666)
+  AddEvents: quantity_or_count=2 rate_micro_per_second=Some(41666666)
+  RemovalEvents: quantity_or_count=1 rate_micro_per_second=Some(20833333)
+  BuyEvents: quantity_or_count=17 rate_micro_per_second=Some(354166666)
+  SellEvents: quantity_or_count=2 rate_micro_per_second=Some(41666666)
+  cancellation_rate_micro_per_second=None buy_event_probability_ppm=Some(971034) horizon_ns=10000000
+  bucket=0 add_rate=Some(20833333) removal_rate=Some(0) execution_qty_rate=Some(187500000)
+  bucket=1 add_rate=Some(0) removal_rate=Some(20833333) execution_qty_rate=Some(125000000)
+  bucket=2 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=3 add_rate=Some(20833333) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=4 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(41666666)
+  bucket=5 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+venue=2 epoch=1 event_count=3 time_count=3 exposure_ns=38000000 event_ofi=0 time_ofi=0 time_depth_delta=400 qi_best_ppm=Some(0) qi_top_n_ppm=Some(0)
+  AddedQty: quantity_or_count=500 rate_micro_per_second=Some(13157894736)
+  RemovedQty: quantity_or_count=100 rate_micro_per_second=Some(2631578947)
+  BuyQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  AddEvents: quantity_or_count=2 rate_micro_per_second=Some(52631578)
+  RemovalEvents: quantity_or_count=1 rate_micro_per_second=Some(26315789)
+  BuyEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  cancellation_rate_micro_per_second=None buy_event_probability_ppm=Some(0) horizon_ns=10000000
+  bucket=0 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=1 add_rate=Some(26315789) removal_rate=Some(26315789) execution_qty_rate=Some(0)
+  bucket=2 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=3 add_rate=Some(26315789) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=4 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=5 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+venue=3 epoch=1 event_count=3 time_count=3 exposure_ns=28000000 event_ofi=0 time_ofi=0 time_depth_delta=400 qi_best_ppm=Some(0) qi_top_n_ppm=Some(0)
+  AddedQty: quantity_or_count=500 rate_micro_per_second=Some(17857142857)
+  RemovedQty: quantity_or_count=100 rate_micro_per_second=Some(3571428571)
+  BuyQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  AddEvents: quantity_or_count=2 rate_micro_per_second=Some(71428571)
+  RemovalEvents: quantity_or_count=1 rate_micro_per_second=Some(35714285)
+  BuyEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  cancellation_rate_micro_per_second=None buy_event_probability_ppm=Some(0) horizon_ns=10000000
+  bucket=0 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=1 add_rate=Some(35714285) removal_rate=Some(35714285) execution_qty_rate=Some(0)
+  bucket=2 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=3 add_rate=Some(35714285) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=4 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=5 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+bucket_qi_ppm=[None, Some(0), None, Some(500000), None, None]
+    Finished `release` profile [optimized] target(s) in 0.03s
+     Running `target/release/lre flow-replay /private/tmp/lre-phase5-final-20261002`
+flow_events=58 weighted_time_ofi_and_mask=(0, 7)
+venue=1 epoch=1 event_count=16 time_count=22 exposure_ns=48000000 event_ofi=0 time_ofi=0 time_depth_delta=400 qi_best_ppm=Some(0) qi_top_n_ppm=Some(0)
+  AddedQty: quantity_or_count=500 rate_micro_per_second=Some(10416666666)
+  RemovedQty: quantity_or_count=100 rate_micro_per_second=Some(2083333333)
+  BuyQty: quantity_or_count=17 rate_micro_per_second=Some(354166666)
+  SellQty: quantity_or_count=2 rate_micro_per_second=Some(41666666)
+  AddEvents: quantity_or_count=2 rate_micro_per_second=Some(41666666)
+  RemovalEvents: quantity_or_count=1 rate_micro_per_second=Some(20833333)
+  BuyEvents: quantity_or_count=17 rate_micro_per_second=Some(354166666)
+  SellEvents: quantity_or_count=2 rate_micro_per_second=Some(41666666)
+  cancellation_rate_micro_per_second=None buy_event_probability_ppm=Some(971034) horizon_ns=10000000
+  bucket=0 add_rate=Some(20833333) removal_rate=Some(0) execution_qty_rate=Some(187500000)
+  bucket=1 add_rate=Some(0) removal_rate=Some(20833333) execution_qty_rate=Some(125000000)
+  bucket=2 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=3 add_rate=Some(20833333) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=4 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(41666666)
+  bucket=5 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+venue=2 epoch=1 event_count=3 time_count=3 exposure_ns=38000000 event_ofi=0 time_ofi=0 time_depth_delta=400 qi_best_ppm=Some(0) qi_top_n_ppm=Some(0)
+  AddedQty: quantity_or_count=500 rate_micro_per_second=Some(13157894736)
+  RemovedQty: quantity_or_count=100 rate_micro_per_second=Some(2631578947)
+  BuyQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  AddEvents: quantity_or_count=2 rate_micro_per_second=Some(52631578)
+  RemovalEvents: quantity_or_count=1 rate_micro_per_second=Some(26315789)
+  BuyEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  cancellation_rate_micro_per_second=None buy_event_probability_ppm=Some(0) horizon_ns=10000000
+  bucket=0 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=1 add_rate=Some(26315789) removal_rate=Some(26315789) execution_qty_rate=Some(0)
+  bucket=2 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=3 add_rate=Some(26315789) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=4 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=5 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+venue=3 epoch=1 event_count=3 time_count=3 exposure_ns=28000000 event_ofi=0 time_ofi=0 time_depth_delta=400 qi_best_ppm=Some(0) qi_top_n_ppm=Some(0)
+  AddedQty: quantity_or_count=500 rate_micro_per_second=Some(17857142857)
+  RemovedQty: quantity_or_count=100 rate_micro_per_second=Some(3571428571)
+  BuyQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellQty: quantity_or_count=0 rate_micro_per_second=Some(0)
+  AddEvents: quantity_or_count=2 rate_micro_per_second=Some(71428571)
+  RemovalEvents: quantity_or_count=1 rate_micro_per_second=Some(35714285)
+  BuyEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  SellEvents: quantity_or_count=0 rate_micro_per_second=Some(0)
+  cancellation_rate_micro_per_second=None buy_event_probability_ppm=Some(0) horizon_ns=10000000
+  bucket=0 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=1 add_rate=Some(35714285) removal_rate=Some(35714285) execution_qty_rate=Some(0)
+  bucket=2 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=3 add_rate=Some(35714285) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=4 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+  bucket=5 add_rate=Some(0) removal_rate=Some(0) execution_qty_rate=Some(0)
+bucket_qi_ppm=[None, Some(0), None, Some(500000), None, None]

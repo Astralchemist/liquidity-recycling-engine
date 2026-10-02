@@ -1,0 +1,10 @@
+   Compiling book v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/book)
+    Finished `bench` profile [optimized] target(s) in 2.67s
+     Running benches/profile.rs (target/release/deps/profile-b540869833ee71c8)
+Unpinned local release profile; 128 levels/side, capacity 256. Times include event preparation.
+updates=1 elapsed_ns=375 ns/op=375.00 throughput/s=2666667 allocations/op=0.0
+updates=10000 elapsed_ns=868167 ns/op=86.82 throughput/s=11518521 allocations/op=0.0
+updates=1000000 elapsed_ns=37384666 ns/op=37.38 throughput/s=26748935 allocations/op=0.0
+single-call latency ns (includes timer overhead): p50=42 p90=42 p95=42 p99=42 p99.9=42 max=125
+insert/cancel: 200000 operations, zero allocations
+snapshot construction/staging/commit: zero allocations

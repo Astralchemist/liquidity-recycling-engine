@@ -1,0 +1,54 @@
+$ lre inventory-demo config/phase6-inventory.toml <fresh-dir>/lre-phase6-recovery recovery
+Per-command trace; recovery = harvest - liability:
+seq=1 t_ns=1000000 command=mark net=0 gross=0 open_orders=0 liability_atoms=0 harvest_atoms=0 recovery_atoms=0 equity_atoms=0 halt=None
+seq=2 t_ns=2000000 command=reserve_open net=0 gross=0 open_orders=1 liability_atoms=0 harvest_atoms=0 recovery_atoms=0 equity_atoms=0 halt=None
+seq=3 t_ns=3000000 command=fill_open net=1 gross=1 open_orders=0 liability_atoms=0 harvest_atoms=1 recovery_atoms=1 equity_atoms=1 halt=None
+seq=4 t_ns=4000000 command=mark net=1 gross=1 open_orders=0 liability_atoms=30 harvest_atoms=1 recovery_atoms=-29 equity_atoms=-29 halt=None
+seq=5 t_ns=5000000 command=reserve_open net=1 gross=1 open_orders=1 liability_atoms=30 harvest_atoms=1 recovery_atoms=-29 equity_atoms=-29 halt=None
+seq=6 t_ns=6000000 command=fill_open net=2 gross=2 open_orders=0 liability_atoms=30 harvest_atoms=2 recovery_atoms=-28 equity_atoms=-28 halt=None
+seq=7 t_ns=7000000 command=mark net=2 gross=2 open_orders=0 liability_atoms=10 harvest_atoms=2 recovery_atoms=-8 equity_atoms=12 halt=None
+seq=8 t_ns=8000000 command=reserve_close net=2 gross=2 open_orders=1 liability_atoms=10 harvest_atoms=2 recovery_atoms=-8 equity_atoms=12 halt=None
+seq=9 t_ns=9000000 command=fill_close net=1 gross=1 open_orders=0 liability_atoms=10 harvest_atoms=23 recovery_atoms=13 equity_atoms=13 halt=None
+seq=10 t_ns=10000000 command=reserve_close net=1 gross=1 open_orders=1 liability_atoms=10 harvest_atoms=23 recovery_atoms=13 equity_atoms=13 halt=None
+seq=11 t_ns=11000000 command=fill_close net=0 gross=0 open_orders=0 liability_atoms=0 harvest_atoms=14 recovery_atoms=14 equity_atoms=14 halt=None
+Direct and binary replayed complete inventory state match. Stipulated fills; no matching/queue model.
+commands=11 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=None safety_work_remaining=false
+accounts=Accounts { realized: Money(10), rebates: Money(4), fees: Money(0), slippage: Money(0), funding: Money(0) } cash_atoms=14 unrealized_atoms=0 liability_atoms=0 harvest_atoms=14 recovery_atoms=14 equity_atoms=14
+completed_episodes=1 profitable_episode_ppm=Some(1000000) completed_episode_pnl_atoms=14 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 4, maker_fills: 4, completed_cycles: 2, maker_to_maker: 2, maker_to_taker: 0, taker_escapes: 0, orders: 4 } maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escape_per_cycle_ppm=Some(0)
+episode=1 void=1 start_ns=3000000 end_ns=Some(11000000) duration_ns=8000000 forced=None peak_long=2 peak_short=0 peak_gross=2 peak_net=2 peak_target_deviation=2 peak_liability_atoms=30 realized_atoms=10 rebate_atoms=4 fee_atoms=0 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=14 inventory_recovery_yield_ppm=Some(466666) first_recovery_ns=Some(6000000) orders=4 fills=4 maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escapes=0
+
+$ lre inventory-replay <fresh-dir>/lre-phase6-recovery
+commands=11 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=None safety_work_remaining=false
+accounts=Accounts { realized: Money(10), rebates: Money(4), fees: Money(0), slippage: Money(0), funding: Money(0) } cash_atoms=14 unrealized_atoms=0 liability_atoms=0 harvest_atoms=14 recovery_atoms=14 equity_atoms=14
+completed_episodes=1 profitable_episode_ppm=Some(1000000) completed_episode_pnl_atoms=14 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 4, maker_fills: 4, completed_cycles: 2, maker_to_maker: 2, maker_to_taker: 0, taker_escapes: 0, orders: 4 } maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escape_per_cycle_ppm=Some(0)
+episode=1 void=1 start_ns=3000000 end_ns=Some(11000000) duration_ns=8000000 forced=None peak_long=2 peak_short=0 peak_gross=2 peak_net=2 peak_target_deviation=2 peak_liability_atoms=30 realized_atoms=10 rebate_atoms=4 fee_atoms=0 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=14 inventory_recovery_yield_ppm=Some(466666) first_recovery_ns=Some(6000000) orders=4 fills=4 maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escapes=0
+
+$ lre inventory-demo config/phase6-inventory.toml <fresh-dir>/lre-phase6-forced forced
+Per-command trace; recovery = harvest - liability:
+seq=1 t_ns=1000000 command=mark net=0 gross=0 open_orders=0 liability_atoms=0 harvest_atoms=0 recovery_atoms=0 equity_atoms=0 halt=None
+seq=2 t_ns=2000000 command=reserve_open net=0 gross=0 open_orders=1 liability_atoms=0 harvest_atoms=0 recovery_atoms=0 equity_atoms=0 halt=None
+seq=3 t_ns=3000000 command=fill_open net=1 gross=1 open_orders=0 liability_atoms=0 harvest_atoms=1 recovery_atoms=1 equity_atoms=1 halt=None
+seq=4 t_ns=4000000 command=funding net=1 gross=1 open_orders=0 liability_atoms=0 harvest_atoms=0 recovery_atoms=0 equity_atoms=0 halt=None
+seq=5 t_ns=5000000 command=mark net=1 gross=1 open_orders=0 liability_atoms=100 harvest_atoms=0 recovery_atoms=-100 equity_atoms=-100 halt=Some(PnlBreach)
+seq=6 t_ns=6000000 command=halt net=1 gross=1 open_orders=0 liability_atoms=100 harvest_atoms=0 recovery_atoms=-100 equity_atoms=-100 halt=Some(PnlBreach)
+seq=7 t_ns=7000000 command=reserve_close net=1 gross=1 open_orders=1 liability_atoms=100 harvest_atoms=0 recovery_atoms=-100 equity_atoms=-100 halt=Some(PnlBreach)
+seq=8 t_ns=8000000 command=fill_close net=0 gross=0 open_orders=0 liability_atoms=0 harvest_atoms=-112 recovery_atoms=-112 equity_atoms=-112 halt=Some(PnlBreach)
+Direct and binary replayed complete inventory state match. Stipulated fills; no matching/queue model.
+commands=8 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=Some(PnlBreach) safety_work_remaining=false
+accounts=Accounts { realized: Money(-110), rebates: Money(1), fees: Money(2), slippage: Money(0), funding: Money(1) } cash_atoms=-112 unrealized_atoms=0 liability_atoms=0 harvest_atoms=-112 recovery_atoms=-112 equity_atoms=-112
+completed_episodes=1 profitable_episode_ppm=Some(0) completed_episode_pnl_atoms=-112 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 2, maker_fills: 1, completed_cycles: 1, maker_to_maker: 0, maker_to_taker: 1, taker_escapes: 1, orders: 2 } maker_fill_ppm=Some(500000) maker_to_maker_ppm=Some(0) taker_escape_per_cycle_ppm=Some(1000000)
+episode=1 void=1 start_ns=3000000 end_ns=Some(8000000) duration_ns=5000000 forced=Some(PnlBreach) peak_long=1 peak_short=0 peak_gross=1 peak_net=1 peak_target_deviation=1 peak_liability_atoms=100 realized_atoms=-110 rebate_atoms=1 fee_atoms=2 slippage_atoms=0 funding_atoms=1 residual_mtm_atoms=0 net_pnl_atoms=-112 inventory_recovery_yield_ppm=Some(-1120000) first_recovery_ns=None orders=2 fills=2 maker_fill_ppm=Some(500000) maker_to_maker_ppm=Some(0) taker_escapes=1
+
+$ lre inventory-replay <fresh-dir>/lre-phase6-forced
+commands=8 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=Some(PnlBreach) safety_work_remaining=false
+accounts=Accounts { realized: Money(-110), rebates: Money(1), fees: Money(2), slippage: Money(0), funding: Money(1) } cash_atoms=-112 unrealized_atoms=0 liability_atoms=0 harvest_atoms=-112 recovery_atoms=-112 equity_atoms=-112
+completed_episodes=1 profitable_episode_ppm=Some(0) completed_episode_pnl_atoms=-112 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 2, maker_fills: 1, completed_cycles: 1, maker_to_maker: 0, maker_to_taker: 1, taker_escapes: 1, orders: 2 } maker_fill_ppm=Some(500000) maker_to_maker_ppm=Some(0) taker_escape_per_cycle_ppm=Some(1000000)
+episode=1 void=1 start_ns=3000000 end_ns=Some(8000000) duration_ns=5000000 forced=Some(PnlBreach) peak_long=1 peak_short=0 peak_gross=1 peak_net=1 peak_target_deviation=1 peak_liability_atoms=100 realized_atoms=-110 rebate_atoms=1 fee_atoms=2 slippage_atoms=0 funding_atoms=1 residual_mtm_atoms=0 net_pnl_atoms=-112 inventory_recovery_yield_ppm=Some(-1120000) first_recovery_ns=None orders=2 fills=2 maker_fill_ppm=Some(500000) maker_to_maker_ppm=Some(0) taker_escapes=1
+
+$ lre inventory-demo config/phase6-inventory.toml <existing-dir> recovery   # must refuse to overwrite
+File exists (os error 17)
+exit=1

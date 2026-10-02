@@ -1,0 +1,28 @@
+# Synthetic fixture: fixed 64-tick corridor [80,143], 16 historical zone slots.
+[liquidity]
+lower_price = 80
+cell_width = 4
+# Absolute distance ppm (not bps); half-open ranges [inner, outer).
+bucket_edges_ppm = [10000, 25000, 50000, 100000, 250000, 500000]
+sample_interval_ns = 1000000
+warmup_samples = 3
+baseline_alpha_ppm = 10000
+minimum_baseline_units = 10
+minimum_covered_venues = 3
+# Explicit assumption for these complete synthetic snapshots, not a live-feed claim.
+assume_contiguous_l2_coverage = true
+pool_depth_ratio_ppm = 2000000
+pool_persistence_ns = 3000000
+pool_minimum_score_ppm = 1100000
+# Weights for depth ratio, persistence, and stability.
+pool_weights = [600000, 200000, 200000]
+# The fixture prints isolate lifecycle events; midpoint is also supported.
+price_reference = "last_trade"
+
+[void]
+minimum_width_ticks = 3
+minimum_persistence_ns = 3000000
+maximum_age_ns = 1000000000
+low_depth_ppm = 250000
+refill_depth_ppm = 800000
+minimum_score_ppm = 750000

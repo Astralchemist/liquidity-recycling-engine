@@ -1,0 +1,9 @@
+   Compiling liquidity v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/liquidity)
+    Finished `bench` profile [optimized] target(s) in 2.67s
+     Running benches/profile.rs (target/release/deps/profile-cb65c58f364735b0)
+Three books (capacity 128/side, 3-4 occupied), 64 ticks, 16 cells, 16 zone slots: initialization, snapshots and void formation allocate zero times.
+Steady events: 1 ns timestamp increments, 1 ms formation sample cadence, one active zone.
+updates=1 elapsed_ns=333 ns/op=333.00 throughput/s=3003003 allocations/op=0
+updates=10000 elapsed_ns=2199750 ns/op=219.97 throughput/s=4545971 allocations/op=0
+updates=1000000 elapsed_ns=162220459 ns/op=162.22 throughput/s=6164451 allocations/op=0
+latency ns including timer/barrier: p50=166 p90=167 p95=167 p99=208 p99.9=291 max=10458

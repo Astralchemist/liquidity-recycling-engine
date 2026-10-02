@@ -1,0 +1,30 @@
+[package]
+name = "liquidity"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints.rust]
+unsafe_code = "deny"
+
+[dependencies]
+common.workspace = true
+fixed-point.workspace = true
+market-events.workspace = true
+consolidator.workspace = true
+voids.workspace = true
+
+[dev-dependencies]
+simulation.workspace = true
+recorder.workspace = true
+replay.workspace = true
+criterion.workspace = true
+
+[[bench]]
+name = "structures"
+harness = false
+
+[[bench]]
+name = "profile"
+harness = false

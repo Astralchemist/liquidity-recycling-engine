@@ -1,0 +1,4 @@
+    Checking voids v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/voids)
+    Checking liquidity v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/liquidity)
+    Checking cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.51s

@@ -1,0 +1,6 @@
+[orderflow]
+event_window = 16
+time_window_ns = 1000000000
+qi_levels = 2
+removal_attribution = "unknown"
+probability_horizon_ns = 10000000

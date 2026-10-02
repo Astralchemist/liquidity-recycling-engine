@@ -1,0 +1,55 @@
+   Compiling consolidator v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/consolidator)
+   Compiling voids v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/voids)
+   Compiling simulation v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/simulation)
+   Compiling replay v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/replay)
+   Compiling liquidity v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/liquidity)
+    Finished `bench` profile [optimized] target(s) in 4.55s
+     Running benches/structures.rs (target/release/deps/structures-d398fa2b842fc7da)
+Benchmarking liquidity_grid_update_64_ticks
+Benchmarking liquidity_grid_update_64_ticks: Warming up for 1.0000 s
+Benchmarking liquidity_grid_update_64_ticks: Collecting 30 samples in estimated 2.0000 s (150M iterations)
+Benchmarking liquidity_grid_update_64_ticks: Analyzing
+liquidity_grid_update_64_ticks
+                        time:   [13.128 ns 13.176 ns 13.226 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  2 (6.67%) high mild
+  3 (10.00%) high severe
+
+Benchmarking liquidity_sample_16_cells_3_venues
+Benchmarking liquidity_sample_16_cells_3_venues: Warming up for 1.0000 s
+Benchmarking liquidity_sample_16_cells_3_venues: Collecting 30 samples in estimated 2.0003 s (3.1M iterations)
+Benchmarking liquidity_sample_16_cells_3_venues: Analyzing
+liquidity_sample_16_cells_3_venues
+                        time:   [648.81 ns 650.02 ns 652.13 ns]
+Found 3 outliers among 30 measurements (10.00%)
+  3 (10.00%) high severe
+
+Benchmarking void_revisit_update
+Benchmarking void_revisit_update: Warming up for 1.0000 s
+Benchmarking void_revisit_update: Collecting 30 samples in estimated 2.0000 s (133M iterations)
+Benchmarking void_revisit_update: Analyzing
+void_revisit_update     time:   [15.009 ns 15.050 ns 15.114 ns]
+Found 5 outliers among 30 measurements (16.67%)
+  3 (10.00%) low severe
+  1 (3.33%) high mild
+  1 (3.33%) high severe
+
+Benchmarking research_3_venues_16_cells_1_zone/1ns_events_1ms_sample_cadence
+Benchmarking research_3_venues_16_cells_1_zone/1ns_events_1ms_sample_cadence: Warming up for 1.0000 s
+Benchmarking research_3_venues_16_cells_1_zone/1ns_events_1ms_sample_cadence: Collecting 30 samples in estimated 2.0000 s (12M iterations)
+Benchmarking research_3_venues_16_cells_1_zone/1ns_events_1ms_sample_cadence: Analyzing
+research_3_venues_16_cells_1_zone/1ns_events_1ms_sample_cadence
+                        time:   [160.17 ns 160.81 ns 161.96 ns]
+                        thrpt:  [6.1743 Melem/s 6.2186 Melem/s 6.2433 Melem/s]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high severe
+Benchmarking research_3_venues_16_cells_1_zone/every_event_sampled
+Benchmarking research_3_venues_16_cells_1_zone/every_event_sampled: Warming up for 1.0000 s
+Benchmarking research_3_venues_16_cells_1_zone/every_event_sampled: Collecting 30 samples in estimated 2.0002 s (2.0M iterations)
+Benchmarking research_3_venues_16_cells_1_zone/every_event_sampled: Analyzing
+research_3_venues_16_cells_1_zone/every_event_sampled
+                        time:   [984.96 ns 988.69 ns 995.33 ns]
+                        thrpt:  [1.0047 Melem/s 1.0114 Melem/s 1.0153 Melem/s]
+Found 2 outliers among 30 measurements (6.67%)
+  2 (6.67%) high severe
+

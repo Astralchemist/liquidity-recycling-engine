@@ -1,0 +1,10 @@
+   Compiling orderflow v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/orderflow)
+    Finished `bench` profile [optimized] target(s) in 2.67s
+     Running benches/profile.rs (target/release/deps/profile-a2b99bdeb5c9154d)
+Three books (capacity 128/side, 3-4 occupied), 64 ticks, 16 cells, one active zone: startup allocates six fixed flow buffers. No buffer growth during processing.
+Steady events: 1 ns increments, 1 ms formation samples, 16-event / 32 ns flow windows, 128 slots per window.
+updates=1 elapsed_ns=666 ns/op=666.00 throughput/s=1501502 allocations/op=0
+updates=10000 elapsed_ns=4491792 ns/op=449.18 throughput/s=2226283 allocations/op=0
+updates=1000000 elapsed_ns=449494250 ns/op=449.49 throughput/s=2224723 allocations/op=0
+latency ns including timer/barrier: p50=458 p90=459 p95=459 p99=500 p99.9=584 max=15125
+Idle expiry and snapshot-triggered flow reset: zero allocations.

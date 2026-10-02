@@ -1,0 +1,32 @@
+[package]
+name = "orderflow"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints.rust]
+unsafe_code = "deny"
+
+[dependencies]
+common.workspace = true
+fixed-point.workspace = true
+market-events.workspace = true
+book.workspace = true
+consolidator.workspace = true
+liquidity.workspace = true
+voids.workspace = true
+
+[dev-dependencies]
+recorder.workspace = true
+replay.workspace = true
+simulation.workspace = true
+criterion.workspace = true
+
+[[bench]]
+name = "flow"
+harness = false
+
+[[bench]]
+name = "profile"
+harness = false

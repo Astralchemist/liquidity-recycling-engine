@@ -1,0 +1,9 @@
+   Compiling consolidator v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/consolidator)
+    Finished `bench` profile [optimized] target(s) in 2.68s
+     Running benches/profile.rs (target/release/deps/profile-35afcea566f78e65)
+Three books, 128 levels per side, common capacity 384: initialization and snapshots allocate zero times.
+updates=1 elapsed_ns=166 ns/op=166.00 throughput/s=6024096 allocations/op=0
+updates=10000 elapsed_ns=1490542 ns/op=149.05 throughput/s=6708969 allocations/op=0
+updates=1000000 elapsed_ns=83821084 ns/op=83.82 throughput/s=11930173 allocations/op=0
+latency ns including timer/barrier: p50=83 p90=84 p95=84 p99=84 p99.9=125 max=12250
+delete/reinsert, disagreement query, and venue withdrawal: zero allocations

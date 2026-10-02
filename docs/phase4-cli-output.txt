@@ -1,0 +1,26 @@
+   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+    Finished `release` profile [optimized] target(s) in 3.44s
+     Running `target/release/lre structure-demo config/phase4-market.toml config/phase4-structures.toml /private/tmp/lre-phase4-final-20261002 revisit`
+Direct and recorded/replayed complete research state match.
+events=58 registered_voids=1 revisited_zones=1 revisit_events=1 refilled_before_revisit=0 pool_activations=1
+void_metrics=VoidMetrics { candidates: 1, candidate_restarts: 2, registered: 1, revisited_zones: 1, revisits: 1, first_revisit_latency_ns: 1000000, refilled: 1, refilled_before_revisit: 0, expired: 0, invalidated: 0, capacity_rejections: 0, overlap_rejections: 0, evicted_terminal: 0, skipped_crossings: 0, penetration_distribution: [0, 0, 1, 0, 0, 0] }
+liquidity_metrics=LiquidityMetrics { samples: 28, pool_activations: 1, pool_observed_ns: 19000000, structural_resets: 3, observations_without_coverage: 0 }
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Refilled revisits=1 maximum_penetration_ppm=333333 first_revisit_at=Some(Timestamp(53000000))
+bucket=0 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=1 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=2 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=3 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=4 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=5 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+    Finished `release` profile [optimized] target(s) in 0.03s
+     Running `target/release/lre structure-replay /private/tmp/lre-phase4-final-20261002`
+events=58 registered_voids=1 revisited_zones=1 revisit_events=1 refilled_before_revisit=0 pool_activations=1
+void_metrics=VoidMetrics { candidates: 1, candidate_restarts: 2, registered: 1, revisited_zones: 1, revisits: 1, first_revisit_latency_ns: 1000000, refilled: 1, refilled_before_revisit: 0, expired: 0, invalidated: 0, capacity_rejections: 0, overlap_rejections: 0, evicted_terminal: 0, skipped_crossings: 0, penetration_distribution: [0, 0, 1, 0, 0, 0] }
+liquidity_metrics=LiquidityMetrics { samples: 28, pool_activations: 1, pool_observed_ns: 19000000, structural_resets: 3, observations_without_coverage: 0 }
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Refilled revisits=1 maximum_penetration_ppm=333333 first_revisit_at=Some(Timestamp(53000000))
+bucket=0 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=1 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=2 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=3 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=4 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }
+bucket=5 BucketObservation { bid_depth: 0, ask_depth: 0, complete_corridor: true, displayed_levels: 0, average_displayed_level_age_ns: None, order_count: None }

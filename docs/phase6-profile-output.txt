@@ -1,0 +1,14 @@
+   Compiling inventory v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/inventory)
+    Finished `bench` profile [optimized] target(s) in 2.81s
+     Running benches/profile.rs (target/release/deps/profile-b09959cda83f2fee)
+Ledger sizes: <3 venues, 32 slots, 8 episodes>=18960 bytes (rollback image 7664); <3, 256, 128>=167696 bytes (rollback image 48880). History is committed after success and never copied.
+Startup: zero heap allocations (fixed inline arrays). Six resting children, gross 6, net 0, one active episode.
+Mixed workload: four round-robin venue marks per recycle-cycle command; 1 ns timestamp increments; risk thresholds disabled.
+commands=1 elapsed_ns=666 ns/op=666.00 throughput/s=1501502 allocations/op=0
+commands=10000 elapsed_ns=2902875 ns/op=290.29 throughput/s=3444861 allocations/op=0
+commands=1000000 elapsed_ns=288889041 ns/op=288.89 throughput/s=3461537 allocations/op=0
+mixed_32_slots latency ns including timer/barrier: p50=292 p90=334 p95=334 p99=375 p99.9=417 max=38959
+mark_32_slots latency ns including timer/barrier: p50=292 p90=292 p95=333 p99=334 p99.9=417 max=11375
+cycle_32_slots latency ns including timer/barrier: p50=292 p90=333 p95=333 p99=334 p99.9=375 max=11208
+mixed_256_slots latency ns including timer/barrier: p50=1375 p90=1459 p95=1500 p99=1750 p99.9=5708 max=61167
+No halt and no completed episode during measurement; zero allocations in every guarded section.

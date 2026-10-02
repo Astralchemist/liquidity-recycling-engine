@@ -1,0 +1,32 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+common = { path = "crates/common" }
+fixed-point = { path = "crates/fixed-point" }
+market-events = { path = "crates/market-events" }
+book = { path = "crates/book" }
+recorder = { path = "crates/recorder" }
+replay = { path = "crates/replay" }
+consolidator = { path = "crates/consolidator" }
+liquidity = { path = "crates/liquidity" }
+orderflow = { path = "crates/orderflow" }
+inventory = { path = "crates/inventory" }
+risk = { path = "crates/risk" }
+voids = { path = "crates/voids" }
+simulation = { path = "crates/simulation" }
+criterion = { version = "0.7", default-features = false, features = ["cargo_bench_support"] }
+
+[profile.release]
+overflow-checks = true
+lto = "thin"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"

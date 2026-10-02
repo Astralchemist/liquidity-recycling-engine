@@ -1,0 +1,390 @@
+   Compiling orderflow v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/orderflow)
+   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.58s
+     Running unittests src/lib.rs (target/debug/deps/book-49cfa17f287d2d82)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/invariants.rs (target/debug/deps/invariants-6412bfa9433d0e87)
+
+running 7 tests
+test capacity_clock_routing_and_trade_semantics ... ok
+test atomic_depth_batches_allow_intermediate_crossing_and_fail_closed ... ok
+test crossed_snapshot_and_sequence_overflow ... ok
+test fail_closed_and_recover ... ok
+test invalid_updates_are_rejected ... ok
+test snapshot_visibility_and_queries ... ok
+test generated_stream_matches_reference_and_is_deterministic ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.17s
+
+     Running unittests src/main.rs (target/debug/deps/lre-3824c4191e44bcf9)
+
+running 3 tests
+test flow::tests::strict_flow_configuration ... ok
+test structures::tests::configuration_is_strict ... ok
+test multi::tests::config_validates_before_any_io ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/common-4a810aba761feff0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/consolidator-1bf1a13c80d72487)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/invariants.rs (target/debug/deps/invariants-e2702e0383fe4588)
+
+running 8 tests
+test disagreement_uses_normalized_unweighted_depth ... ok
+test clock_fault_and_bad_scales_hide_all_aggregate_queries ... ok
+test atomic_message_replaces_only_one_venue_contribution ... ok
+test staleness_disconnect_and_gap_withdraw_one_venue ... ok
+test replacement_snapshots_withdraw_old_depth_and_zero_weight_has_no_global_quote ... ok
+test weighted_depth_and_divergence_are_explicit ... ok
+test exact_normalization_and_settlement_conserve_value ... ok
+test generated_incremental_updates_match_independent_reference ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.78s
+
+     Running unittests src/lib.rs (target/debug/deps/execution-54ec09b567e4944e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/fixed_point-f03d59bb5740a52d)
+
+running 3 tests
+test tests::decimals_are_exact ... ok
+test tests::pnl_extremes_and_basis_points ... ok
+test tests::quantum_and_overflow ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/properties.rs (target/debug/deps/properties-83697e6315888d8d)
+
+running 2 tests
+test decimal_conversion_round_trip ... ok
+test pnl_conservation_and_inventory_quantization ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (target/debug/deps/inventory-4ca82958ff405536)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/liquidity-5be82d23f82c1896)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/grid_and_scores.rs (target/debug/deps/grid_and_scores-e3290a6ea146b932)
+
+running 6 tests
+test transparent_scores_require_enabled_data ... ok
+test level_age_is_exact_and_clocks_cannot_regress ... ok
+test coverage_cohort_change_restarts_pool_persistence ... ok
+test baselines_warm_up_and_freeze_in_depleted_cells ... ok
+test bucket_half_open_boundaries_match_direct_integer_inequalities ... ok
+test generated_grid_updates_match_brute_force_ranges ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/research.rs (target/debug/deps/research-3db9bd35808b37b9)
+
+running 5 tests
+test missing_coverage_does_not_become_empty_liquidity ... ok
+test stale_sources_invalidate_history_and_faults_stop_research ... ok
+test refill_before_touch_and_one_way_continuation_do_not_create_revisits ... ok
+test synthetic_global_and_local_voids_activate_on_touch ... ok
+test merged_binary_replay_matches_complete_research_state_after_every_event ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/market_events-02e5383db014d2ae)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/native_sequence.rs (target/debug/deps/native_sequence-cb3ecef367f15dbd)
+
+running 1 test
+test snapshot_overlap_contiguity_and_poison ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/metrics-4c9b9428797ca768)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/orderflow-8e957db04b571a67)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/primitives.rs (target/debug/deps/primitives-357b888d505bdbaa)
+
+running 8 tests
+test event_bucket_boundary_is_half_open_and_side_aware ... ok
+test invalid_config_and_contribution_bounds_are_rejected ... ok
+test best_quote_ofi_all_price_relations_and_extreme_sizes ... ok
+test attribution_requires_explicit_assumption_and_matching_configuration ... ok
+test same_timestamp_capacity_exposure_expiry_and_fault_latching ... ok
+test queue_imbalance_bounds_symmetry_and_undefined_empty ... ok
+test poisson_fixed_point_matches_exp_and_is_monotone ... ok
+test generated_windows_match_independent_brute_force_totals_and_buckets ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+     Running tests/research.rs (target/debug/deps/research-16fcbd3347b522f9)
+
+running 6 tests
+test flow_capacity_stops_complete_engine_and_queries ... ok
+test normalized_quantity_and_weighted_ofi_preserve_native_units ... ok
+test nonbest_depth_change_affects_depth_delta_but_not_best_quote_ofi ... ok
+test snapshot_replacement_starts_new_epoch_without_counting_snapshot_depth ... ok
+test idle_expiry_staleness_reset_and_bad_sequence_fail_closed ... ok
+test direct_and_binary_replay_match_full_state_after_every_event ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/quotes-529e6dac096083a5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/recorder-4958fc6f4e6ad9bb)
+
+running 1 test
+test tests::standard_crc_vector ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/format.rs (target/debug/deps/format-3f25e09237061465)
+
+running 6 tests
+test partial_write_poisons_recorder ... ok
+test unknown_tags_and_versions_are_rejected_even_with_valid_checksum ... ok
+test wrong_market_rejected_before_write ... ok
+test truncation_never_looks_like_clean_eof ... ok
+test round_trip_and_corruption_at_every_byte ... ok
+test generated_event_codec_round_trip ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running unittests src/lib.rs (target/debug/deps/replay-16867a59b1dee424)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/determinism.rs (target/debug/deps/determinism-c708a9ed1a6041af)
+
+running 3 tests
+test incomplete_snapshot_and_zero_speed_rejected ... ok
+test gaps_and_clock_regression_invalidate_shared_book ... ok
+test direct_replay_twice_and_all_pacing_modes_match_after_every_event ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/merged.rs (target/debug/deps/merged-547dd7a020bf99f0)
+
+running 3 tests
+test unfinished_snapshot_cannot_finish_successfully ... ok
+test clock_attestation_metadata_and_duplicate_sources_are_required ... ok
+test merge_order_is_independent_of_source_order_and_exchange_clocks ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/risk-51c01afa508217ab)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/simulation-723f24842a6a0f25)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/toxicity-3e175262c339f9f3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/venue_binance-dcfa4a43a89a2f92)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/venue_bybit-4b1228f947b1f2e2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/venue_okx-addc01c2fa9056c8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/voids-d76178ec6ede18b6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lifecycle.rs (target/debug/deps/lifecycle-851efb807411a315)
+
+running 7 tests
+test boundary_touch_and_partial_revisit_do_not_require_full_traversal ... ok
+test bounded_history_never_evicts_active_zones ... ok
+test incomplete_persistence_and_early_exit_do_not_register ... ok
+test refill_coverage_and_expiry_precede_touch ... ok
+test skipped_crossing_is_not_an_observed_revisit ... ok
+test overlap_mask_changes_and_bad_inputs_are_explicit ... ok
+test mirrored_penetration_and_histogram_conservation ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests book
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests common
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests consolidator
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests execution
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fixed_point
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests inventory
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests liquidity
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests market_events
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests metrics
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests orderflow
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quotes
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests recorder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests replay
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests risk
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests simulation
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests toxicity
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests venue_binance
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests venue_bybit
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests venue_okx
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests voids
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

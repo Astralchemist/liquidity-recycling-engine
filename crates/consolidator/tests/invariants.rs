@@ -353,3 +353,62 @@ fn disagreement_uses_normalized_unweighted_depth() {
         0
     );
 }
+#[test]
+fn incremental_batch_matches_ordered_singles_and_keeps_structure() {
+    let mut batched = initialized(configs());
+    let mut singles = batched.clone();
+    let revision = batched.structural_revision();
+    // One native message moving venue 1's touch: remove the best ask, add a better bid,
+    // resize a deeper bid and add a new ask. Members share time and native update ID.
+    let mut batch = [
+        event(0, 5, 13, K::Cancel, Side::Sell, 10100, 0),
+        event(0, 6, 13, K::Add, Side::Buy, 10110, 1),
+        event(0, 7, 13, K::Modify, Side::Buy, 9900, 4),
+        event(0, 8, 13, K::Add, Side::Sell, 10120, 3),
+    ];
+    for x in &mut batch {
+        x.exchange_sequence = 5;
+    }
+    batched.apply_depth_batch(VenueId(1), &batch).unwrap();
+    // Cancels, then modifies, then adds: every intermediate state is uncrossed.
+    for (k, mut e) in [batch[0], batch[2], batch[1], batch[3]]
+        .into_iter()
+        .enumerate()
+    {
+        e.sequence = 5 + k as u64;
+        singles.apply(&e).unwrap();
+    }
+    assert_eq!(batched.structural_revision(), revision);
+    for side in [Side::Buy, Side::Sell] {
+        assert_eq!(batched.levels(side).unwrap(), singles.levels(side).unwrap());
+        assert_eq!(
+            batched
+                .venue_book(VenueId(1))
+                .unwrap()
+                .levels(side)
+                .unwrap(),
+            singles
+                .venue_book(VenueId(1))
+                .unwrap()
+                .levels(side)
+                .unwrap()
+        );
+    }
+    // A level repeated inside one batch is ambiguous and withdraws only that venue.
+    let mut duplicate = [
+        event(0, 9, 14, K::Modify, Side::Buy, 10110, 2),
+        event(0, 10, 14, K::Modify, Side::Buy, 10110, 3),
+    ];
+    for x in &mut duplicate {
+        x.exchange_sequence = 6;
+    }
+    assert_eq!(
+        batched.apply_depth_batch(VenueId(1), &duplicate),
+        Err(ConsolidationError::Book {
+            venue: VenueId(1),
+            error: book::BookError::InvalidBatch
+        })
+    );
+    assert!(!batched.included(VenueId(1)).unwrap());
+    assert!(batched.included(VenueId(2)).unwrap());
+}

@@ -51,7 +51,7 @@ fn main() {
     let probe = Box::new(build().unwrap());
     ENABLED.store(false, Ordering::Relaxed);
     println!(
-        "Startup allocations: {} (engine box + six fixed flow buffers).",
+        "Startup allocations: {} (engine box, research box, six fixed flow buffers, one batch scratch).",
         ALLOCATIONS.load(Ordering::Relaxed)
     );
     drop(probe);

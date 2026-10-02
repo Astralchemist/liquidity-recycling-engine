@@ -11,3 +11,4 @@ workspace = true
 [dependencies]
 common.workspace = true
 market-events.workspace = true
+wire.workspace = true

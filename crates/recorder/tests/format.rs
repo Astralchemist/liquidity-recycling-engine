@@ -102,7 +102,7 @@ fn unknown_tags_and_versions_are_rejected_even_with_valid_checksum() {
     }
     let writer = Recorder::new(Vec::new(), metadata()).unwrap();
     let original = writer.finish().unwrap();
-    for (offset, value) in [(8, 2), (10, 59), (14, 19), (36, 1)] {
+    for (offset, value) in [(8, 0), (8, 3), (10, 59), (14, 19), (36, 1)] {
         let mut bytes = original.clone();
         bytes[offset] = value;
         let crc = checksum(&bytes[..44]);

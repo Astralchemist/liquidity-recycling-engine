@@ -54,7 +54,8 @@ pub(super) fn parse(input: &str) -> Result<(LiquidityConfig<6>, VoidConfig), Str
     let price_reference = match l.price_reference.as_str() {
         "midpoint" => PriceReference::Midpoint,
         "last_trade" => PriceReference::LastTrade,
-        _ => return Err("price_reference must be midpoint or last_trade".into()),
+        "composite" => PriceReference::Composite,
+        _ => return Err("price_reference must be midpoint, last_trade or composite".into()),
     };
     Ok((
         LiquidityConfig {

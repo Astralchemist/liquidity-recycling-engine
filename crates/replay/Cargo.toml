@@ -14,6 +14,6 @@ market-events.workspace = true
 book.workspace = true
 recorder.workspace = true
 consolidator.workspace = true
+fixed-point.workspace = true
 
 [dev-dependencies]
-fixed-point.workspace = true

@@ -1,4 +1,6 @@
-# Binary format v1
+# Binary formats v1 and v2
+
+Version 2 (Phase 8) keeps the v1 header with version `2` and stores frames: single events or atomic native depth batches. Readers accept both versions. The frame layout and batch contract are in [Phase 8 contracts](phase8.md#recording-format-v2); the event record below is shared by both versions.
 
 All integers are little-endian. CRC is CRC32/IEEE (reflected polynomial `0xedb88320`, initial/final XOR all ones). The standard `123456789` vector is tested. Since Phase 6 the implementation is table-driven; a test proves it equals the bit-at-a-time definition, so existing files are unaffected. The separate inventory command journal (`LRINV`, 160-byte records) is specified in [Phase 6 contracts](phase6.md#inventory-journal-v1). CRC detects accidental corruption; it is not an authenticity mechanism. No Rust struct memory is written directly.
 

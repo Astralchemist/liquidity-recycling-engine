@@ -131,6 +131,7 @@ pub fn engine() -> EngineConfig {
         },
         fills: FillConfig {
             maker_rebate: Money(1),
+            maker_fee: Money(0),
             taker_fee: Money(3),
             emergency_slippage_ticks: 1,
         },

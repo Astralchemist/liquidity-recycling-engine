@@ -1,6 +1,20 @@
 # Liquidity & Inventory Recycling Engine
 
-Rust-only deterministic research engine. Completed: Phase 1–2 arithmetic and bounded L2 books; Phase 3 exact multi-venue normalization and weighted consolidation, with synthetic recording/replay; Phase 4 configurable liquidity pools, historical voids, touch/partial revisits and refill statistics; Phase 5 bounded OFI, queue imbalance and flow intensity; Phase 6 exact one-quantum inventory ledger, hard limits, recovery accounts and episodes; Phase 7 one engine with environment classification, a rule-based recycling policy, simulated strict trade-through fills, the kill procedure and specification scenarios A–F. Live feeds, realistic fill simulation and order submission remain later milestones.
+Rust-only deterministic research engine. Completed: Phase 1–2 arithmetic and bounded L2 books; Phase 3 exact multi-venue normalization and weighted consolidation, with synthetic recording/replay; Phase 4 configurable liquidity pools, historical voids, touch/partial revisits and refill statistics; Phase 5 bounded OFI, queue imbalance and flow intensity; Phase 6 exact one-quantum inventory ledger, hard limits, recovery accounts and episodes; Phase 7 one engine with environment classification, a rule-based recycling policy, simulated strict trade-through fills, the kill procedure and specification scenarios A–F; Phase 8 live public feeds from Binance, Bybit and OKX with atomic batches, recording format v2 and exact live-versus-replay comparison. Realistic fill simulation and order submission remain later milestones; no order is ever sent.
+
+## Run Phase 8 (live public data)
+
+```sh
+cargo run -p cli --release --locked -- live-record config/phase8-market.toml config/phase8-structures.toml config/phase8-flow.toml config/phase8-engine.toml /tmp/lre-live 300
+cargo run -p cli --release --locked -- live-replay /tmp/lre-live
+cargo run -p cli --release --locked -- leadlag /tmp/lre-live 50 10
+```
+
+`live-record` connects to the public BTC/USDT perpetual feeds of Binance, Bybit and OKX. No account or key is needed, and **no order is ever sent**; fills are simulated.
+
+It runs the full engine for the given seconds (5 to 3,600), records batch-preserving streams and the inventory journal, then requires replay to reproduce the live engine exactly. It prints source health, decode, queue and engine latency, and the engine summary.
+
+Recordings contain exchange data: keep them out of the repository and do not redistribute them. Engine thresholds are uncalibrated. See [Phase 8 contracts](docs/phase8.md).
 
 ## Run Phase 7
 
@@ -60,6 +74,7 @@ Use a fresh output directory. The demo records three synthetic venue streams wit
 cargo test --workspace --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo fmt --all -- --check
+cargo bench -p feeds --bench decode --locked
 cargo bench -p engine --bench engine --locked
 cargo bench -p engine --bench profile --locked
 cargo bench -p inventory --bench ledger --locked
@@ -85,6 +100,8 @@ The single-venue demo refuses to overwrite a file. Replay modes: `max`, `step`, 
 
 ## Documentation
 
+- [Phase 8 live feeds, sync rules, atomic batches, composite reference, recording v2](docs/phase8.md)
+- [Phase 8 validation, live sessions and benchmarks](docs/phase8-validation.md)
 - [Provider documentation review: Binance, Bybit, OKX, Tiingo access and sync rules](docs/providers.md)
 - [Phase 7 engine, environment, policy, fills, kill procedure and scenarios](docs/phase7.md)
 - [Phase 7 validation and benchmarks](docs/phase7-validation.md)

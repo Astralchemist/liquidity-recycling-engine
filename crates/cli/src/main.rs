@@ -12,6 +12,7 @@ use std::{
 const CAPACITY: usize = 256;
 mod flow;
 mod inventory_demo;
+mod live;
 mod multi;
 mod scenarios;
 mod structures;
@@ -32,6 +33,9 @@ fn event(sequence: u64, kind: K, side: Side, price: i64, qty: i64) -> MarketEven
 fn run() -> Result<(), String> {
     let args: Vec<_> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
+        Some("live-record") if args.len() == 7 => live::record(&args[1], &args[2], &args[3], &args[4], &args[5], &args[6])?,
+        Some("live-replay") if args.len() == 2 => live::replay(&args[1])?,
+        Some("leadlag") if args.len() == 4 => live::leadlag(&args[1], &args[2], &args[3])?,
         Some("scenario-demo") if args.len() == 7 => scenarios::demo(&args[1], &args[2], &args[3], &args[4], &args[5], &args[6])?,
         Some("scenario-replay") if args.len() == 2 => scenarios::replay(&args[1])?,
         Some("scenario-suite") if args.len() == 5 => scenarios::suite(&args[1], &args[2], &args[3], &args[4])?,
@@ -133,7 +137,7 @@ fn run() -> Result<(), String> {
                 book.midpoint_x2()
             );
         }
-        _ => return Err("usage: lre scenario-demo MARKET STRUCTURE FLOW ENGINE DIRECTORY a|b|c|d|e|f | lre scenario-replay DIRECTORY | lre scenario-suite MARKET STRUCTURE FLOW ENGINE | lre inventory-demo CONFIG DIRECTORY [recovery|forced] | lre inventory-replay DIRECTORY | lre flow-demo MARKET_CONFIG STRUCTURE_CONFIG FLOW_CONFIG DIRECTORY | lre flow-replay DIRECTORY | lre demo FILE | lre replay FILE [max|step|1x|2x|10x|100x] | lre multi-demo CONFIG DIRECTORY | lre multi-replay DIRECTORY | lre structure-demo MARKET_CONFIG STRUCTURE_CONFIG DIRECTORY [revisit|local|refill|continuation] | lre structure-replay DIRECTORY".into()),
+        _ => return Err("usage: lre live-record MARKET STRUCTURE FLOW ENGINE DIRECTORY SECONDS | lre live-replay DIRECTORY | lre leadlag DIRECTORY BIN_MS MAX_LAG | lre scenario-demo MARKET STRUCTURE FLOW ENGINE DIRECTORY a|b|c|d|e|f | lre scenario-replay DIRECTORY | lre scenario-suite MARKET STRUCTURE FLOW ENGINE | lre inventory-demo CONFIG DIRECTORY [recovery|forced] | lre inventory-replay DIRECTORY | lre flow-demo MARKET_CONFIG STRUCTURE_CONFIG FLOW_CONFIG DIRECTORY | lre flow-replay DIRECTORY | lre demo FILE | lre replay FILE [max|step|1x|2x|10x|100x] | lre multi-demo CONFIG DIRECTORY | lre multi-replay DIRECTORY | lre structure-demo MARKET_CONFIG STRUCTURE_CONFIG DIRECTORY [revisit|local|refill|continuation] | lre structure-replay DIRECTORY".into()),
     }
     Ok(())
 }

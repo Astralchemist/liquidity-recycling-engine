@@ -60,6 +60,7 @@ struct Policy {
 struct Fills {
     rule: String,
     maker_rebate_atoms: String,
+    maker_fee_atoms: String,
     taker_fee_atoms: String,
     emergency_slippage_ticks: i64,
 }
@@ -125,6 +126,7 @@ pub(super) fn parse(text: &str) -> Result<(InventoryConfig<3>, EngineConfig), St
         },
         fills: FillConfig {
             maker_rebate: super::inventory_demo::money(&c.fills.maker_rebate_atoms)?,
+            maker_fee: super::inventory_demo::money(&c.fills.maker_fee_atoms)?,
             taker_fee: super::inventory_demo::money(&c.fills.taker_fee_atoms)?,
             emergency_slippage_ticks: c.fills.emergency_slippage_ticks,
         },
@@ -190,7 +192,18 @@ fn yield_text(e: &SyntheticEngine) -> String {
         .collect::<Vec<_>>()
         .join("/")
 }
-fn summary(e: &SyntheticEngine, label: &str) -> Result<(), String> {
+/// Engine summary for any capacity set with 3 venues, 32 inventory slots and 8 episodes.
+pub(super) fn summary<
+    const N: usize,
+    const G: usize,
+    const P: usize,
+    const B: usize,
+    const Z: usize,
+    const W: usize,
+>(
+    e: &engine::Engine<3, N, G, P, B, Z, W, 32, 8>,
+    label: &str,
+) -> Result<(), String> {
     let m = e.metrics();
     let ms = e.environment().time_in_state().map(|t| t / 1_000_000);
     println!(
@@ -202,6 +215,10 @@ fn summary(e: &SyntheticEngine, label: &str) -> Result<(), String> {
         ms[3],
         ms[4],
         e.environment().transitions()
+    );
+    println!(
+        "void_metrics={:?}",
+        e.research().research().voids().metrics()
     );
     for z in e.research().research().voids().zones().iter().flatten() {
         let traded = e

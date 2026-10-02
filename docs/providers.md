@@ -75,6 +75,21 @@ Adapter consequences for this engine:
 - **Retail Price Improvement (RPI) liquidity** is excluded from standard book feeds on all three exchanges. RPI prints can therefore appear outside the visible book; treat such prints as unmatched.
 - **Record local monotonic receive time** next to every exchange timestamp. Lead/lag work (§28) must not use exchange timestamps from different venues as if synchronised.
 
+## Verified live on 2026-10-02 (Phase 8)
+
+Public connections from this machine succeeded on all three exchanges:
+
+- Binance: `fstream.binance.com/public` and `/market`
+- Bybit: `stream.bybit.com/v5/public/linear`
+- OKX: `ws.okx.com/ws/v5/public`
+
+Messages matched the documented layouts, and decoding produced no errors in the recorded sessions. Live behaviour the docs did not settle:
+
+- **Binance.** The partial-depth stream carries `U`, `u` and `pu`, and `pu` chained message to message. Prices arrive with two decimals at a 0.1 tick (`"86779.90"`), so the decoder accepts exact trailing zeros. Trade messages include extra fields (`nq`, `st`), which are ignored.
+- **Bybit.** The snapshot on subscribe was followed by 20 ms deltas whose first message deleted many top levels. Trade messages can carry more than 128 prints, which overflowed a fixed frame until the decoder split them.
+- **OKX.** Trade prints arrived **before** the first `books` snapshot. Subscription acknowledgements arrived first.
+- **Across venues.** A venue midpoint differed from the consolidated midpoint by up to 29 USDT. The consolidated touch was crossed or locked most of the time, which is why Phase 8 adds the composite price reference.
+
 ## Fees (Phase 9 inputs)
 
 | | Spot maker / taker (base) | Perp maker / taker (base) | Best published maker |

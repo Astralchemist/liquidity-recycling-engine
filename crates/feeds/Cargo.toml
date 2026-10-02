@@ -1,0 +1,27 @@
+[package]
+name = "feeds"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+common.workspace = true
+fixed-point.workspace = true
+market-events.workspace = true
+wire.workspace = true
+venue-binance.workspace = true
+venue-bybit.workspace = true
+venue-okx.workspace = true
+tungstenite = { version = "0.30", default-features = false, features = ["handshake", "rustls-tls-webpki-roots"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "decode"
+harness = false

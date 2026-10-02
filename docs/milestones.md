@@ -47,23 +47,38 @@ Tests check engine-wide invariants after every event. Recorded-market replay rep
 
 Fills follow one simulated rule (strict trade-through); scenario PnL is not evidence of edge. The engine quotes one venue per zone and supports one active episode at a time.
 
-## Next: Phase 8 native public feeds
+## Completed: Phase 8 native public feeds
 
-Binance, Bybit and OKX public adapters following [providers](providers.md):
+Live public feeds from Binance USDⓈ-M, Bybit linear and OKX swap (BTC/USDT perpetuals) are connected to the unchanged engine:
 
-- documented snapshot, sequence and keepalive rules
-- atomic depth batches through `apply_depth_batch`
-- a versioned batch envelope in the recording format
-- bounded threaded ingress with SPSC transport
-- local monotonic receive stamps
-- exact live/replay comparison
-- lead/lag cross-correlation tooling and stage latency measurement
+- **Decoding.** Allocation-free JSON scanning, exact decimal parsing and documented per-venue sync rules with resync on gaps.
+- **Top-20 windows.** Each venue is canonicalized into atomic top-20 window batches.
+- **Ingress.** Bounded threaded ingress with a single sequencer that stamps strictly increasing receive time and contiguous canonical sequences.
+- **Atomic batches.** An incremental batch path through consolidation, research, flow and engine, with no structural rebuild.
+- **Composite reference.** A cross-venue price reference, because live venues cross each other routinely.
+- **Recording.** Format v2 with batch frames, a frame-aware merged replay, and exact live-versus-replay comparison of the complete engine state and journal.
+- **Measurement.** Lead/lag tooling on one local clock, decode, queue and engine stage latencies, and decode benchmarks.
 
-No account or contact is required, except OKX tick-by-tick L2 (VIP4); start with `books` and `bbo-tbt`.
+See [Phase 8 contracts](phase8.md) and [validation](phase8-validation.md).
+
+Limits: windows are 20 levels per side; the corridor is fixed per session; recording I/O runs on the engine thread; engine thresholds are uncalibrated; lead/lag reflects arrival at this machine and venue push cadence.
+
+## Next: Phase 9 execution simulation
+
+Replace strict trade-through with a configurable maker queue and size simulator:
+
+- queue position estimated from displayed size ahead
+- partial fills
+- size-aware prints
+- retail fee schedules as the base case, with rebates only by programme
+- slippage, funding and markout horizons (§18)
+- net maker yield (§25)
+- the objective J(a) (§24)
+
+Calibrate on recorded live sessions rather than synthetic paths.
 
 ## Following deliveries
 
-- Phase 9: configurable maker/queue/size simulator replacing strict trade-through. Explicit fees with positive retail maker fees as the base case, rebates only by programme, slippage, funding, markout horizons, net maker yield, and the objective J(a).
 - Phase 10: demo exchange routing after risk gates, using the kill executor, order lifecycle and fault injection. Account and jurisdiction prerequisites are in [providers](providers.md).
 
-Full latency stages, lead/lag research, realistic fills and real exchange connectivity remain unimplemented. No real-money gateway is enabled.
+Realistic fills, in-engine stage separation, order gateways and real-money connectivity remain unimplemented. No order is ever sent.

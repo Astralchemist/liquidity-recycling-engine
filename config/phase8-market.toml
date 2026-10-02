@@ -1,0 +1,54 @@
+# Live public feeds: BTC/USDT linear perpetuals on three venues, one common grid.
+# Venue ids 1/2/3 = Binance USDⓈ-M BTCUSDT / Bybit linear BTCUSDT / OKX BTC-USDT-SWAP.
+# Scales were checked against each venue's live instrument metadata on 2026-10-02
+# (docs/providers.md); a wrong scale makes decoding fail visibly (inexact decimals).
+shared_clock_domain = true
+
+[market]
+base_asset = 1        # BTC
+quote_asset = 2       # USDT
+settlement_asset = 2  # USDT
+kind = "linear"
+equivalence_group = 1
+
+# Common grid: price tick 0.1 USDT, quantity unit 0.0001 BTC.
+[grid]
+instrument = 1
+price_atoms = 1
+price_decimals = 1
+quantity_atoms = 1
+quantity_decimals = 4
+
+# Binance: tick 0.10, step 0.001 BTC.
+[[venues]]
+id = 1
+instrument = 101
+price_atoms = 1
+price_decimals = 1
+quantity_atoms = 1
+quantity_decimals = 3
+weight_ppm = 1000000
+stale_after_ns = 2000000000
+
+# Bybit: tick 0.10, step 0.001 BTC.
+[[venues]]
+id = 2
+instrument = 202
+price_atoms = 1
+price_decimals = 1
+quantity_atoms = 1
+quantity_decimals = 3
+weight_ppm = 1000000
+stale_after_ns = 2000000000
+
+# OKX: tick 0.1; sizes are contracts in lots of 0.01; ctVal 0.01 BTC, so one native unit
+# (0.01 contract) is exactly 0.0001 BTC.
+[[venues]]
+id = 3
+instrument = 303
+price_atoms = 1
+price_decimals = 1
+quantity_atoms = 1
+quantity_decimals = 4
+weight_ppm = 1000000
+stale_after_ns = 2000000000

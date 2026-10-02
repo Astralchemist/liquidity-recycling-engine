@@ -60,6 +60,8 @@ pub struct FlowResearchEngine<
     normalizers: [Normalizer; V],
     config: FlowConfig,
     faulted: bool,
+    /// Pre-batch native quantity per batch member; allocated once (2N members maximum).
+    scratch: Box<[i64]>,
 }
 impl<
     const V: usize,
@@ -95,6 +97,7 @@ impl<
                 .map(|c| Normalizer::new(c.metadata, grid).expect("validated metadata")),
             config: flow,
             faulted: false,
+            scratch: vec![0; N * 2].into_boxed_slice(),
         })
     }
     pub fn research(&self) -> &ResearchEngine<V, N, G, P, B, Z> {
@@ -166,6 +169,11 @@ impl<
         })
     }
     fn pre_event_midpoint(&self, now: Timestamp) -> Result<Option<i128>, FlowResearchError> {
+        if self.research.liquidity().config().price_reference
+            == liquidity::PriceReference::Composite
+        {
+            return Ok(self.research.market().composite_midpoint_x2(Some(now))?);
+        }
         let (mut bid, mut ask): (Option<i64>, Option<i64>) = (None, None);
         for v in 0..V {
             if self.configs[v].weight_ppm == 0
@@ -256,6 +264,76 @@ impl<
             )
         });
         self.flows[v].record(e.receive_ts, contribution, bucket)?;
+        Ok(())
+    }
+    /// One atomic native depth message. Best-quote OFI is computed ONCE from the pre-batch and
+    /// post-batch touches and carried by the first member's contribution; every member records
+    /// its own signed depth change and add/remove, bucketed by the pre-batch fresh midpoint.
+    pub fn apply_depth_batch(
+        &mut self,
+        venue: VenueId,
+        events: &[MarketEvent],
+    ) -> Result<(), FlowResearchError> {
+        self.healthy()?;
+        let result = self.batch_inner(venue, events);
+        if result.is_err() {
+            self.faulted = true;
+        }
+        result
+    }
+    fn batch_inner(
+        &mut self,
+        venue: VenueId,
+        events: &[MarketEvent],
+    ) -> Result<(), FlowResearchError> {
+        let v = self.index(venue)?;
+        let first = events.first().ok_or(FlowError::InvalidObservation)?;
+        if events.len() > self.scratch.len() {
+            return Err(BookError::InvalidBatch.into());
+        }
+        let now = first.receive_ts;
+        let was_fresh = self.active[v] && self.research.market().fresh_at(venue, now)?;
+        let before = if was_fresh { Some(self.best(v)?) } else { None };
+        if self.active[v] {
+            let book = self.research.market().venue_book(venue)?;
+            for (k, e) in events.iter().enumerate() {
+                self.scratch[k] = book.level(e.side, e.price_ticks)?.map_or(0, |l| l.qty.0);
+            }
+        }
+        let midpoint = self.pre_event_midpoint(now)?;
+        self.research.apply_depth_batch(venue, events)?;
+        self.synchronize(now)?;
+        let Some(before) = before else { return Ok(()) };
+        if !self.active[v] {
+            return Ok(());
+        }
+        let mut ofi = best_quote_ofi(before, self.best(v)?)?;
+        for (k, e) in events.iter().enumerate() {
+            let new = if e.event_type == K::Cancel {
+                0
+            } else {
+                e.qty_units.0
+            };
+            let delta = i128::from(self.normalizers[v].quantity(fixed_point::QtyUnits(new))?.0)
+                - i128::from(
+                    self.normalizers[v]
+                        .quantity(fixed_point::QtyUnits(self.scratch[k]))?
+                        .0,
+                );
+            let contribution =
+                Contribution::depth(ofi, e.side, delta, self.config.removal_attribution)?;
+            ofi = 0;
+            let price = self.normalizers[v].price(e.price_ticks)?.0;
+            let bucket = midpoint.and_then(|mid| {
+                distance_bucket(
+                    &self.research.liquidity().config().bucket_edges_ppm,
+                    mid,
+                    price,
+                    e.side,
+                )
+            });
+            self.flows[v].record(now, contribution, bucket)?;
+        }
         Ok(())
     }
     pub fn snapshot(&self, venue: VenueId) -> Result<Option<FlowSnapshot<B>>, FlowResearchError> {

@@ -65,6 +65,8 @@ struct Venue<const N: usize> {
     included: bool,
     last_depth: Option<Timestamp>,
 }
+/// One venue's contribution to the composite reference: doubled midpoint, spread, weight.
+type CompositeVenue = (i128, i64, i128);
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Consolidator<const V: usize, const N: usize, const G: usize> {
     venues: [Venue<N>; V],
@@ -74,6 +76,8 @@ pub struct Consolidator<const V: usize, const N: usize, const G: usize> {
     now: Option<Timestamp>,
     fault: Option<ConsolidationError>,
     structural_revision: u64,
+    /// Scratch for one atomic batch: the weighted quantity delta of each member.
+    batch: [i128; G],
 }
 impl<const V: usize, const N: usize, const G: usize> Consolidator<V, N, G> {
     pub fn new(
@@ -108,6 +112,7 @@ impl<const V: usize, const N: usize, const G: usize> Consolidator<V, N, G> {
             now: None,
             fault: None,
             structural_revision: 0,
+            batch: [0; G],
         })
     }
     fn healthy(&self) -> Result<(), ConsolidationError> {
@@ -249,6 +254,61 @@ impl<const V: usize, const N: usize, const G: usize> Consolidator<V, N, G> {
                 _ => None,
             },
         )
+    }
+    /// Cross-venue reference for markets whose consolidated touch is routinely crossed by
+    /// basis and feed latency: the weight-averaged doubled midpoint of every included,
+    /// positive-weight venue with a two-sided book (each venue's own book is never crossed),
+    /// floored. With `at`, only venues fresh at that time count.
+    pub fn composite_midpoint_x2(
+        &self,
+        at: Option<Timestamp>,
+    ) -> Result<Option<i128>, ConsolidationError> {
+        let (mut sum, mut weight) = (0_i128, 0_i128);
+        for (mid, _, w) in self.composite_venues(at)?.into_iter().flatten() {
+            sum += mid * w;
+            weight += w;
+        }
+        Ok((weight > 0).then(|| sum.div_euclid(weight)))
+    }
+    /// Widest spread among the venues `composite_midpoint_x2` uses, in common ticks.
+    pub fn composite_spread(&self) -> Result<Option<i64>, ConsolidationError> {
+        Ok(self
+            .composite_venues(None)?
+            .into_iter()
+            .flatten()
+            .map(|(_, spread, _)| spread)
+            .max())
+    }
+    fn composite_venues(
+        &self,
+        at: Option<Timestamp>,
+    ) -> Result<[Option<CompositeVenue>; V], ConsolidationError> {
+        self.healthy()?;
+        let mut out = [None; V];
+        for (i, v) in self.venues.iter().enumerate() {
+            if !v.included || v.config.weight_ppm == 0 {
+                continue;
+            }
+            if let Some(now) = at {
+                if !self.fresh_at(v.config.venue, now)? {
+                    continue;
+                }
+            }
+            let best = |side| v.book.best(side).map_err(|_| ConsolidationError::Invariant);
+            let (Some(b), Some(a)) = (best(Side::Buy)?, best(Side::Sell)?) else {
+                continue;
+            };
+            let (b, a) = (
+                v.normalizer.price(b.price)?.0,
+                v.normalizer.price(a.price)?.0,
+            );
+            out[i] = Some((
+                i128::from(b) + i128::from(a),
+                a - b,
+                i128::from(v.config.weight_ppm),
+            ));
+        }
+        Ok(out)
     }
     pub fn market_state(&self) -> Result<MarketState, ConsolidationError> {
         Ok(match self.spread()? {
@@ -449,7 +509,12 @@ impl<const V: usize, const N: usize, const G: usize> Consolidator<V, N, G> {
         }
         Ok(())
     }
-    /// Rare atomic message path: withdraw/reinsert one venue, never all venues.
+    /// Atomic native depth message, applied INCREMENTALLY. Pre-batch weighted deltas are
+    /// computed and normalized first; the venue book then validates and commits the whole batch
+    /// through its staging copy; only after that does the consolidated ladder receive one delta
+    /// per member. No withdrawal occurs, so the structural revision is unchanged and research
+    /// state is not rebuilt. Each (side, price) may appear once; batches hold at most G members.
+    /// A rejected batch withdraws and invalidates only this venue.
     pub fn apply_depth_batch(
         &mut self,
         venue: VenueId,
@@ -457,7 +522,7 @@ impl<const V: usize, const N: usize, const G: usize> Consolidator<V, N, G> {
     ) -> Result<(), ConsolidationError> {
         self.healthy()?;
         let i = self.index(venue)?;
-        let first = events.first().ok_or(ConsolidationError::InvalidConfig)?;
+        let first = *events.first().ok_or(ConsolidationError::InvalidConfig)?;
         if events
             .iter()
             .any(|e| e.venue != venue || e.instrument != self.venues[i].config.metadata.instrument)
@@ -465,16 +530,65 @@ impl<const V: usize, const N: usize, const G: usize> Consolidator<V, N, G> {
             return Err(ConsolidationError::WrongMarket);
         }
         self.advance_time(first.receive_ts)?;
-        let result = self.exclude(i);
-        self.fatal(result)?;
-        self.venues[i]
-            .book
-            .apply_depth_batch(events)
-            .map_err(|error| ConsolidationError::Book { venue, error })?;
+        let included = self.venues[i].included;
+        if events.len() > G {
+            return self.batch_failure(i, venue, BookError::InvalidBatch);
+        }
+        let n = self.venues[i].normalizer;
+        let weight = i128::from(self.venues[i].config.weight_ppm);
+        for (k, e) in events.iter().enumerate() {
+            // A repeated level would make its pre-batch quantity ambiguous.
+            if events[..k]
+                .iter()
+                .any(|x| x.side == e.side && x.price_ticks == e.price_ticks)
+            {
+                return self.batch_failure(i, venue, BookError::InvalidBatch);
+            }
+            let old = if included {
+                self.venues[i]
+                    .book
+                    .level(e.side, e.price_ticks)
+                    .map_err(|_| ConsolidationError::Invariant)?
+                    .map_or(QtyUnits(0), |l| l.qty)
+            } else {
+                QtyUnits(0)
+            };
+            let result = (|| {
+                n.price(e.price_ticks)?;
+                Ok(
+                    (i128::from(n.quantity(e.qty_units)?.0) - i128::from(n.quantity(old)?.0))
+                        * weight,
+                )
+            })();
+            self.batch[k] = self.fatal(result)?;
+        }
+        if let Err(error) = self.venues[i].book.apply_depth_batch(events) {
+            return self.batch_failure(i, venue, error);
+        }
         self.venues[i].last_depth = Some(first.receive_ts);
-        let result = self.contribution(i, 1);
-        self.fatal(result)?;
-        self.venues[i].included = true;
-        Ok(())
+        let result = if included {
+            // Prices were validated above; normalizing again is exact and cannot fail.
+            (0..events.len()).try_for_each(|k| {
+                let price = n.price(events[k].price_ticks)?;
+                self.change(events[k].side, price, self.batch[k])
+            })
+        } else {
+            self.contribution(i, 1)
+                .map(|()| self.venues[i].included = true)
+        };
+        self.fatal(result)
+    }
+    fn batch_failure(
+        &mut self,
+        i: usize,
+        venue: VenueId,
+        error: BookError,
+    ) -> Result<(), ConsolidationError> {
+        if self.venues[i].included {
+            let result = self.exclude(i);
+            self.fatal(result)?;
+        }
+        self.venues[i].book.invalidate(error);
+        Err(ConsolidationError::Book { venue, error })
     }
 }

@@ -1,0 +1,7 @@
+# 200 ms time windows; 4096 slots per window per venue (allocated at startup).
+[orderflow]
+event_window = 64
+time_window_ns = 200000000
+qi_levels = 5
+removal_attribution = "unknown"
+probability_horizon_ns = 100000000

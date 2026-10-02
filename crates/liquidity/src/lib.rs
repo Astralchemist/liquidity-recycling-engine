@@ -17,8 +17,13 @@ pub enum LiquidityError {
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PriceReference {
+    /// Consolidated touch midpoint; research suspends unless the consolidated market is open.
     Midpoint,
     LastTrade,
+    /// Weight-averaged midpoint of valid venues (`Consolidator::composite_midpoint_x2`).
+    /// Research continues while the consolidated touch is crossed across venues; it suspends
+    /// only when no venue has a valid two-sided book.
+    Composite,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LiquidityConfig<const B: usize> {

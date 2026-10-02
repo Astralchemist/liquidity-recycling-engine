@@ -10,7 +10,7 @@ pub mod fixtures;
 use book::{BookError, BookState};
 use common::{Side, Timestamp, VenueId};
 use consolidator::{
-    ConsolidationError, MarketState, VenueConfig,
+    ConsolidationError, VenueConfig,
     normalization::{InstrumentMetadata, NormalizationError, Normalizer},
 };
 use fixed_point::{Money, PriceTicks, realized_pnl};
@@ -71,6 +71,8 @@ pub struct PolicyConfig {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FillConfig {
     pub maker_rebate: Money,
+    /// Retail maker fills usually PAY a fee (see docs/providers.md); both may be configured.
+    pub maker_fee: Money,
     pub taker_fee: Money,
     pub emergency_slippage_ticks: i64,
 }
@@ -98,7 +100,10 @@ pub struct RestingOrder {
 pub const DENIALS: usize = 13;
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct EngineMetrics {
+    /// Canonical events, counting every member of an atomic batch.
     pub market_events: u64,
+    /// Atomic native depth batches applied through `apply_depth_batch`.
+    pub batches: u64,
     pub commands: u64,
     /// Indexed by `risk::Denial as usize`.
     pub denials: [u64; DENIALS],
@@ -188,7 +193,8 @@ pub struct Engine<
     const L: usize,
     const E: usize,
 > {
-    research: FlowResearchEngine<V, N, G, P, B, Z, W>,
+    /// Boxed so moving the engine copies tens of kilobytes, not the whole research state.
+    research: Box<FlowResearchEngine<V, N, G, P, B, Z, W>>,
     environment: EnvironmentTracker<W>,
     ledger: Ledger<V, L, E>,
     orders: [Option<RestingOrder>; L],
@@ -244,13 +250,16 @@ impl<
             || p.mark_refresh_ns == 0
             || p.mark_refresh_ns >= inventory.limits.mark_stale_ns
             || f.maker_rebate.0 < 0
+            || f.maker_fee.0 < 0
             || f.taker_fee.0 < 0
             || f.emergency_slippage_ticks < 0
         {
             return Err(EngineError::InvalidConfig);
         }
-        let research = FlowResearchEngine::new(grid, venues, liquidity, voids, flow)
-            .map_err(EngineError::Research)?;
+        let research = Box::new(
+            FlowResearchEngine::new(grid, venues, liquidity, voids, flow)
+                .map_err(EngineError::Research)?,
+        );
         Ok(Self {
             research,
             environment: EnvironmentTracker::new(config.environment)
@@ -293,6 +302,13 @@ impl<
     pub fn environment_fault(&self) -> Option<EnvironmentError> {
         self.environment_fault
     }
+    fn maker_charges(&self) -> Charges {
+        Charges {
+            rebate: self.config.fills.maker_rebate,
+            fee: self.config.fills.maker_fee,
+            slippage: Money(0),
+        }
+    }
     fn healthy(&self) -> bool {
         self.research_fault.is_none() && self.environment_fault.is_none()
     }
@@ -310,12 +326,11 @@ impl<
                 cancelled += s.time_totals.get(Metric::CancelQty);
             }
         }
-        let market = self.research.research().market();
-        let spread = if market.market_state()? == MarketState::Open {
-            market.spread()?
-        } else {
-            None
-        };
+        let (_, spread) = self
+            .research
+            .research()
+            .reference()
+            .map_err(|e| EngineError::Research(FlowResearchError::Research(e)))?;
         ToxicityComponents::new(
             self.environment.totals(),
             spread,
@@ -413,18 +428,61 @@ impl<
         let commands = self.metrics.commands;
         if self.research_fault.is_none() {
             if let Err(e) = self.research.apply(event) {
-                self.research_fault = Some(e);
-                self.required(
-                    Cmd::Halt {
-                        reason: research_kill_reason(e),
-                    },
-                    sink,
-                )?;
+                self.latch_research_fault(e, sink)?;
             }
         }
+        let print = (event.event_type == K::Trade).then_some((
+            event.side,
+            event.price_ticks,
+            event.qty_units,
+        ));
+        self.finish(event.venue, print, commands, sink)
+    }
+    /// One atomic native depth message (see `Consolidator::apply_depth_batch`). The engine
+    /// observes, marks, assesses and runs policy ONCE for the whole batch; batches carry no
+    /// prints, so no fills occur here.
+    pub fn apply_depth_batch(
+        &mut self,
+        venue: VenueId,
+        events: &[MarketEvent],
+        sink: &mut impl FnMut(&InventoryEvent),
+    ) -> Result<(), EngineError> {
+        let first = events.first().ok_or(EngineError::Invariant)?;
+        self.metrics.market_events += events.len() as u64;
+        self.metrics.batches += 1;
+        self.now = self.now.max(first.receive_ts);
+        let commands = self.metrics.commands;
+        if self.research_fault.is_none() {
+            if let Err(e) = self.research.apply_depth_batch(venue, events) {
+                self.latch_research_fault(e, sink)?;
+            }
+        }
+        self.finish(venue, None, commands, sink)
+    }
+    fn latch_research_fault(
+        &mut self,
+        e: FlowResearchError,
+        sink: &mut impl FnMut(&InventoryEvent),
+    ) -> Result<(), EngineError> {
+        self.research_fault = Some(e);
+        self.required(
+            Cmd::Halt {
+                reason: research_kill_reason(e),
+            },
+            sink,
+        )?;
+        Ok(())
+    }
+    fn finish(
+        &mut self,
+        venue: VenueId,
+        print: Option<(Side, PriceTicks, fixed_point::QtyUnits)>,
+        commands: u64,
+        sink: &mut impl FnMut(&InventoryEvent),
+    ) -> Result<(), EngineError> {
         if self.healthy() {
-            let v = self.venue_index(event.venue)?;
-            self.observe(event, v, sink)?;
+            let v = self.venue_index(venue)?;
+            self.observe(v, print, sink)?;
         }
         if self.metrics.commands == commands
             && self.now.0 - self.ledger.now().0 >= self.config.policy.assess_interval_ns
@@ -441,31 +499,31 @@ impl<
     }
     fn observe(
         &mut self,
-        event: &MarketEvent,
         v: usize,
+        print: Option<(Side, PriceTicks, fixed_point::QtyUnits)>,
         sink: &mut impl FnMut(&InventoryEvent),
     ) -> Result<(), EngineError> {
+        let (midpoint_x2, spread_ticks) = self
+            .research
+            .research()
+            .reference()
+            .map_err(|e| EngineError::Research(FlowResearchError::Research(e)))?;
         let market = self.research.research().market();
-        let open = market.market_state()? == MarketState::Open;
         let top = |side| -> Result<i128, ConsolidationError> {
             Ok(market
                 .levels(side)?
                 .first()
                 .map_or(0, |l| l.weighted_quantity_microunits / 1_000_000))
         };
-        let print = if event.event_type == K::Trade {
-            Some((
-                event.side,
-                i128::from(self.normalizers[v].quantity(event.qty_units)?.0),
-            ))
-        } else {
-            None
+        let common_print = match print {
+            Some((side, _, qty)) => Some((side, i128::from(self.normalizers[v].quantity(qty)?.0))),
+            None => None,
         };
         let observation = Observation {
-            midpoint_x2: if open { market.midpoint_x2()? } else { None },
-            spread_ticks: if open { market.spread()? } else { None },
+            midpoint_x2,
+            spread_ticks,
             top_qty: top(Side::Buy)? + top(Side::Sell)?,
-            print,
+            print: common_print,
         };
         let mut divergent = false;
         for venue in self.venues {
@@ -489,9 +547,9 @@ impl<
             return Ok(());
         }
         self.mark(v, sink)?;
-        if event.event_type == K::Trade {
-            let price = self.normalizers[v].price(event.price_ticks)?;
-            self.fill(v, price, event.side, sink)?;
+        if let Some((side, price, _)) = print {
+            let price = self.normalizers[v].price(price)?;
+            self.fill(v, price, side, sink)?;
         }
         Ok(())
     }
@@ -538,10 +596,7 @@ impl<
             if o.venue != self.venues[v] || !through {
                 continue;
             }
-            let charges = Charges {
-                rebate: self.config.fills.maker_rebate,
-                ..Charges::default()
-            };
+            let charges = self.maker_charges();
             self.orders[slot] = None;
             let kind = match o.kind {
                 OrderKind::Entry { .. } => Cmd::FillOpen {
@@ -801,10 +856,7 @@ impl<
             let Some(price) = self.rebalance_price(lot.venue, lot.side)? else {
                 continue;
             };
-            let rebate = Charges {
-                rebate: self.config.fills.maker_rebate,
-                ..Charges::default()
-            };
+            let rebate = self.maker_charges();
             let q = i128::from(x.net()) + i128::from(x.closing_buys) - i128::from(x.closing_sells)
                 + if harvest.is_some() {
                     i128::from(sign)
@@ -853,10 +905,7 @@ impl<
     /// Every child without a pending close gets a take-profit close at entry ± harvest_ticks.
     fn harvest(&mut self, sink: &mut impl FnMut(&InventoryEvent)) -> Result<(), EngineError> {
         let ticks = self.config.policy.harvest_ticks;
-        let rebate = Charges {
-            rebate: self.config.fills.maker_rebate,
-            ..Charges::default()
-        };
+        let rebate = self.maker_charges();
         for i in 0..L {
             let Some(lot) = self.ledger.lots()[i] else {
                 continue;

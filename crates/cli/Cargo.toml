@@ -24,6 +24,11 @@ voids.workspace = true
 simulation.workspace = true
 toxicity.workspace = true
 engine.workspace = true
+feeds.workspace = true
+wire.workspace = true
+venue-binance.workspace = true
+venue-bybit.workspace = true
+venue-okx.workspace = true
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.9"
 

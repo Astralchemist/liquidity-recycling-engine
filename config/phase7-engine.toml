@@ -33,6 +33,7 @@ assess_interval_ns = 10000000
 # The only fill rule: a print strictly through a resting price fills it as maker.
 rule = "strict_trade_through"
 maker_rebate_atoms = "1"
+maker_fee_atoms = "0"
 taker_fee_atoms = "3"
 emergency_slippage_ticks = 1
 

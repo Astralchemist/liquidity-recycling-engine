@@ -1,0 +1,117 @@
+$ lre live-record config/phase8-market.toml config/phase8-structures.toml config/phase8-flow.toml config/phase8-engine.toml <fresh-dir> 300
+live session 300.2 s; corridor lower_price=867137 (1024 ticks); frames per venue [16179, 18514, 17011]; venue resets [0, 0, 1]; dropped before a live book [0, 0, 3]; dropped after engine withdrawal (resync requested) [0, 0, 1]; inventory commands 4134
+source binance-depth connects=1 connect_errors=0 disconnects=0 resyncs=0 refreshes=0 decode_errors=0 last_error=None decoder=DecoderStats { messages: 2881, frames: 2881, unchanged: 0, control: 0, duplicates: 0, stale: 0, before_snapshot: 0, excluded_prints: 0, resyncs: 0, skipped_updates: 0 }
+source binance-trades connects=1 connect_errors=0 disconnects=0 resyncs=0 refreshes=0 decode_errors=0 last_error=None decoder=DecoderStats { messages: 13301, frames: 13301, unchanged: 0, control: 0, duplicates: 0, stale: 0, before_snapshot: 0, excluded_prints: 0, resyncs: 0, skipped_updates: 0 }
+source bybit connects=1 connect_errors=0 disconnects=0 resyncs=0 refreshes=7 decode_errors=0 last_error=None decoder=DecoderStats { messages: 19790, frames: 18508, unchanged: 1267, control: 15, duplicates: 0, stale: 0, before_snapshot: 0, excluded_prints: 0, resyncs: 0, skipped_updates: 0 }
+source okx connects=2 connect_errors=0 disconnects=1 resyncs=1 refreshes=0 decode_errors=0 last_error=None decoder=DecoderStats { messages: 17176, frames: 17011, unchanged: 8, control: 17, duplicates: 0, stale: 0, before_snapshot: 0, excluded_prints: 140, resyncs: 0, skipped_updates: 0 }
+latency decode (socket read to canonical frame) n=51703 ns: p50=2459 p90=22042 p99=101667 p99.9=322375 max=672792
+latency queue (frame ready to sequencer dequeue) n=51704 ns: p50=36667 p90=153125 p99=314500 p99.9=492417 max=4342458
+latency engine (sequence + apply + record, per frame) n=51704 ns: p50=5167 p90=54875 p99=163292 p99.9=253041 max=2910583
+Live engine state and 4134 inventory commands reproduced exactly by replaying the recording. Fills are simulated; no orders were sent.
+scenario=live market_events=265294 environment_ms dead=12332 balanced_active=159964 trending=122113 liquidity_shock=5601 chaotic=0 transitions=728
+zone id=257 region=[867377,867380] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=258 region=[867293,867296] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=259 region=[867273,867276] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=260 region=[867149,867152] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=261 region=[867161,867164] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=262 region=[867181,867184] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=263 region=[867137,867140] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=264 region=[867145,867148] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=265 region=[867149,867152] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=266 region=[867165,867168] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=267 region=[867177,867180] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=268 region=[867181,867184] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=269 region=[867213,867216] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=270 region=[867149,867152] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=271 region=[867137,867140] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=272 region=[867213,867216] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=273 region=[867145,867148] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=274 region=[867149,867152] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=275 region=[867161,867164] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=276 region=[867165,867168] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=277 region=[867177,867180] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=214 region=[867665,867668] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=215 region=[867601,867604] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=216 region=[867605,867608] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=217 region=[867597,867600] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=218 region=[867609,867612] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=219 region=[867613,867616] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=220 region=[867673,867676] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=221 region=[867617,867620] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=222 region=[867625,867628] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=223 region=[867673,867676] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=224 region=[867641,867644] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=225 region=[867669,867672] scope=MultiVenue mask=6 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=226 region=[867645,867648] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=227 region=[867677,867680] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=228 region=[867621,867624] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=229 region=[867637,867640] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=230 region=[867589,867592] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=231 region=[867661,867664] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=232 region=[867573,867576] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=233 region=[867669,867672] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=234 region=[867605,867608] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=235 region=[867609,867612] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=236 region=[867597,867600] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=237 region=[867601,867604] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=238 region=[867589,867592] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=239 region=[867253,867256] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=240 region=[867257,867260] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=241 region=[867261,867264] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=242 region=[867269,867272] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=243 region=[867229,867232] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=244 region=[867233,867236] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=245 region=[867237,867240] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=246 region=[867245,867248] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=247 region=[867401,867404] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=248 region=[867405,867408] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=249 region=[867413,867416] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=250 region=[867409,867412] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=251 region=[867273,867276] scope=MultiVenue mask=5 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=252 region=[867277,867280] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=253 region=[867269,867272] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=254 region=[867313,867316] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=255 region=[867269,867272] scope=VenueLocal mask=1 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+zone id=256 region=[867305,867308] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+policy entries_placed=0 entries_cancelled=0 reprices=0 harvests=0 rebalances=0 maker_fills=0 taker_fills=0 disallowed_scope_steps=0 unqualified_revisit_steps=0 kill_steps=0 denials=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cross_venue max_abs_divergence_x2=381 divergent_events=59090 research_fault=None environment_fault=None
+toxicity_components=ToxicityComponents { aggression_imbalance_ppm: Some(886094), depletion_ppm: Some(516361), cancellation_ppm: None, spread_ticks: Some(1), spread_changes: 0 }
+commands=4134 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=None safety_work_remaining=false
+accounts=Accounts { realized: Money(0), rebates: Money(0), fees: Money(0), slippage: Money(0), funding: Money(0) } cash_atoms=0 unrealized_atoms=0 liability_atoms=0 harvest_atoms=0 recovery_atoms=0 equity_atoms=0
+completed_episodes=0 profitable_episode_ppm=None completed_episode_pnl_atoms=0 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 0, maker_fills: 0, completed_cycles: 0, maker_to_maker: 0, maker_to_taker: 0, taker_escapes: 0, orders: 0 } maker_fill_ppm=None maker_to_maker_ppm=None taker_escape_per_cycle_ppm=None
+
+$ lre live-replay <fresh-dir>
+replayed 4134 inventory commands; journal verified
+scenario=live-replay market_events=265294 environment_ms dead=12332 balanced_active=159964 trending=122113 liquidity_shock=5601 chaotic=0 transitions=728
+zone id=257 region=[867377,867380] scope=VenueLocal mask=2 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+
+$ lre leadlag <fresh-dir> 50 10
+lead/lag on one local clock: 5892 bins of 50 ms; positive lag = row venue leads column venue
+midpoint change: binance vs bybit: best lag 0 bins (0 ms) rho=0.387; rho at 0 = 0.387
+midpoint change: binance vs okx: best lag 0 bins (0 ms) rho=0.358; rho at 0 = 0.358
+midpoint change: bybit vs binance: best lag 0 bins (0 ms) rho=0.387; rho at 0 = 0.387
+midpoint change: bybit vs okx: best lag 0 bins (0 ms) rho=0.251; rho at 0 = 0.251
+midpoint change: okx vs binance: best lag 0 bins (0 ms) rho=0.358; rho at 0 = 0.358
+midpoint change: okx vs bybit: best lag 0 bins (0 ms) rho=0.251; rho at 0 = 0.251
+signed aggressive volume: binance vs bybit: best lag 0 bins (0 ms) rho=0.194; rho at 0 = 0.194
+signed aggressive volume: binance vs okx: best lag 0 bins (0 ms) rho=0.154; rho at 0 = 0.154
+signed aggressive volume: bybit vs binance: best lag 0 bins (0 ms) rho=0.194; rho at 0 = 0.194
+signed aggressive volume: bybit vs okx: best lag 1 bins (50 ms) rho=0.080; rho at 0 = 0.070
+signed aggressive volume: okx vs binance: best lag 0 bins (0 ms) rho=0.154; rho at 0 = 0.154
+signed aggressive volume: okx vs bybit: best lag -1 bins (-50 ms) rho=0.080; rho at 0 = 0.070
+
+$ lre leadlag <fresh-dir> 100 10
+lead/lag on one local clock: 2946 bins of 100 ms; positive lag = row venue leads column venue
+midpoint change: binance vs bybit: best lag 0 bins (0 ms) rho=0.563; rho at 0 = 0.563
+midpoint change: binance vs okx: best lag 0 bins (0 ms) rho=0.483; rho at 0 = 0.483
+midpoint change: bybit vs binance: best lag 0 bins (0 ms) rho=0.563; rho at 0 = 0.563
+midpoint change: bybit vs okx: best lag 0 bins (0 ms) rho=0.382; rho at 0 = 0.382
+midpoint change: okx vs binance: best lag 0 bins (0 ms) rho=0.483; rho at 0 = 0.483
+midpoint change: okx vs bybit: best lag 0 bins (0 ms) rho=0.382; rho at 0 = 0.382
+signed aggressive volume: binance vs bybit: best lag 0 bins (0 ms) rho=0.222; rho at 0 = 0.222
+signed aggressive volume: binance vs okx: best lag 0 bins (0 ms) rho=0.183; rho at 0 = 0.183
+signed aggressive volume: bybit vs binance: best lag 0 bins (0 ms) rho=0.222; rho at 0 = 0.222
+signed aggressive volume: bybit vs okx: best lag 0 bins (0 ms) rho=0.145; rho at 0 = 0.145
+signed aggressive volume: okx vs binance: best lag 0 bins (0 ms) rho=0.183; rho at 0 = 0.183
+signed aggressive volume: okx vs bybit: best lag 0 bins (0 ms) rho=0.145; rho at 0 = 0.145

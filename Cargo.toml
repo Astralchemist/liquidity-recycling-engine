@@ -24,6 +24,11 @@ voids = { path = "crates/voids" }
 simulation = { path = "crates/simulation" }
 toxicity = { path = "crates/toxicity" }
 engine = { path = "crates/engine" }
+wire = { path = "crates/wire" }
+venue-binance = { path = "crates/venue-binance" }
+venue-bybit = { path = "crates/venue-bybit" }
+venue-okx = { path = "crates/venue-okx" }
+feeds = { path = "crates/feeds" }
 criterion = { version = "0.7", default-features = false, features = ["cargo_bench_support"] }
 
 [profile.release]

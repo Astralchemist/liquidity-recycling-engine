@@ -46,9 +46,9 @@ fn main() {
     let (mut engine, mut now, mut sequences) = support::setup();
     ENABLED.store(false, Ordering::Relaxed);
     let startup_allocations = ALLOCATIONS.load(Ordering::Relaxed);
-    assert_eq!(startup_allocations, 6);
+    assert_eq!(startup_allocations, 7);
     println!(
-        "Three books (capacity 128/side, 3-4 occupied), 64 ticks, 16 cells, one active zone: startup allocates six fixed flow buffers. No buffer growth during processing."
+        "Three books (capacity 128/side, 3-4 occupied), 64 ticks, 16 cells, one active zone: startup allocates six fixed flow buffers and one batch scratch buffer. No buffer growth during processing."
     );
     for _ in 0..100_000 {
         engine

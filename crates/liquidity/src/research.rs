@@ -90,13 +90,51 @@ impl<const V: usize, const N: usize, const G: usize, const P: usize, const B: us
     pub fn faulted(&self) -> bool {
         self.faulted
     }
+    /// The configured reference midpoint and spread (doubled ticks, ticks). Midpoint and
+    /// last-trade research use the consolidated touch, defined only while it is open;
+    /// composite research uses valid venues even when the consolidated touch is crossed.
+    pub fn reference(&self) -> Result<(Option<i128>, Option<i64>), ResearchError> {
+        Ok(match self.liquidity.config().price_reference {
+            PriceReference::Composite => (
+                self.market.composite_midpoint_x2(None)?,
+                self.market.composite_spread()?,
+            ),
+            _ if self.market.market_state()? == MarketState::Open => {
+                (self.market.midpoint_x2()?, self.market.spread()?)
+            }
+            _ => (None, None),
+        })
+    }
     pub fn apply(&mut self, event: &MarketEvent) -> Result<(), ResearchError> {
         if self.faulted {
             return Err(ResearchError::Faulted);
         }
         let result = (|| {
             self.market.apply(event)?;
-            self.observe(event.receive_ts, Some(event))
+            self.observe(event.receive_ts, std::slice::from_ref(event))
+        })();
+        if result.is_err() {
+            self.faulted = true;
+        }
+        result
+    }
+    /// One atomic native depth message: every changed grid level is updated, then formation
+    /// sampling and zone observation run ONCE against the committed post-batch state.
+    pub fn apply_depth_batch(
+        &mut self,
+        venue: common::VenueId,
+        events: &[MarketEvent],
+    ) -> Result<(), ResearchError> {
+        if self.faulted {
+            return Err(ResearchError::Faulted);
+        }
+        let result = (|| {
+            self.market.apply_depth_batch(venue, events)?;
+            let now = events
+                .first()
+                .ok_or(ConsolidationError::InvalidConfig)?
+                .receive_ts;
+            self.observe(now, events)
         })();
         if result.is_err() {
             self.faulted = true;
@@ -109,7 +147,7 @@ impl<const V: usize, const N: usize, const G: usize, const P: usize, const B: us
         }
         let result = (|| {
             self.market.advance_time(now)?;
-            self.observe(now, None)
+            self.observe(now, &[])
         })();
         if result.is_err() {
             self.faulted = true;
@@ -139,16 +177,15 @@ impl<const V: usize, const N: usize, const G: usize, const P: usize, const B: us
         }
         Ok(())
     }
-    fn observe(
-        &mut self,
-        now: Timestamp,
-        event: Option<&MarketEvent>,
-    ) -> Result<(), ResearchError> {
+    fn observe(&mut self, now: Timestamp, events: &[MarketEvent]) -> Result<(), ResearchError> {
         if self.revision != self.market.structural_revision() {
             self.rebuild(now)?;
             self.revision = self.market.structural_revision();
-        } else if let Some(e) = event {
-            if matches!(e.event_type, K::Add | K::Modify | K::Cancel) {
+        } else {
+            for e in events {
+                if !matches!(e.event_type, K::Add | K::Modify | K::Cancel) {
+                    continue;
+                }
                 let v = self
                     .configs
                     .iter()
@@ -174,7 +211,7 @@ impl<const V: usize, const N: usize, const G: usize, const P: usize, const B: us
                 }
             }
         }
-        if let Some(e) = event {
+        for e in events {
             if e.event_type == K::Trade {
                 let v = self
                     .configs
@@ -193,14 +230,19 @@ impl<const V: usize, const N: usize, const G: usize, const P: usize, const B: us
                 }
             }
         }
-        if self.market.market_state() != Ok(MarketState::Open) {
+        let (reference, _) = self.reference()?;
+        let usable = match self.liquidity.config().price_reference {
+            PriceReference::Composite => reference.is_some(),
+            _ => self.market.market_state() == Ok(MarketState::Open),
+        };
+        if !usable {
             self.voids.invalidate_all(now)?;
             self.liquidity.suspend();
             return Ok(());
         }
         let price = match self.liquidity.config().price_reference {
-            PriceReference::Midpoint => self.market.midpoint_x2()?,
             PriceReference::LastTrade => self.last_trade_x2,
+            _ => reference,
         };
         let Some(price) = price else { return Ok(()) };
         let mut eligible = 0_u64;

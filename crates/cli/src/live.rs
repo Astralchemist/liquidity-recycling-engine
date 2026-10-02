@@ -29,7 +29,7 @@ use wire::{
 };
 /// 3 venues, 64 levels per book side, 192 consolidated, 1024-tick corridor, 6 buckets,
 /// 64 zone slots, 4096-slot windows, 32 inventory slots, 8 episodes.
-type LiveEngine = Engine<3, 64, 192, 1024, 6, 64, 4096, 32, 8>;
+pub(super) type LiveEngine = Engine<3, 64, 192, 1024, 6, 64, 4096, 32, 8>;
 const CORRIDOR: i64 = 1024;
 /// Top-K window per venue: Binance's partial-depth stream carries at most 20 levels.
 const WINDOW: usize = 20;
@@ -826,6 +826,61 @@ pub fn cycle_control(
     super::cycles::report("control_cycles all", &control.cycles, open, mtm);
     Ok(())
 }
+/// Replays a recording through its recorded configuration with the live `accepts` gate.
+/// `visit(engine, members, applied)` runs before (`false`) and after (`true`) every applied frame;
+/// `members` is the frame's events (one for a single event).
+pub(super) fn replay_with(
+    directory: &str,
+    mut visit: impl FnMut(&LiveEngine, &[market_events::MarketEvent], bool) -> Result<(), String>,
+) -> Result<(), String> {
+    let dir = Path::new(directory);
+    let t = read_dir_texts(dir)?;
+    let files: Vec<_> = (1..=3)
+        .map(|v| File::open(dir.join(format!("venue-{v}.lre"))).map(BufReader::new))
+        .collect::<std::io::Result<_>>()
+        .map_err(|e| e.to_string())?;
+    let files: [BufReader<File>; 3] = files.try_into().map_err(|_| "expected three files")?;
+    let mut merged = MergedFrames::new(files, true).map_err(|e| format!("{e:?}"))?;
+    let mut engine = build(&t)?;
+    merged
+        .validate(engine.research().research().market())
+        .map_err(|e| format!("{e:?}"))?;
+    if engine
+        .normalizers()
+        .iter()
+        .any(|n| n.price(PriceTicks(1)) != Ok(PriceTicks(1)))
+    {
+        return Err("replay studies need venue price scales equal to the grid".into());
+    }
+    let mut in_snapshot = [false; 3];
+    while let Some(frame) = merged.next_frame().map_err(|e| format!("{e:?}"))? {
+        let single;
+        let members: &[market_events::MarketEvent] = match frame {
+            MergedFrame::Event(e) => {
+                single = [e];
+                &single
+            }
+            MergedFrame::Batch(b) => b,
+        };
+        let head = members[0];
+        let v = engine.venue_position(head.venue).ok_or("unknown venue")?;
+        in_snapshot[v] |= head.event_type == market_events::MarketEventType::SnapshotStart;
+        if !engine.accepts(head.venue, head.receive_ts, in_snapshot[v]) {
+            continue;
+        }
+        if head.event_type == market_events::MarketEventType::SnapshotEnd {
+            in_snapshot[v] = false;
+        }
+        visit(&engine, members, false)?;
+        match frame {
+            MergedFrame::Event(e) => engine.apply(&e, &mut |_| {}),
+            MergedFrame::Batch(b) => engine.apply_depth_batch(head.venue, b, &mut |_| {}),
+        }
+        .map_err(|e| format!("engine: {e:?}"))?;
+        visit(&engine, members, true)?;
+    }
+    Ok(())
+}
 /// Time series for reports: every `interval_ms` of session time, the composite and venue
 /// midpoints as tick offsets from the corridor floor (prices relative to the research corridor,
 /// not absolute), the environment, cumulative revisits and active zones. Replays through the
@@ -911,7 +966,17 @@ pub fn fill_study(
     requote_ticks: &str,
     maker_fee_ppm: &str,
     latency_ms: &str,
+    lag_ticks: Option<&str>,
 ) -> Result<(), String> {
+    let lag: Option<i64> = match lag_ticks {
+        None => None,
+        Some(x) => Some(
+            x.parse()
+                .ok()
+                .filter(|&l: &i64| l >= 0)
+                .ok_or("LAG_TICKS must be a non-negative integer")?,
+        ),
+    };
     let requote: i64 = requote_ticks
         .parse()
         .ok()
@@ -957,6 +1022,7 @@ pub fn fill_study(
         latency * 1_000_000,
         size,
         engine.config().markout,
+        lag,
     );
     let (mut first, mut last) = (None, 0);
     while let Some(frame) = merged.next_frame().map_err(|e| format!("{e:?}"))? {
@@ -989,7 +1055,8 @@ pub fn fill_study(
     }
     let seconds = (last - first.unwrap_or(last)) as f64 / 1e9;
     println!(
-        "fill_study directory={directory} seconds={seconds:.1} requote_ticks={requote} latency_ms={latency} probe_units={size} maker_fee_ppm={fee} engine_research_fault={:?}",
+        "fill_study directory={directory} seconds={seconds:.1} requote_ticks={requote} latency_ms={latency} lag_filter_ticks={} probe_units={size} maker_fee_ppm={fee} engine_research_fault={:?}",
+        lag.map_or("off".into(), |l| l.to_string()),
         engine.research_fault()
     );
     super::study::report(

@@ -16,6 +16,10 @@
 //!   price on every print.
 //! - An unusable venue touch (stale, withdrawn, rebuilding) withdraws that venue's probes
 //!   at once and drops pending decisions.
+//! - Optional pick-off filter (`lag_ticks`): while a venue's midpoint sits more than that many
+//!   ticks ABOVE the cross-venue composite, its bid is the side about to be hit (the venue has
+//!   not yet followed a move down), so no bid is placed there and a live bid is withdrawn; the
+//!   ask mirrors this below the composite. Withdrawals take the same latency as placements.
 //!
 //! A CONTROL samples the reference midpoint every 100 ms of event time as a fictitious buy at
 //! the midpoint (rounded down to a tick). Its drift is the unconditional midpoint change, and
@@ -42,6 +46,7 @@ pub(super) trait Market {
     fn depth(&self, v: usize, side: Side, price: PriceTicks) -> Result<Option<i64>, String>;
     fn venue_touch(&self, v: usize) -> Result<Option<(PriceTicks, PriceTicks)>, String>;
     fn mid_x2(&self) -> Option<i128>;
+    fn venue_mid_x2(&self, v: usize) -> Option<i128>;
     fn grid_print(&self, v: usize, price: PriceTicks, qty: QtyUnits) -> Result<(i64, i64), String>;
 }
 impl<
@@ -65,6 +70,14 @@ impl<
     fn mid_x2(&self) -> Option<i128> {
         self.reference_mid_x2()
     }
+    fn venue_mid_x2(&self, v: usize) -> Option<i128> {
+        self.research()
+            .research()
+            .market()
+            .venue_midpoint_x2(common::VenueId(v as u16 + 1))
+            .ok()
+            .flatten()
+    }
     fn grid_print(&self, v: usize, price: PriceTicks, qty: QtyUnits) -> Result<(i64, i64), String> {
         let n = self.normalizers()[v];
         let price = n.price(price).map_err(|e| format!("{e:?}"))?;
@@ -77,10 +90,11 @@ struct Probe {
     order: QueuedOrder,
     placed_at: u64,
 }
-/// A placement decided at `decided_at`, live from `decided_at + latency`.
+/// A placement (or, with no price, a withdrawal) decided at `decided_at`, effective from
+/// `decided_at + latency`.
 #[derive(Debug, Clone, Copy)]
 struct Decision {
-    price: i64,
+    price: Option<i64>,
     decided_at: u64,
 }
 #[derive(Debug, Default, Clone, Copy)]
@@ -106,6 +120,9 @@ pub(super) struct Cell {
     pub rejects: u64,
     /// Arrivals beyond the visible window (unknown queue; excluded from `ahead_at_entry`).
     pub unobserved_entries: u64,
+    /// Pick-off filter: placements skipped, and live probes withdrawn, on the side at risk.
+    pub lag_blocks: u64,
+    pub lag_withdrawals: u64,
     pub abandoned_partial_qty: i64,
     pub waits_ns: Vec<u64>,
     pub ahead_at_entry: i128,
@@ -129,6 +146,7 @@ pub(super) struct Study {
     requote_ticks: i64,
     latency_ns: u64,
     size: i64,
+    lag_ticks: Option<i64>,
 }
 /// Displayed sizes at every live probe price on one venue, captured before a depth frame.
 pub(super) type Depths = [[Option<i64>; 2]; 4];
@@ -146,6 +164,7 @@ impl Study {
         latency_ns: u64,
         size: i64,
         horizons: MarkoutConfig,
+        lag_ticks: Option<i64>,
     ) -> Self {
         assert!(requote_ticks >= 1 && size >= 1);
         let cell = |model| Cell {
@@ -161,6 +180,8 @@ impl Study {
             stale_blocks: 0,
             rejects: 0,
             unobserved_entries: 0,
+            lag_blocks: 0,
+            lag_withdrawals: 0,
             abandoned_partial_qty: 0,
             waits_ns: Vec::new(),
             ahead_at_entry: 0,
@@ -176,6 +197,7 @@ impl Study {
             requote_ticks,
             latency_ns,
             size,
+            lag_ticks,
         }
     }
     /// Call BEFORE a depth frame on venue `v` is applied.
@@ -288,13 +310,20 @@ impl Study {
             return Ok(());
         }
         cell.slots[s].pending = None;
+        let Some(price) = d.price else {
+            if let Some(old) = cell.slots[s].live.take() {
+                cell.abandoned_partial_qty += old.order.filled;
+                cell.lag_withdrawals += 1;
+            }
+            return Ok(());
+        };
         let side = SIDES[s];
         let (bid, ask) = touch;
         let crosses = match side {
-            Side::Buy => d.price >= ask.0,
-            Side::Sell => d.price <= bid.0,
+            Side::Buy => price >= ask.0,
+            Side::Sell => price <= bid.0,
         };
-        if crosses || swept_through(side, swept, d.price) {
+        if crosses || swept_through(side, swept, price) {
             cell.rejects += 1;
             return Ok(());
         }
@@ -303,12 +332,12 @@ impl Study {
         }
         // A price beyond the visible window (the market moved during the latency) is
         // unobserved: the probe joins behind whatever is displayed when the level comes into view.
-        let shown = market.depth(v, side, PriceTicks(d.price))?;
+        let shown = market.depth(v, side, PriceTicks(price))?;
         cell.placed += 1;
         cell.ahead_at_entry += i128::from(shown.unwrap_or(0));
         cell.unobserved_entries += u64::from(shown.is_none());
         cell.slots[s].live = Some(Probe {
-            order: QueuedOrder::place(side, d.price, size, shown.unwrap_or(UNKNOWN_AHEAD)),
+            order: QueuedOrder::place(side, price, size, shown.unwrap_or(UNKNOWN_AHEAD)),
             placed_at: now,
         });
         Ok(())
@@ -316,9 +345,16 @@ impl Study {
     /// Call after EVERY frame: arrivals and re-quote decisions on every venue, then markouts.
     pub fn after_frame(&mut self, market: &impl Market, now: u64) -> Result<(), String> {
         let (latency, size, requote) = (self.latency_ns, self.size, self.requote_ticks);
+        let composite = market.mid_x2();
         for v in 0..self.cells.len() {
             let touch = market.venue_touch(v)?;
             let swept = self.swept[v];
+            // Venue midpoint minus composite, doubled ticks; positive: the venue sits high.
+            let lag_x2 = match (market.venue_mid_x2(v), composite, self.lag_ticks) {
+                (Some(m), Some(c), Some(_)) => Some(m - c),
+                _ => None,
+            };
+            let limit_x2 = 2 * i128::from(self.lag_ticks.unwrap_or(0));
             for cell in self.cells[v].iter_mut() {
                 for (s, side) in SIDES.into_iter().enumerate() {
                     let Some((bid, ask)) = touch else {
@@ -332,6 +368,22 @@ impl Study {
                     let t = (bid, ask);
                     Self::arrive(cell, s, market, v, t, swept[s], latency, size, now)?;
                     if cell.slots[s].pending.is_some() {
+                        continue;
+                    }
+                    let at_risk = lag_x2.is_some_and(|l| match side {
+                        Side::Buy => l > limit_x2,
+                        Side::Sell => l < -limit_x2,
+                    });
+                    if at_risk {
+                        if cell.slots[s].live.is_some() {
+                            cell.slots[s].pending = Some(Decision {
+                                price: None,
+                                decided_at: now,
+                            });
+                            Self::arrive(cell, s, market, v, t, swept[s], latency, size, now)?;
+                        } else {
+                            cell.lag_blocks += 1;
+                        }
                         continue;
                     }
                     let desired = if side == Side::Buy { bid.0 } else { ask.0 };
@@ -351,7 +403,7 @@ impl Study {
                     }
                     cell.requotes += u64::from(cell.slots[s].live.is_some());
                     cell.slots[s].pending = Some(Decision {
-                        price: desired,
+                        price: Some(desired),
                         decided_at: now,
                     });
                     // Zero latency: the decision arrives in the same frame.
@@ -402,7 +454,7 @@ pub(super) fn report(
                 }
             };
             println!(
-                "study venue={} model={:?} placed={} fills={} buys={} at_price={} through={} while_replacing={} fills_per_min={:.2} fill_ratio={} partial_prints={} requotes={} rejects={} unobserved_entries={} stale_blocks={} suspensions={} abandoned_partial_qty={} wait_ms p50={} p90={} mean_ahead_at_entry_base={} fee_ticks_per_unit={}",
+                "study venue={} model={:?} placed={} fills={} buys={} at_price={} through={} while_replacing={} fills_per_min={:.2} fill_ratio={} partial_prints={} requotes={} rejects={} unobserved_entries={} lag_blocks={} lag_withdrawals={} stale_blocks={} suspensions={} abandoned_partial_qty={} wait_ms p50={} p90={} mean_ahead_at_entry_base={} fee_ticks_per_unit={}",
                 names[v],
                 cell.model,
                 cell.placed,
@@ -417,6 +469,8 @@ pub(super) fn report(
                 cell.requotes,
                 cell.rejects,
                 cell.unobserved_entries,
+                cell.lag_blocks,
+                cell.lag_withdrawals,
                 cell.stale_blocks,
                 cell.suspensions,
                 cell.abandoned_partial_qty,
@@ -450,8 +504,11 @@ mod tests {
     use market_events::MarketEventType as K;
     use simulation::{Scenario, scenarios::generate};
     fn drive(latency_ns: u64) -> Study {
+        drive_with(latency_ns, None)
+    }
+    fn drive_with(latency_ns: u64, lag: Option<i64>) -> Study {
         let mut engine = Box::new(fixtures::build().unwrap());
-        let mut study = Study::new(3, 1, latency_ns, 10, MarkoutConfig::spec());
+        let mut study = Study::new(3, 1, latency_ns, 10, MarkoutConfig::spec(), lag);
         for e in &generate(Scenario::RevisitOscillation) {
             let v = (e.venue.0 - 1) as usize;
             let fills_before: Vec<u64> = study.cells[v].iter().map(Cell::fills).collect();
@@ -485,6 +542,18 @@ mod tests {
                         };
                         if let Some(d) = slot.pending {
                             assert!(latency_ns > 0 && e.receive_ts.0 < d.decided_at + latency_ns);
+                            assert!(d.price.is_some() || lag.is_some());
+                        }
+                        // With zero latency, no probe rests on the side the filter marks at risk.
+                        if let (Some(l), Some(m), Some(c), 0) =
+                            (lag, engine.venue_mid_x2(v), engine.mid_x2(), latency_ns)
+                        {
+                            let at_risk = if s == 0 {
+                                m - c > 2 * i128::from(l)
+                            } else {
+                                m - c < -2 * i128::from(l)
+                            };
+                            assert!(!at_risk || slot.live.is_none());
                         }
                         let Some(p) = slot.live else { continue };
                         assert!(!p.order.complete());
@@ -531,6 +600,15 @@ mod tests {
                 > 0
         );
         for cell in cells() {
+            assert_eq!(cell.markouts.fills, cell.fills());
+        }
+        // The pick-off filter acts (and the per-frame check in `drive_with` proves no probe
+        // rests on a side at risk); without it nothing is blocked or withdrawn.
+        let filtered = drive_with(0, Some(0));
+        let all = |s: &Study, f: fn(&Cell) -> u64| s.cells.iter().flatten().map(f).sum::<u64>();
+        assert!(all(&filtered, |c| c.lag_blocks + c.lag_withdrawals) > 0);
+        assert_eq!(all(&instant, |c| c.lag_blocks + c.lag_withdrawals), 0);
+        for cell in filtered.cells.iter().flatten() {
             assert_eq!(cell.markouts.fills, cell.fills());
         }
     }

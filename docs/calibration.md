@@ -161,3 +161,66 @@ What this does **not** rule out is equally specific:
 - programme rebates
 
 Each would need its own pre-registered test.
+
+## Follow-up studies (exploratory; no holdout remains)
+
+Both studies were requested after E's results, so they use every session and have no untouched test data. They describe these recordings; they do not confirm anything. Graphs: `docs/evidence/index.html`.
+
+### Loosening the two-sided entry
+
+The rungs, each with identical exits, fees and risk limits (files in `config/calibration/`):
+
+- **L0** is P1.
+- **L1** is P2.
+- **L2** is P3.
+- **L3** loosens the detector to a 50% depth threshold and 100 ms persistence, with 5 s revisit evidence.
+- **L4** adds two quote levels per side and net inventory up to 4.
+- The **ungated dual** is the control.
+
+Pooled over sessions B–E (1.42 h):
+
+| Rung | Round trips | Per hour | Mean net per trip | ± SE |
+|---|---:|---:|---:|---:|
+| L0 | 1 | 0.7 | +1,079 atoms | — |
+| L1 | 13 | 9.2 | −4,580 | 1,501 |
+| L2 | 20 | 14.1 | −5,139 | 1,162 |
+| L3 | 26 | 18.4 | −4,970 | 1,088 |
+| L4 | 59 | 41.7 | −5,055 | 547 |
+| Ungated dual | 569 | 402.4 | −4,693 | 263 |
+
+**Loosening is detrimental.** It multiplies trades without changing the loss per trip, so losses scale with activity.
+
+### Momentum after a mega pump (`scripts/momentum.py`)
+
+- **Candles:** each venue's trade prints by receive time.
+- **Pump:** a candle move of at least k standard deviations of the previous 120 candles.
+- **Continuation:** the next candle moves in the pump's direction. The base rate is the same probability over every pair of consecutive candles.
+- **Taker test:** enter at the pump's close and leave one candle later, paying the taker fee both ways. This is an upper bound: real entries cross the spread after a latency.
+
+Excursion and the net taker result are in USDT per BTC.
+
+| Venue | Candle | Pump | Pumps | Per hour | Continue / reverse / flat | Continues | Base | z | Run lasts | Excursion | Next candle, net of taker fees |
+|---|---|---|---:|---:|---|---:|---:|---:|---:|---:|---:|
+| Binance | 1s | ≥3σ | 106 | 74.9 | 50 / 39 / 17 | 56.2% | 58.2% | -0.39 | 2.1 s | 16.1 | -85.3 |
+| Binance | 1s | ≥5σ | 17 | 12.0 | 6 / 11 / 0 | 35.3% | 58.2% | -1.92 | 1.0 s | 13.0 | -88.4 |
+| Binance | 5s | ≥3σ | 11 | 7.8 | 5 / 6 / 0 | 45.5% | 51.2% | -0.38 | 9.0 s | 56.6 | -79.9 |
+| Binance | 5s | ≥5σ | 2 | 1.4 | 2 / 0 / 0 | 100.0% | 51.2% | +1.38 | 7.5 s | 34.0 | -63.9 |
+| Bybit | 1s | ≥3σ | 95 | 67.1 | 50 / 39 / 6 | 56.2% | 58.0% | -0.35 | 2.0 s | 15.1 | -93.5 |
+| Bybit | 1s | ≥5σ | 13 | 9.2 | 6 / 6 / 1 | 50.0% | 58.0% | -0.56 | 1.5 s | 8.8 | -94.1 |
+| Bybit | 5s | ≥3σ | 11 | 7.8 | 5 / 6 / 0 | 45.5% | 52.8% | -0.49 | 14.0 s | 77.5 | -86.4 |
+| Bybit | 5s | ≥5σ | 1 | 0.7 | 1 / 0 / 0 | 100.0% | 52.8% | +0.95 | 10.0 s | 54.2 | -58.5 |
+| Okx | 1s | ≥3σ | 115 | 81.2 | 56 / 38 / 21 | 59.6% | 55.7% | +0.77 | 1.8 s | 11.1 | -85.8 |
+| Okx | 1s | ≥5σ | 18 | 12.7 | 6 / 9 / 3 | 40.0% | 55.7% | -1.22 | 1.0 s | 1.5 | -90.5 |
+| Okx | 5s | ≥3σ | 8 | 5.7 | 3 / 5 / 0 | 37.5% | 56.7% | -1.10 | 15.0 s | 77.4 | -89.5 |
+| Okx | 5s | ≥5σ | 1 | 0.7 | 0 / 1 / 0 | 0.0% | 56.7% | -1.14 | — | — | -188.5 |
+
+**No momentum edge.**
+
+- **Frequency.** 3σ one-second pumps occur about 67–81 times an hour per venue.
+- **Continuation.** The next candle continues 56–60% of the time, the same as the 56–58% base rate.
+- **Duration.** A continuation lasts about 2 s, with a mean excursion of 11–16 USDT per BTC.
+- **5σ pumps.** They continue less often than the base rate.
+- **Cost.** The best possible exit at the run's peak does not cover the roughly 87 USDT per BTC of round-trip taker fees.
+
+Moves of 15 s and 60 s were too rare to measure in 1.4 hours. On BTC these are 15–30 USDT spikes, not the multi-fold pumps of small DEX tokens.
+

@@ -117,6 +117,8 @@ The single-venue demo refuses to overwrite a file. Replay modes: `max`, `step`, 
 
 ## Documentation
 
+- [Evidence page: graphs of every test, regenerated from the recordings](docs/evidence/index.html)
+- [Calibration and pre-registered strategy test, loosening ladder, momentum study](docs/calibration.md)
 - [Phase 9 execution simulation: queue model, fees, funding, markouts, J(a), fill study](docs/phase9.md)
 - [Phase 9 validation, live fill study and benchmarks](docs/phase9-validation.md)
 - [Phase 8 live feeds, sync rules, atomic batches, composite reference, recording v2](docs/phase8.md)

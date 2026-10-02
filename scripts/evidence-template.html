@@ -1,0 +1,588 @@
+<title>Astra Evidence Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --ground: #f2f5f8;
+  --surface: #ffffff;
+  --ink: #14202b;
+  --muted: #5a6876;
+  --rule: #d5dce3;
+  --grid: #e6ebf0;
+  --gated: #0e6a86;
+  --control: #7c8b99;
+  --momentum: #c27a26;
+  --loss: #b1443a;
+  --gain: #2f7d4f;
+  --band: rgba(14, 106, 134, 0.08);
+  --chip: #e7eef4;
+  --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #0e141a;
+    --surface: #151d25;
+    --ink: #e4eaf0;
+    --muted: #93a1ae;
+    --rule: #27333e;
+    --grid: #1f2a34;
+    --gated: #4fa8c7;
+    --control: #8a99a7;
+    --momentum: #e09a4a;
+    --loss: #e0786d;
+    --gain: #63b583;
+    --band: rgba(79, 168, 199, 0.10);
+    --chip: #1d2833;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0e141a;
+  --surface: #151d25;
+  --ink: #e4eaf0;
+  --muted: #93a1ae;
+  --rule: #27333e;
+  --grid: #1f2a34;
+  --gated: #4fa8c7;
+  --control: #8a99a7;
+  --momentum: #e09a4a;
+  --loss: #e0786d;
+  --gain: #63b583;
+  --band: rgba(79, 168, 199, 0.10);
+  --chip: #1d2833;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font: 15px/1.55 var(--body);
+}
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: 20px;
+  padding-block: 28px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 {
+  font-family: var(--display);
+  text-wrap: balance;
+  margin: 0;
+  line-height: 1.1;
+}
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 700; letter-spacing: 0.005em; }
+h2 { font-size: 1.6rem; font-weight: 600; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow {
+  font: 500 0.74rem/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lede { color: var(--muted); font-size: 1.05rem; }
+header { display: grid; gap: 12px; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.verdicts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+}
+.verdict {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 16px 18px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.stamp {
+  justify-self: start;
+  font: 600 0.72rem/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--loss);
+  border: 1.5px solid var(--loss);
+  border-radius: 3px;
+  padding: 5px 7px 4px;
+}
+.verdict .figure { font: 500 1.5rem/1.2 var(--mono); }
+.verdict p { color: var(--muted); font-size: 0.92rem; }
+section { display: grid; gap: 14px; }
+.section-head { display: grid; gap: 6px; }
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+.chart { position: relative; height: 320px; width: 100%; }
+.chart.short { height: 260px; }
+.caption { color: var(--muted); font-size: 0.88rem; max-width: 80ch; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.85rem; color: var(--muted); }
+.key { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tabs .label { font: 500 0.78rem var(--mono); color: var(--muted); margin-right: 4px; }
+.tab {
+  font: 500 0.85rem var(--mono);
+  color: var(--ink);
+  background: var(--chip);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 5px 11px;
+  cursor: pointer;
+}
+.tab[aria-pressed="true"] { background: var(--gated); border-color: var(--gated); color: var(--surface); }
+.tab:focus-visible, .copy:focus-visible { outline: 2px solid var(--gated); outline-offset: 2px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 500 0.72rem var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.r, th.r { text-align: right; }
+.pill {
+  font: 600 0.72rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 6px 3px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.pill.fail { color: var(--loss); border: 1px solid var(--loss); }
+.pill.ok { color: var(--gain); border: 1px solid var(--gain); }
+.sha { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); word-break: break-all; }
+pre {
+  margin: 0;
+  font: 0.8rem/1.6 var(--mono);
+  background: var(--chip);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 12px 14px;
+  overflow-x: auto;
+}
+.copy {
+  justify-self: start;
+  font: 500 0.82rem var(--mono);
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+footer { color: var(--muted); font-size: 0.85rem; display: grid; gap: 8px; border-top: 1px solid var(--rule); padding-top: 18px; }
+@media (max-width: 560px) {
+  .page { padding-inline: 16px; gap: 32px; }
+  .chart { height: 270px; }
+  .chart.short { height: 230px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Liquidity recycling engine · BTC/USDT perpetuals · Binance · Bybit · OKX · 2026-10-02</div>
+    <h1>Astra Evidence Log</h1>
+    <p class="lede">Five recorded public sessions (<span class="num" id="hours"></span> hours), three tests, every number regenerated from the recordings. Fills are simulated against public order books; no order was ever sent. P&amp;L is in USDT per BTC traded, after retail fees.</p>
+  </header>
+
+  <div class="verdicts" id="verdicts"></div>
+
+  <section id="test">
+    <div class="section-head">
+      <div class="eyebrow">Test 1 · pre-registered in commit <span id="prereg-commit"></span>, results in <span id="results-commit"></span></div>
+      <h2>Does waiting for a void revisit pick better trades?</h2>
+      <p class="caption">The gated strategy (variant P2) and an ungated control share the same exits: take profit at +450 ticks, otherwise leave at the touch after 60 s, both fills paying 0.02%. Bars show the mean net result per round trip with ±1 standard error.</p>
+    </div>
+    <div class="panel">
+      <div class="legend">
+        <span class="key"><span class="swatch" style="background:var(--control)"></span>Ungated control</span>
+        <span class="key"><span class="swatch" style="background:var(--gated)"></span>Void-revisit gate (P2)</span>
+      </div>
+      <div class="chart"><canvas id="c-sessions" aria-label="Mean net per round trip by session, control versus gated"></canvas></div>
+      <div class="scroll"><table id="t-hyp"></table></div>
+    </div>
+  </section>
+
+  <section id="trips">
+    <div class="section-head">
+      <div class="eyebrow">Every round trip</div>
+      <h2>Gated trades land inside the control's spread</h2>
+      <p class="caption">Each dot is one round trip of 0.001 BTC in sessions B–E, scaled to USDT per BTC. The cluster at about +10.8 is the take-profit exit after fees; the long left tail is the 60 s exit after the price moved away. The dashed line marks the round-trip maker fee.</p>
+    </div>
+    <div class="panel">
+      <div class="chart short"><canvas id="c-strip" aria-label="Net result of every round trip"></canvas></div>
+    </div>
+  </section>
+
+  <section id="ladder">
+    <div class="section-head">
+      <div class="eyebrow">Test 2 · exploratory, sessions B–E</div>
+      <h2>Loosening the two-sided entry only multiplies the loss</h2>
+      <p class="caption">From the shipped scopes (L0) to quoting both sides whenever flat (ungated dual), trades rise from about one per session to hundreds per hour, while the loss per trip stays near −46 to −51 USDT per BTC.</p>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>Round trips per hour</h3>
+        <div class="chart short"><canvas id="c-ladder-n" aria-label="Round trips per hour by loosening rung"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Mean net per round trip, ±1 SE</h3>
+        <div class="chart short"><canvas id="c-ladder-m" aria-label="Mean net per round trip by loosening rung"></canvas></div>
+      </div>
+    </div>
+    <div class="panel scroll"><table id="t-ladder"></table></div>
+  </section>
+
+  <section id="session">
+    <div class="section-head">
+      <div class="eyebrow">Session detail</div>
+      <h2>Where the detector could see, and what fills cost</h2>
+      <p class="caption">Left: the composite midpoint against the research corridor fixed at session start; dots mark observed void revisits. In session E the price left the corridor after about 12 minutes, after which no void could form. Right: the fill study's mean markout per BTC after a passive fill at the touch (proportional queue model, 50 ms latency), against the maker fee per fill and the unconditional spread of midpoint moves.</p>
+    </div>
+    <div class="tabs" role="group" aria-label="Session">
+      <span class="label">Session</span>
+      <button class="tab" type="button" data-s="A">A</button>
+      <button class="tab" type="button" data-s="B">B</button>
+      <button class="tab" type="button" data-s="C">C</button>
+      <button class="tab" type="button" data-s="D">D</button>
+      <button class="tab" type="button" data-s="E" aria-pressed="true">E</button>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>Price within the research corridor</h3>
+        <div class="chart"><canvas id="c-path" aria-label="Midpoint relative to the research corridor"></canvas></div>
+        <p class="caption" id="path-note"></p>
+      </div>
+      <div class="panel">
+        <h3>Markout after a passive fill</h3>
+        <div class="chart"><canvas id="c-markout" aria-label="Mean markout by horizon and venue"></canvas></div>
+        <p class="caption" id="markout-note"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="momentum">
+    <div class="section-head">
+      <div class="eyebrow">Test 3 · exploratory, all sessions</div>
+      <h2>After a mega pump, the next candle continues no more often than any candle</h2>
+      <p class="caption">A pump is a candle whose move is at least 3σ or 5σ of the previous 120 candles. Amber is how often the next candle moves the same way; slate is the base rate for every pair of candles. When a continuation happens it is brief, and even its full excursion is smaller than the 0.05% + 0.05% taker fees a momentum entry pays.</p>
+    </div>
+    <div class="panel">
+      <div class="legend">
+        <span class="key"><span class="swatch" style="background:var(--momentum)"></span>Next candle continues after a pump</span>
+        <span class="key"><span class="swatch" style="background:var(--control)"></span>Base rate, any candle</span>
+      </div>
+      <div class="chart"><canvas id="c-momentum" aria-label="Continuation probability after pumps versus base rate"></canvas></div>
+      <div class="scroll"><table id="t-momentum"></table></div>
+    </div>
+  </section>
+
+  <section id="ledger">
+    <div class="section-head">
+      <div class="eyebrow">Evidence ledger</div>
+      <h2>Recordings behind every number</h2>
+      <p class="caption">The recordings stay on this machine in <span class="num">~/Desktop/Development/lre-evidence/recordings</span>, outside the repository; exchange terms forbid redistributing them. Each replays to the identical engine state and inventory journal, and its SHA-256 is listed here and in <span class="num">MANIFEST.sha256</span>.</p>
+    </div>
+    <div class="panel scroll"><table id="t-ledger"></table></div>
+    <div class="panel">
+      <h3>Regenerate this page</h3>
+      <pre id="repro">cargo build --release -p cli --locked
+python3 scripts/momentum.py ~/Desktop/Development/lre-evidence/recordings docs/evidence/momentum.json
+python3 scripts/build-evidence.py ~/Desktop/Development/lre-evidence/recordings
+python3 scripts/render-evidence.py</pre>
+      <button class="copy" type="button" id="copy">Copy commands</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>Units: a tick is 0.1 USDT; per-BTC figures scale one 0.001 BTC child by 1,000. Retail fees: maker 0.02%, taker 0.05% (Bybit 0.055%).</p>
+    <p>Limits: simulated queues from 20 public levels; atomic children; about 1.4 hours of one asset; the control's standard errors are optimistic because its trips share one price path. Exploratory results (tests 2 and 3) had no holdout.</p>
+    <p class="num">Data built from commit <span id="data-commit"></span>.</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+const D = /*__DATA__*/null;
+const $ = (id) => document.getElementById(id);
+const fmt = (x, d = 1) => x == null ? "—" : (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const plain = (x, d = 0) => x == null ? "—" : x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (x) => x == null ? "—" : (100 * x).toFixed(1) + "%";
+const tok = () => {
+  const c = getComputedStyle(document.documentElement);
+  const g = (n) => c.getPropertyValue(n).trim();
+  return { ink: g("--ink"), muted: g("--muted"), grid: g("--grid"), rule: g("--rule"), gated: g("--gated"), control: g("--control"), momentum: g("--momentum"), loss: g("--loss"), gain: g("--gain"), band: g("--band"), surface: g("--surface") };
+};
+const alpha = (hex, a) => {
+  if (!hex.startsWith("#")) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16 & 255}, ${n >> 8 & 255}, ${n & 255}, ${a})`;
+};
+
+// Static text and tables.
+$("hours").textContent = D.hours.toFixed(1);
+$("prereg-commit").textContent = D.prereg.commit;
+$("results-commit").textContent = D.prereg.results_commit;
+$("data-commit").textContent = D.commit;
+{
+  const pc = D.pooled.control, pg = D.pooled.p2;
+  const lad = D.ladder;
+  const m1 = D.momentum.filter((m) => m.c === "1s" && m.k === "3σ");
+  const pAvg = m1.reduce((s, m) => s + m.p, 0) / m1.length, bAvg = m1.reduce((s, m) => s + m.b, 0) / m1.length;
+  const cards = [
+    ["Failed", `${fmt(pg.mean)} vs ${fmt(pc.mean)}`, `Void-revisit gate, pre-registered. Gated round trips (n = ${pg.n}) average ${fmt(pg.mean)} USDT per BTC; the ungated control (n = ${pc.n}) averages ${fmt(pc.mean)}. H1, H2 and H3 all fail.`],
+    ["Detrimental", `${plain(lad[0].n)} → ${plain(lad[lad.length - 1].n)} trips`, `Loosening the two-sided entry. Each looser rung trades more, and every round trip still loses about 46 to 51 USDT per BTC.`],
+    ["No edge", `${pct(pAvg)} vs ${pct(bAvg)}`, `Momentum after a 3σ one-second pump. The next candle continues as often as any candle does, for about 2 s, and never by enough to pay taker fees.`],
+  ];
+  $("verdicts").innerHTML = cards.map(([s, f, t]) => `<div class="verdict"><span class="stamp">${s}</span><div class="figure">${f}</div><p>${t}</p></div>`).join("");
+}
+{
+  const E = D.bySession.E, Dd = D.bySession.D;
+  const rows = [
+    ["H1", "Gate beats ungated entries with identical exits", `E: ${fmt(E.p2.mean)} vs ${fmt(E.control.mean)}, t = ${fmt(D.tests.tE, 2)}`, "t > 2"],
+    ["H2", "Gated strategy profitable at retail fees", `E: mean ${fmt(E.p2.mean)} (n = ${E.p2.n})`, "mean > 0, t > 2"],
+    ["H3", "Same sign in two sessions", `D: t = ${fmt(D.tests.tD, 2)}; E: t = ${fmt(D.tests.tE, 2)}`, "same sign"],
+  ];
+  $("t-hyp").innerHTML = `<thead><tr><th>Test</th><th>Question</th><th>Result, USDT per BTC</th><th>Pass if</th><th>Verdict</th></tr></thead><tbody>` +
+    rows.map((r) => `<tr><td class="num">${r[0]}</td><td>${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td><span class="pill fail">Fail</span></td></tr>`).join("") + "</tbody>";
+}
+$("t-ladder").innerHTML = `<thead><tr><th>Rung</th><th class="r">Round trips</th><th class="r">Per hour</th><th class="r">Mean per trip</th><th class="r">± SE</th><th class="r">Total, USDT per 0.001 BTC child</th></tr></thead><tbody>` +
+  D.ladder.map((l) => `<tr><td>${l.r}</td><td class="r num">${plain(l.n)}</td><td class="r num">${plain(l.perh, 1)}</td><td class="r num">${fmt(l.mean)}</td><td class="r num">${l.se == null ? "—" : plain(l.se, 1)}</td><td class="r num">${fmt(l.total, 3)}</td></tr>`).join("") + "</tbody>";
+$("t-momentum").innerHTML = `<thead><tr><th>Venue</th><th>Candle</th><th>Pump</th><th class="r">Pumps</th><th class="r">Per hour</th><th class="r">Continue / reverse / flat</th><th class="r">Continues</th><th class="r">Base</th><th class="r">z</th><th class="r">Run lasts</th><th class="r">Excursion, USDT/BTC</th><th class="r">Next candle after taker fees</th></tr></thead><tbody>` +
+  D.momentum.map((m) => `<tr><td>${m.v}</td><td class="num">${m.c}</td><td class="num">≥${m.k}</td><td class="r num">${m.n}</td><td class="r num">${plain(m.ph, 1)}</td><td class="r num">${m.cont} / ${m.rev} / ${m.flat}</td><td class="r num">${pct(m.p)}</td><td class="r num">${pct(m.b)}</td><td class="r num">${fmt(m.z, 2)}</td><td class="r num">${m.dur == null ? "—" : m.dur.toFixed(1) + " s"}</td><td class="r num">${m.exc == null ? "—" : plain(m.exc, 1)}</td><td class="r num">${fmt(m.net1)}</td></tr>`).join("") + "</tbody>";
+$("t-ledger").innerHTML = `<thead><tr><th>Session</th><th>Role</th><th class="r">Length</th><th class="r">Commands replayed</th><th>File</th><th class="r">MB</th><th>SHA-256</th></tr></thead><tbody>` +
+  D.ledger.map((s) => s.files.map((f, i) => `<tr>${i === 0 ? `<td rowspan="${s.files.length}" class="num">${s.k}</td><td rowspan="${s.files.length}">${s.role}</td><td rowspan="${s.files.length}" class="r num">${plain(s.s, 1)} s</td><td rowspan="${s.files.length}" class="r num">${plain(s.cmds)} <span class="pill ok">verified</span></td>` : ""}<td class="num">${f.f}</td><td class="r num">${plain(f.mb, 1)}</td><td class="sha">${f.sha}</td></tr>`).join("")).join("") + "</tbody>";
+$("copy").addEventListener("click", () => {
+  const text = $("repro").textContent;
+  const done = () => { $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy commands"), 1600); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => window.getSelection().selectAllChildren($("repro")));
+  else window.getSelection().selectAllChildren($("repro"));
+});
+
+// Charts.
+const guides = {
+  id: "guides",
+  afterDatasetsDraw(chart, _args, opts) {
+    const { ctx, chartArea: a, scales } = chart;
+    ctx.save();
+    for (const b of opts.yBands || []) {
+      const y0 = scales.y.getPixelForValue(b.from), y1 = scales.y.getPixelForValue(b.to);
+      ctx.fillStyle = b.color;
+      ctx.fillRect(a.left, Math.min(y0, y1), a.right - a.left, Math.abs(y1 - y0));
+    }
+    for (const l of opts.yLines || []) {
+      const y = scales.y.getPixelForValue(l.y);
+      if (y < a.top || y > a.bottom) continue;
+      ctx.strokeStyle = l.color; ctx.lineWidth = 1.2; ctx.setLineDash(l.dash || []);
+      ctx.beginPath(); ctx.moveTo(a.left, y); ctx.lineTo(a.right, y); ctx.stroke();
+      if (l.label) { ctx.setLineDash([]); ctx.fillStyle = l.color; ctx.font = "11px 'IBM Plex Mono', monospace"; ctx.textAlign = "right"; ctx.fillText(l.label, a.right - 4, y - 5); }
+    }
+    for (const l of opts.xLines || []) {
+      const x = scales.x.getPixelForValue(l.x);
+      if (x < a.left || x > a.right) continue;
+      ctx.strokeStyle = l.color; ctx.lineWidth = 1.2; ctx.setLineDash(l.dash || []);
+      ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke();
+      if (l.label) { ctx.setLineDash([]); ctx.fillStyle = l.color; ctx.font = "11px 'IBM Plex Mono', monospace"; ctx.textAlign = "left"; ctx.fillText(l.label, x + 4, a.top + 12); }
+    }
+    ctx.restore();
+  },
+};
+const errorBars = {
+  id: "errorBars",
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((ds, i) => {
+      if (!ds.se) return;
+      const meta = chart.getDatasetMeta(i);
+      if (meta.hidden) return;
+      meta.data.forEach((el, j) => {
+        const v = ds.data[j], e = ds.se[j];
+        if (v == null || e == null) return;
+        const y0 = chart.scales.y.getPixelForValue(v - e), y1 = chart.scales.y.getPixelForValue(v + e);
+        ctx.save();
+        ctx.strokeStyle = ds.errorColor; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(el.x, y0); ctx.lineTo(el.x, y1);
+        ctx.moveTo(el.x - 5, y0); ctx.lineTo(el.x + 5, y0); ctx.moveTo(el.x - 5, y1); ctx.lineTo(el.x + 5, y1);
+        ctx.stroke(); ctx.restore();
+      });
+    });
+  },
+};
+Chart.register(guides, errorBars);
+let charts = [];
+let session = "E";
+try { const s = localStorage.getItem("astra-session"); if (s && D.paths[s]) session = s; } catch (_) {}
+
+function base(t) {
+  Chart.defaults.font.family = "'IBM Plex Mono', ui-monospace, monospace";
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = t.muted;
+  Chart.defaults.borderColor = t.grid;
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: t.surface, titleColor: t.ink, bodyColor: t.ink, borderColor: t.rule, borderWidth: 1 } },
+  };
+}
+const axisTitle = (t, text) => ({ display: true, text, color: t.muted, font: { size: 11 } });
+
+function sessionsChart(t) {
+  const keys = ["B", "C", "D", "E"];
+  const bs = D.bySession;
+  return new Chart($("c-sessions"), {
+    type: "bar",
+    data: {
+      labels: keys.map((k) => `Session ${k}${bs[k].p2.n ? "" : " · no gated trades"}`),
+      datasets: [
+        { label: "Ungated control", data: keys.map((k) => bs[k].control.mean), se: keys.map((k) => bs[k].control.se), backgroundColor: alpha(t.control, 0.85), errorColor: t.ink, n: keys.map((k) => bs[k].control.n) },
+        { label: "Void-revisit gate (P2)", data: keys.map((k) => bs[k].p2.n ? bs[k].p2.mean : null), se: keys.map((k) => bs[k].p2.n ? bs[k].p2.se : null), backgroundColor: alpha(t.gated, 0.9), errorColor: t.ink, n: keys.map((k) => bs[k].p2.n) },
+      ],
+    },
+    options: {
+      ...base(t),
+      plugins: { ...base(t).plugins, tooltip: { ...base(t).plugins.tooltip, callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.raw)} USDT/BTC (n = ${c.dataset.n[c.dataIndex]})` } }, guides: { yLines: [{ y: 0, color: t.muted }] } },
+      scales: { y: { title: axisTitle(t, "USDT per BTC per round trip"), grid: { color: t.grid } }, x: { grid: { display: false }, ticks: { color: t.ink } } },
+    },
+  });
+}
+
+function stripChart(t) {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 0.5;
+  const pts = (rows, y) => rows.map(([s, x]) => ({ x, y: y + rnd(), s }));
+  const pc = D.pooled.control, pg = D.pooled.p2;
+  return new Chart($("c-strip"), {
+    type: "scatter",
+    data: {
+      datasets: [
+        { label: "Ungated control", data: pts(D.cycles.control, 0), backgroundColor: alpha(t.control, 0.35), pointRadius: 2.2 },
+        { label: "Void-revisit gate", data: pts(D.cycles.p2, 1), backgroundColor: alpha(t.gated, 0.9), pointRadius: 4 },
+        { label: "Mean", data: [{ x: pc.mean, y: 0, s: "pooled" }, { x: pg.mean, y: 1, s: "pooled" }], backgroundColor: t.ink, borderColor: t.ink, pointStyle: "line", pointRadius: 14, borderWidth: 3, rotation: 90 },
+      ],
+    },
+    options: {
+      ...base(t),
+      plugins: { ...base(t).plugins, tooltip: { ...base(t).plugins.tooltip, callbacks: { label: (c) => `${c.dataset.label}${c.raw.s === "pooled" ? " mean" : ", session " + c.raw.s}: ${fmt(c.raw.x)} USDT/BTC` } }, guides: { xLines: [{ x: 0, color: t.muted }, { x: -34.6, color: t.loss, dash: [4, 4], label: "maker fees, round trip" }] } },
+      scales: {
+        x: { title: axisTitle(t, "Net per round trip, USDT per BTC"), grid: { color: t.grid } },
+        y: { min: -0.6, max: 1.6, grid: { display: false }, afterBuildTicks: (ax) => { ax.ticks = [{ value: 0 }, { value: 1 }]; }, ticks: { color: t.ink, callback: (v) => (v === 0 ? `Control (${pc.n})` : v === 1 ? `Gated (${pg.n})` : "") } },
+      },
+    },
+  });
+}
+
+function ladderCharts(t) {
+  const L = D.ladder;
+  const colors = L.map((l, i) => (i === L.length - 1 ? alpha(t.control, 0.9) : alpha(t.gated, 0.45 + 0.1 * i)));
+  const labels = L.map((l) => l.r.split(" · ")[0]);
+  const a = new Chart($("c-ladder-n"), {
+    type: "bar",
+    data: { labels, datasets: [{ data: L.map((l) => l.perh), backgroundColor: colors }] },
+    options: { ...base(t), plugins: { ...base(t).plugins, tooltip: { ...base(t).plugins.tooltip, callbacks: { title: (c) => L[c[0].dataIndex].r, label: (c) => `${plain(c.raw, 1)} per hour (${L[c.dataIndex].n} trips)` } } },
+      scales: { y: { type: "logarithmic", min: 0.5, title: axisTitle(t, "Per hour, log scale"), grid: { color: t.grid } }, x: { grid: { display: false }, ticks: { color: t.ink } } } },
+  });
+  const b = new Chart($("c-ladder-m"), {
+    type: "bar",
+    data: { labels, datasets: [{ data: L.map((l) => l.mean), se: L.map((l) => l.se), errorColor: t.ink, backgroundColor: L.map((l) => (l.mean >= 0 ? alpha(t.gain, 0.8) : alpha(t.loss, 0.8))) }] },
+    options: { ...base(t), plugins: { ...base(t).plugins, tooltip: { ...base(t).plugins.tooltip, callbacks: { title: (c) => L[c[0].dataIndex].r, label: (c) => `${fmt(c.raw)} USDT/BTC per trip (n = ${L[c.dataIndex].n})` } }, guides: { yLines: [{ y: 0, color: t.muted }] } },
+      scales: { y: { title: axisTitle(t, "USDT per BTC per trip"), grid: { color: t.grid } }, x: { grid: { display: false }, ticks: { color: t.ink } } } },
+  });
+  return [a, b];
+}
+
+function pathChart(t) {
+  const p = D.paths[session];
+  const nearest = (ts) => { let i = 0; while (i < p.t.length - 1 && p.t[i] < ts) i++; return p.m[i]; };
+  const out = p.m.filter((m) => m < 0 || m > p.corridor).length / Math.max(p.m.length, 1);
+  $("path-note").textContent = `Session ${session}: ${(p.t[p.t.length - 1] / 60).toFixed(1)} min, ${p.rev.length} observed revisits (live configuration), price outside the corridor ${(100 * out).toFixed(0)}% of the time.`;
+  return new Chart($("c-path"), {
+    type: "line",
+    data: {
+      datasets: [
+        { label: "Composite midpoint", data: p.t.map((x, i) => ({ x: x / 60, y: p.m[i] })), borderColor: t.ink, borderWidth: 1.3, pointRadius: 0, tension: 0 },
+        { label: "Revisit", type: "scatter", data: p.rev.map((x) => ({ x: x / 60, y: nearest(x) })), backgroundColor: t.momentum, borderColor: t.surface, borderWidth: 1, pointRadius: 4.5 },
+      ],
+    },
+    options: { ...base(t), parsing: false,
+      plugins: { ...base(t).plugins, tooltip: { ...base(t).plugins.tooltip, callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.raw.y)} USDT above the corridor floor at ${c.raw.x.toFixed(1)} min` } },
+        guides: { yBands: [{ from: 0, to: p.corridor, color: t.band }], yLines: [{ y: 0, color: t.gated, dash: [4, 4], label: "corridor floor" }, { y: p.corridor, color: t.gated, dash: [4, 4], label: "corridor top" }] } },
+      scales: { x: { type: "linear", title: axisTitle(t, "Minutes into the session"), grid: { color: t.grid } }, y: { suggestedMin: -10, suggestedMax: p.corridor + 15, title: axisTitle(t, "USDT above the corridor floor"), grid: { color: t.grid } } } },
+  });
+}
+
+function markoutChart(t) {
+  const m = D.markouts[session];
+  const venueColors = { binance: t.gated, bybit: t.momentum, okx: t.loss };
+  const ds = ["binance", "bybit", "okx"].filter((v) => m[v]).map((v) => ({
+    label: `${v[0].toUpperCase() + v.slice(1)} (${m[v + "_fills"]} fills)`, data: m[v].map(([h, mean]) => ({ x: h, y: mean })), borderColor: venueColors[v], backgroundColor: venueColors[v], borderWidth: 2, pointRadius: 2.5, tension: 0,
+  }));
+  ds.push({ label: "Unconditional σ of midpoint moves", data: m.ctl.map(([h, sd]) => ({ x: h, y: sd })), borderColor: t.control, borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0 });
+  const at1 = ["binance", "bybit", "okx"].filter((v) => m[v]).map((v) => { const r = m[v].find(([h]) => h === 1000); return r ? `${v} ${fmt(r[1])}` : null; }).filter(Boolean).join(", ");
+  $("markout-note").textContent = `Session ${session}, mean markout at 1 s: ${at1} USDT per BTC. Dashed red: the maker fee paid on every fill.`;
+  return new Chart($("c-markout"), {
+    type: "line",
+    data: { datasets: ds },
+    options: { ...base(t), parsing: false,
+      plugins: { ...base(t).plugins, legend: { display: true, position: "bottom", labels: { color: t.muted, boxWidth: 12, boxHeight: 2 } }, tooltip: { ...base(t).plugins.tooltip, callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.raw.y)} USDT/BTC at ${c.raw.x} ms` } },
+        guides: { yLines: [{ y: 0, color: t.muted }, { y: -17.3, color: t.loss, dash: [4, 4], label: "maker fee per fill" }] } },
+      scales: { x: { type: "logarithmic", min: 1, max: 5000, title: axisTitle(t, "Horizon after the fill, ms (log)"), grid: { color: t.grid }, afterBuildTicks: (ax) => { ax.ticks = [1, 10, 100, 1000, 5000].map((v) => ({ value: v })); }, ticks: { callback: (v) => plain(v) } },
+        y: { suggestedMin: -20, title: axisTitle(t, "USDT per BTC"), grid: { color: t.grid } } } },
+  });
+}
+
+function momentumChart(t) {
+  const rows = D.momentum.filter((m) => !(m.c === "5s" && m.k === "5σ"));
+  return new Chart($("c-momentum"), {
+    type: "bar",
+    data: {
+      labels: rows.map((m) => [`${m.v[0].toUpperCase() + m.v.slice(1)}`, `${m.c} ≥${m.k} · n ${m.n}`]),
+      datasets: [
+        { label: "Next candle continues", data: rows.map((m) => (m.p == null ? null : 100 * m.p)), backgroundColor: alpha(t.momentum, 0.9) },
+        { label: "Base rate", data: rows.map((m) => (m.b == null ? null : 100 * m.b)), backgroundColor: alpha(t.control, 0.75) },
+      ],
+    },
+    options: { ...base(t),
+      plugins: { ...base(t).plugins, tooltip: { ...base(t).plugins.tooltip, callbacks: { label: (c) => `${c.dataset.label}: ${c.raw == null ? "—" : c.raw.toFixed(1) + "%"}` } }, guides: { yLines: [{ y: 50, color: t.muted, dash: [3, 4], label: "coin flip" }] } },
+      scales: { y: { min: 0, max: 100, title: axisTitle(t, "Share of candles, %"), grid: { color: t.grid } }, x: { grid: { display: false }, ticks: { color: t.ink, autoSkip: false, maxRotation: 0 } } } },
+  });
+}
+
+function renderSession(t) {
+  for (const c of charts.filter((c) => c.$session)) c.destroy();
+  charts = charts.filter((c) => !c.$session);
+  const p = pathChart(t), m = markoutChart(t);
+  p.$session = m.$session = true;
+  charts.push(p, m);
+  document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.s === session)));
+}
+function renderAll() {
+  charts.forEach((c) => c.destroy());
+  charts = [];
+  const t = tok();
+  charts.push(sessionsChart(t), stripChart(t), ...ladderCharts(t), momentumChart(t));
+  renderSession(t);
+}
+document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => {
+  session = b.dataset.s;
+  try { localStorage.setItem("astra-session", session); } catch (_) {}
+  renderSession(tok());
+}));
+if (window.Chart) {
+  renderAll();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+  new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+} else {
+  document.querySelectorAll(".chart").forEach((c) => (c.textContent = "Charts need Chart.js from cdn.jsdelivr.net; the tables below hold the same numbers."));
+}
+</script>

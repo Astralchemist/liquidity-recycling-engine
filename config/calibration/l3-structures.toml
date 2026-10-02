@@ -1,0 +1,35 @@
+# Loosening ladder L3 (exploratory) (docs/calibration.md). Generated from config/phase8-structures.toml.
+# Live research grid: 1024 ticks of 0.1 = a 102.4 USDT corridor, centred at session start
+# (lower_price below is REPLACED by the first snapshot's midpoint minus 512 ticks; the
+# effective value is saved with the recording). Cells of 4 ticks (0.4 USDT); the corridor
+# must be a whole number of cells.
+# Each venue contributes its top-20 window, so structure is measured near the touch only.
+# Thresholds are first estimates, NOT calibrated.
+[liquidity]
+lower_price = 1
+cell_width = 4
+bucket_edges_ppm = [50, 100, 250, 500, 1000, 2500]
+sample_interval_ns = 50000000
+warmup_samples = 20
+baseline_alpha_ppm = 50000
+minimum_baseline_units = 100
+minimum_covered_venues = 1
+# Valid for top-K windows: every price between a venue's best and K-th level is present or
+# truly empty in that venue's window.
+assume_contiguous_l2_coverage = true
+pool_depth_ratio_ppm = 2000000
+pool_persistence_ns = 2000000000
+pool_minimum_score_ppm = 1100000
+pool_weights = [600000, 200000, 200000]
+# Venues routinely cross each other (basis and feed latency); research must not suspend
+# while each venue book is valid, so the reference is the composite of valid venues.
+price_reference = "composite"
+
+[void]
+minimum_width_ticks = 3
+minimum_persistence_ns = 100000000
+maximum_age_ns = 600000000000
+low_depth_ppm = 500000
+refill_depth_ppm = 800000
+minimum_score_ppm = 500000
+coverage_loss = "suspend"

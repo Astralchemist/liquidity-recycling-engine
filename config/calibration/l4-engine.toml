@@ -1,0 +1,81 @@
+# Loosening ladder L4 (exploratory) (docs/calibration.md). Phase 9 live engine without J(a); harvest_ticks = 450.
+# Live engine on public data with SIMULATED fills (Phase 9 queue model); no orders are sent.
+# Units: price ticks of 0.1 USDT, quantity units of 0.0001 BTC, money atoms = tick x unit
+# (1 atom = 0.00001 USDT). Environment and structure thresholds are first estimates, NOT
+# calibrated; the adverse-selection prior comes from the Phase 9 fill study.
+
+[environment]
+window_ns = 500000000
+shock_spread_ticks = 50
+shock_min_top_qty = 10
+chaotic_spread_changes = 400
+trend_min_move_ticks = 50
+trend_efficiency_ppm = 700000
+trend_min_aggressive_qty = 10000
+trend_aggression_ppm = 800000
+active_min_moves = 2
+active_min_prints = 2
+
+[policy]
+allowed_scopes = ["venue_local", "multi_venue", "market_wide"]
+entry_levels = 2
+entry_max_abs_net = 4
+harvest_ticks = 450
+rebalance_threshold_units = 1
+rebalance_age_ns = 60000000000
+rebalance_improve_ticks = 0
+reprice_ticks = 5
+evidence_ttl_ns = 5000000000
+exit_on_environment = ["chaotic"]
+entry_environments = ["dead", "balanced_active", "trending", "liquidity_shock"]
+mark_refresh_ns = 500000000
+assess_interval_ns = 100000000
+
+[fills]
+# L2 queue: join behind the displayed size; unexplained depth decreases are attributed
+# proportionally through the level (bounds: pessimistic, optimistic).
+rule = "queue"
+cancel_model = "proportional"
+# Retail base case (docs/providers.md): makers PAY 0.02%, takers 0.05%; no rebate programme.
+maker_fee_ppm = 200
+maker_rebate_ppm = 0
+taker_fee_ppm = 500
+maker_rebate_atoms = "0"
+maker_fee_atoms = "0"
+taker_fee_atoms = "0"
+emergency_slippage_ticks = 1
+
+[inventory]
+venues = [1, 2, 3]
+# Parent 0.01 BTC = 100 units; one child = 1/10 = 0.001 BTC.
+parent_quantity = 100
+quantum_numerator = 1
+quantum_denominator = 10
+target_units = 0
+target_tolerance = 0
+completion_max_gross = 0
+
+[risk]
+max_net_units = 4
+max_gross_units = 8
+max_venue_units = 6
+max_target_deviation = 4
+max_open_orders = 8
+# 5 USDT liability, 20 USDT drawdown.
+max_liability_atoms = "500000"
+max_drawdown_atoms = "2000000"
+max_position_age_ns = 300000000000
+max_episode_ns = 600000000000
+max_adverse_episodes = 5
+mark_stale_ns = 2000000000
+
+[funding]
+# Constant baseline 0.01% per 8 h, longs pay. Boundaries are on the session clock, so their
+# phase against the exchange's UTC schedule is arbitrary.
+rate_ppm = 100
+interval_ns = 28800000000000
+
+[markout]
+# Specification section 18: 1, 5, 10, 25, 50, 100, 250, 500 ms, 1 s and 5 s.
+horizons_ns = [1000000, 5000000, 10000000, 25000000, 50000000, 100000000, 250000000, 500000000, 1000000000, 5000000000]
+

@@ -1,0 +1,93 @@
+$ lre scenario-suite config/phase4-market.toml config/phase7-structures.toml config/phase7-flow.toml config/phase7-engine.toml
+scenario | events | halt | flat | cycles | maker fills | taker fills | peak liability | net pnl atoms | recovery yield ppm | zone scope | traded
+A RevisitOscillation | 2712 | None | true | 26 | 52 | 0 | 150 | 182 | 1213333 | Some(MarketWide) | true
+B OneWayContinuation | 1251 | Some(PnlBreach) | true | 10 | 18 | 2 | 310 | -238 | -767741 | Some(MarketWide) | true
+C LocalVoid | 2704 | None | true | 0 | 0 | 0 | 0 | 0 |  | Some(VenueLocal) | false
+D GlobalVoid | 3216 | None | false | 8 | 18 | 0 | 160 | -32 | 550000 | Some(MarketWide) | true
+E ToxicRecovery | 2916 | None | true | 24 | 48 | 0 | 150 | 48 | 320000 | Some(MarketWide) | true
+F EmergencyExit | 1089 | Some(PnlBreach) | true | 7 | 12 | 2 | 310 | -274 | -883870 | Some(MarketWide) | true
+
+$ lre scenario-demo config/phase4-market.toml config/phase7-structures.toml config/phase7-flow.toml config/phase7-engine.toml <fresh-dir>/lre-phase7-a a
+Direct and recorded-market replay match: complete engine state and 1678 inventory commands. Rule-based simulated fills (strict trade-through); not a queue model.
+scenario=A market_events=2712 environment_ms dead=134 balanced_active=2325 trending=188 liquidity_shock=65 chaotic=0 transitions=12
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Exited revisits=2 max_penetration_ppm=1000000 traded=true
+policy entries_placed=32 entries_cancelled=6 reprices=5 harvests=22 rebalances=11 maker_fills=52 taker_fills=0 disallowed_scope_steps=0 unqualified_revisit_steps=6 kill_steps=0 denials=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cross_venue max_abs_divergence_x2=1 divergent_events=1778 research_fault=None environment_fault=None
+toxicity_components=ToxicityComponents { aggression_imbalance_ppm: Some(-100000), depletion_ppm: Some(492537), cancellation_ppm: None, spread_ticks: Some(2), spread_changes: 27 }
+commands=1678 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=None safety_work_remaining=false
+accounts=Accounts { realized: Money(130), rebates: Money(52), fees: Money(0), slippage: Money(0), funding: Money(0) } cash_atoms=182 unrealized_atoms=0 liability_atoms=0 harvest_atoms=182 recovery_atoms=182 equity_atoms=182
+completed_episodes=1 profitable_episode_ppm=Some(1000000) completed_episode_pnl_atoms=182 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 52, maker_fills: 52, completed_cycles: 26, maker_to_maker: 26, maker_to_taker: 0, taker_escapes: 0, orders: 65 } maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escape_per_cycle_ppm=Some(0)
+episode=1 void=1 start_ns=646000000 end_ns=Some(2056000000) duration_ns=1410000000 forced=None peak_long=2 peak_short=2 peak_gross=4 peak_net=2 peak_target_deviation=2 peak_liability_atoms=150 realized_atoms=130 rebate_atoms=52 fee_atoms=0 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=182 inventory_recovery_yield_ppm=Some(1213333) first_recovery_ns=Some(75000000) orders=65 fills=52 maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escapes=0
+
+$ lre scenario-replay <fresh-dir>/lre-phase7-a
+scenario=A market_events=2712 environment_ms dead=134 balanced_active=2325 trending=188 liquidity_shock=65 chaotic=0 transitions=12
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Exited revisits=2 max_penetration_ppm=1000000 traded=true
+policy entries_placed=32 entries_cancelled=6 reprices=5 harvests=22 rebalances=11 maker_fills=52 taker_fills=0 disallowed_scope_steps=0 unqualified_revisit_steps=6 kill_steps=0 denials=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cross_venue max_abs_divergence_x2=1 divergent_events=1778 research_fault=None environment_fault=None
+toxicity_components=ToxicityComponents { aggression_imbalance_ppm: Some(-100000), depletion_ppm: Some(492537), cancellation_ppm: None, spread_ticks: Some(2), spread_changes: 27 }
+commands=1678 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=None safety_work_remaining=false
+accounts=Accounts { realized: Money(130), rebates: Money(52), fees: Money(0), slippage: Money(0), funding: Money(0) } cash_atoms=182 unrealized_atoms=0 liability_atoms=0 harvest_atoms=182 recovery_atoms=182 equity_atoms=182
+completed_episodes=1 profitable_episode_ppm=Some(1000000) completed_episode_pnl_atoms=182 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 52, maker_fills: 52, completed_cycles: 26, maker_to_maker: 26, maker_to_taker: 0, taker_escapes: 0, orders: 65 } maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escape_per_cycle_ppm=Some(0)
+episode=1 void=1 start_ns=646000000 end_ns=Some(2056000000) duration_ns=1410000000 forced=None peak_long=2 peak_short=2 peak_gross=4 peak_net=2 peak_target_deviation=2 peak_liability_atoms=150 realized_atoms=130 rebate_atoms=52 fee_atoms=0 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=182 inventory_recovery_yield_ppm=Some(1213333) first_recovery_ns=Some(75000000) orders=65 fills=52 maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escapes=0
+
+$ lre scenario-demo config/phase4-market.toml config/phase7-structures.toml config/phase7-flow.toml config/phase7-engine.toml <fresh-dir>/lre-phase7-e e
+Direct and recorded-market replay match: complete engine state and 1821 inventory commands. Rule-based simulated fills (strict trade-through); not a queue model.
+scenario=E market_events=2916 environment_ms dead=134 balanced_active=2418 trending=271 liquidity_shock=93 chaotic=0 transitions=17
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Exited revisits=11 max_penetration_ppm=1000000 traded=true
+zone id=2 region=[96,99] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+policy entries_placed=43 entries_cancelled=19 reprices=12 harvests=23 rebalances=18 maker_fills=48 taker_fills=0 disallowed_scope_steps=0 unqualified_revisit_steps=35 kill_steps=0 denials=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cross_venue max_abs_divergence_x2=1 divergent_events=1892 research_fault=None environment_fault=None
+toxicity_components=ToxicityComponents { aggression_imbalance_ppm: Some(-100000), depletion_ppm: Some(492537), cancellation_ppm: None, spread_ticks: Some(2), spread_changes: 27 }
+commands=1821 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=None safety_work_remaining=false
+accounts=Accounts { realized: Money(0), rebates: Money(48), fees: Money(0), slippage: Money(0), funding: Money(0) } cash_atoms=48 unrealized_atoms=0 liability_atoms=0 harvest_atoms=48 recovery_atoms=48 equity_atoms=48
+completed_episodes=1 profitable_episode_ppm=Some(1000000) completed_episode_pnl_atoms=48 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 48, maker_fills: 48, completed_cycles: 24, maker_to_maker: 24, maker_to_taker: 0, taker_escapes: 0, orders: 84 } maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escape_per_cycle_ppm=Some(0)
+episode=1 void=1 start_ns=646000000 end_ns=Some(2260000000) duration_ns=1614000000 forced=None peak_long=2 peak_short=2 peak_gross=4 peak_net=2 peak_target_deviation=2 peak_liability_atoms=150 realized_atoms=0 rebate_atoms=48 fee_atoms=0 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=48 inventory_recovery_yield_ppm=Some(320000) first_recovery_ns=Some(75000000) orders=84 fills=48 maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escapes=0
+
+$ lre scenario-replay <fresh-dir>/lre-phase7-e
+scenario=E market_events=2916 environment_ms dead=134 balanced_active=2418 trending=271 liquidity_shock=93 chaotic=0 transitions=17
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Exited revisits=11 max_penetration_ppm=1000000 traded=true
+zone id=2 region=[96,99] scope=VenueLocal mask=4 state=Invalidated revisits=0 max_penetration_ppm=0 traded=false
+policy entries_placed=43 entries_cancelled=19 reprices=12 harvests=23 rebalances=18 maker_fills=48 taker_fills=0 disallowed_scope_steps=0 unqualified_revisit_steps=35 kill_steps=0 denials=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cross_venue max_abs_divergence_x2=1 divergent_events=1892 research_fault=None environment_fault=None
+toxicity_components=ToxicityComponents { aggression_imbalance_ppm: Some(-100000), depletion_ppm: Some(492537), cancellation_ppm: None, spread_ticks: Some(2), spread_changes: 27 }
+commands=1821 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=None safety_work_remaining=false
+accounts=Accounts { realized: Money(0), rebates: Money(48), fees: Money(0), slippage: Money(0), funding: Money(0) } cash_atoms=48 unrealized_atoms=0 liability_atoms=0 harvest_atoms=48 recovery_atoms=48 equity_atoms=48
+completed_episodes=1 profitable_episode_ppm=Some(1000000) completed_episode_pnl_atoms=48 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 48, maker_fills: 48, completed_cycles: 24, maker_to_maker: 24, maker_to_taker: 0, taker_escapes: 0, orders: 84 } maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escape_per_cycle_ppm=Some(0)
+episode=1 void=1 start_ns=646000000 end_ns=Some(2260000000) duration_ns=1614000000 forced=None peak_long=2 peak_short=2 peak_gross=4 peak_net=2 peak_target_deviation=2 peak_liability_atoms=150 realized_atoms=0 rebate_atoms=48 fee_atoms=0 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=48 inventory_recovery_yield_ppm=Some(320000) first_recovery_ns=Some(75000000) orders=84 fills=48 maker_fill_ppm=Some(1000000) maker_to_maker_ppm=Some(1000000) taker_escapes=0
+
+$ lre scenario-demo config/phase4-market.toml config/phase7-structures.toml config/phase7-flow.toml config/phase7-engine.toml <fresh-dir>/lre-phase7-f f
+Direct and recorded-market replay match: complete engine state and 524 inventory commands. Rule-based simulated fills (strict trade-through); not a queue model.
+scenario=F market_events=1089 environment_ms dead=134 balanced_active=483 trending=179 liquidity_shock=293 chaotic=0 transitions=11
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Exited revisits=1 max_penetration_ppm=1000000 traded=true
+zone id=2 region=[96,99] scope=MarketWide mask=7 state=Exited revisits=0 max_penetration_ppm=0 traded=false
+zone id=3 region=[92,95] scope=MarketWide mask=7 state=Persisted revisits=0 max_penetration_ppm=0 traded=false
+zone id=4 region=[88,91] scope=MarketWide mask=7 state=Persisted revisits=0 max_penetration_ppm=0 traded=false
+zone id=5 region=[84,87] scope=MarketWide mask=7 state=Persisted revisits=0 max_penetration_ppm=0 traded=false
+policy entries_placed=12 entries_cancelled=5 reprices=2 harvests=6 rebalances=2 maker_fills=12 taker_fills=2 disallowed_scope_steps=0 unqualified_revisit_steps=6 kill_steps=122 denials=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cross_venue max_abs_divergence_x2=1 divergent_events=523 research_fault=None environment_fault=None
+toxicity_components=ToxicityComponents { aggression_imbalance_ppm: Some(-1000000), depletion_ppm: Some(1000000), cancellation_ppm: None, spread_ticks: Some(19), spread_changes: 4 }
+commands=524 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=Some(PnlBreach) safety_work_remaining=false
+accounts=Accounts { realized: Money(-280), rebates: Money(12), fees: Money(6), slippage: Money(0), funding: Money(0) } cash_atoms=-274 unrealized_atoms=0 liability_atoms=0 harvest_atoms=-274 recovery_atoms=-274 equity_atoms=-274
+completed_episodes=1 profitable_episode_ppm=Some(0) completed_episode_pnl_atoms=-274 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 14, maker_fills: 12, completed_cycles: 7, maker_to_maker: 5, maker_to_taker: 2, taker_escapes: 2, orders: 22 } maker_fill_ppm=Some(857142) maker_to_maker_ppm=Some(714285) taker_escape_per_cycle_ppm=Some(285714)
+episode=1 void=1 start_ns=646000000 end_ns=Some(968000000) duration_ns=322000000 forced=Some(PnlBreach) peak_long=2 peak_short=2 peak_gross=4 peak_net=2 peak_target_deviation=2 peak_liability_atoms=310 realized_atoms=-280 rebate_atoms=12 fee_atoms=6 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=-274 inventory_recovery_yield_ppm=Some(-883870) first_recovery_ns=Some(75000000) orders=22 fills=14 maker_fill_ppm=Some(857142) maker_to_maker_ppm=Some(714285) taker_escapes=2
+
+$ lre scenario-replay <fresh-dir>/lre-phase7-f
+scenario=F market_events=1089 environment_ms dead=134 balanced_active=483 trending=179 liquidity_shock=293 chaotic=0 transitions=11
+zone id=1 region=[100,103] scope=MarketWide mask=7 state=Exited revisits=1 max_penetration_ppm=1000000 traded=true
+zone id=2 region=[96,99] scope=MarketWide mask=7 state=Exited revisits=0 max_penetration_ppm=0 traded=false
+zone id=3 region=[92,95] scope=MarketWide mask=7 state=Persisted revisits=0 max_penetration_ppm=0 traded=false
+zone id=4 region=[88,91] scope=MarketWide mask=7 state=Persisted revisits=0 max_penetration_ppm=0 traded=false
+zone id=5 region=[84,87] scope=MarketWide mask=7 state=Persisted revisits=0 max_penetration_ppm=0 traded=false
+policy entries_placed=12 entries_cancelled=5 reprices=2 harvests=6 rebalances=2 maker_fills=12 taker_fills=2 disallowed_scope_steps=0 unqualified_revisit_steps=6 kill_steps=122 denials=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cross_venue max_abs_divergence_x2=1 divergent_events=523 research_fault=None environment_fault=None
+toxicity_components=ToxicityComponents { aggression_imbalance_ppm: Some(-1000000), depletion_ppm: Some(1000000), cancellation_ppm: None, spread_ticks: Some(19), spread_changes: 4 }
+commands=524 quantum_qty=10 exposure=Exposure { long: 0, short: 0, pending_buys: 0, pending_sells: 0, closing_buys: 0, closing_sells: 0, open_orders: 0 } halt=Some(PnlBreach) safety_work_remaining=false
+accounts=Accounts { realized: Money(-280), rebates: Money(12), fees: Money(6), slippage: Money(0), funding: Money(0) } cash_atoms=-274 unrealized_atoms=0 liability_atoms=0 harvest_atoms=-274 recovery_atoms=-274 equity_atoms=-274
+completed_episodes=1 profitable_episode_ppm=Some(0) completed_episode_pnl_atoms=-274 unassigned_pnl_atoms=0 history_evictions=(0, 0)
+counts=ExecutionCounts { fills: 14, maker_fills: 12, completed_cycles: 7, maker_to_maker: 5, maker_to_taker: 2, taker_escapes: 2, orders: 22 } maker_fill_ppm=Some(857142) maker_to_maker_ppm=Some(714285) taker_escape_per_cycle_ppm=Some(285714)
+episode=1 void=1 start_ns=646000000 end_ns=Some(968000000) duration_ns=322000000 forced=Some(PnlBreach) peak_long=2 peak_short=2 peak_gross=4 peak_net=2 peak_target_deviation=2 peak_liability_atoms=310 realized_atoms=-280 rebate_atoms=12 fee_atoms=6 slippage_atoms=0 funding_atoms=0 residual_mtm_atoms=0 net_pnl_atoms=-274 inventory_recovery_yield_ppm=Some(-883870) first_recovery_ns=Some(75000000) orders=22 fills=14 maker_fill_ppm=Some(857142) maker_to_maker_ppm=Some(714285) taker_escapes=2

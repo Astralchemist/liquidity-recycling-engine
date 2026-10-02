@@ -21,7 +21,7 @@ struct Config {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Settings {
+pub(super) struct Settings {
     venues: [u16; 3],
     parent_quantity: i64,
     quantum_numerator: u32,
@@ -32,7 +32,7 @@ struct Settings {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Limits {
+pub(super) struct Limits {
     max_net_units: i64,
     max_gross_units: i64,
     max_venue_units: i64,
@@ -45,7 +45,7 @@ struct Limits {
     max_adverse_episodes: u32,
     mark_stale_ns: u64,
 }
-fn money(text: &str) -> Result<Money, String> {
+pub(super) fn money(text: &str) -> Result<Money, String> {
     if text.is_empty() || !text.bytes().all(|b| b.is_ascii_digit()) {
         return Err("money limits require positive integer atom strings".into());
     }
@@ -53,7 +53,10 @@ fn money(text: &str) -> Result<Money, String> {
 }
 fn parse(text: &str) -> Result<InventoryConfig<3>, String> {
     let c: Config = toml::from_str(text).map_err(|e| e.to_string())?;
-    let (s, r) = (c.inventory, c.risk);
+    inventory_config(c.inventory, c.risk)
+}
+/// Shared by the Phase 6 and Phase 7 configuration files; validates through `Ledger::new`.
+pub(super) fn inventory_config(s: Settings, r: Limits) -> Result<InventoryConfig<3>, String> {
     let cfg = InventoryConfig {
         venues: s.venues.map(VenueId),
         quantum: Quantum::new(
@@ -122,7 +125,7 @@ fn trace(event: InventoryEvent, e: &Engine) -> Result<(), String> {
     );
     Ok(())
 }
-fn summary(e: &Engine) -> Result<(), String> {
+pub(super) fn summary(e: &Engine) -> Result<(), String> {
     let counts = e.counts();
     let (completed, profitable, pnl) = e.episode_totals();
     println!(

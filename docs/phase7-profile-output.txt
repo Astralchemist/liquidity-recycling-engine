@@ -1,0 +1,14 @@
+    Finished `bench` profile [optimized] target(s) in 0.04s
+     Running benches/profile.rs (target/release/deps/profile-a4b13c111dcaf859)
+Engine size 119536 bytes (boxed). Six synthetic scenarios, fresh engine each, 1 ms event spacing.
+Startup allocations: 7 (engine box + six fixed flow buffers).
+scenario=A events=2712 commands=1678 elapsed_ns=5421917 ns/event=1999.2 allocations=0
+scenario=B events=1251 commands=707 elapsed_ns=2356792 ns/event=1883.9 allocations=0
+scenario=C events=2704 commands=1548 elapsed_ns=5157500 ns/event=1907.4 allocations=0
+scenario=D events=3216 commands=1616 elapsed_ns=6269458 ns/event=1949.5 allocations=0
+scenario=E events=2916 commands=1821 elapsed_ns=5730083 ns/event=1965.0 allocations=0
+scenario=F events=1089 commands=524 elapsed_ns=1992500 ns/event=1829.7 allocations=0
+slowest 14 events: [(14584, SnapshotEnd, 1), (14208, SnapshotEnd, 1), (14042, SnapshotEnd, 1), (12875, SnapshotEnd, 1), (12833, SnapshotEnd, 1), (12792, SnapshotEnd, 1), (12250, SnapshotEnd, 1), (12125, SnapshotEnd, 1), (12083, SnapshotEnd, 1), (11625, SnapshotStart, 0), (10958, SnapshotEnd, 1), (10917, SnapshotEnd, 1), (10791, SnapshotEnd, 1), (10417, SnapshotEnd, 1)]
+all_events n=13888 latency ns including timer: p50=2000 p90=2250 p99=2875 p99.9=10417 max=14584
+no_command n=6376 latency ns including timer: p50=1709 p90=1833 p99=1958 p99.9=2167 max=11625
+with_commands n=7512 latency ns including timer: p50=2125 p90=2291 p99=3167 p99.9=12125 max=14584

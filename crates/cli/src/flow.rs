@@ -26,7 +26,7 @@ struct Settings {
     removal_attribution: String,
     probability_horizon_ns: u64,
 }
-fn parse(text: &str) -> Result<(FlowConfig, u64), String> {
+pub(super) fn parse(text: &str) -> Result<(FlowConfig, u64), String> {
     let settings: Config = toml::from_str(text).map_err(|e| e.to_string())?;
     let s = settings.orderflow;
     let removal_attribution = match s.removal_attribution.as_str() {

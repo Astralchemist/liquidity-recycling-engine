@@ -1,0 +1,7 @@
+# 100 ms windows: every scenario event is 1 ms apart, so each 128-slot window stays bounded.
+[orderflow]
+event_window = 16
+time_window_ns = 100000000
+qi_levels = 2
+removal_attribution = "unknown"
+probability_horizon_ns = 10000000

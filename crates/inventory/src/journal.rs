@@ -28,6 +28,7 @@ fn kill_code(k: KillReason) -> u8 {
         KillReason::EpisodeDuration => 11,
         KillReason::AdverseEpisodes => 12,
         KillReason::StructureInvalidated => 13,
+        KillReason::RegimeChange => 14,
     }
 }
 fn read_kill(k: u8) -> io::Result<KillReason> {
@@ -46,6 +47,7 @@ fn read_kill(k: u8) -> io::Result<KillReason> {
         11 => KillReason::EpisodeDuration,
         12 => KillReason::AdverseEpisodes,
         13 => KillReason::StructureInvalidated,
+        14 => KillReason::RegimeChange,
         _ => return Err(invalid()),
     })
 }

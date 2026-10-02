@@ -1,32 +1,36 @@
 [package]
-name = "cli"
+name = "engine"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code = "deny"
 
 [dependencies]
 common.workspace = true
 fixed-point.workspace = true
 market-events.workspace = true
 book.workspace = true
-recorder.workspace = true
-replay.workspace = true
 consolidator.workspace = true
 liquidity.workspace = true
 orderflow.workspace = true
+voids.workspace = true
 inventory.workspace = true
 risk.workspace = true
-voids.workspace = true
-simulation.workspace = true
 toxicity.workspace = true
-engine.workspace = true
-serde = { version = "1.0", features = ["derive"] }
-toml = "0.9"
 
-[[bin]]
-name = "lre"
-path = "src/main.rs"
+[dev-dependencies]
+simulation.workspace = true
+recorder.workspace = true
+replay.workspace = true
+criterion.workspace = true
+
+[[bench]]
+name = "engine"
+harness = false
+
+[[bench]]
+name = "profile"
+harness = false

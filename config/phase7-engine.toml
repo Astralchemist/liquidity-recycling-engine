@@ -1,0 +1,59 @@
+# Phase 7 engine: environment classifier, recycling policy, rule-based fills, inventory, risk.
+# Matches engine::fixtures; synthetic test data, not venue calibration. Money is in atoms.
+
+[environment]
+window_ns = 120000000
+shock_spread_ticks = 4
+shock_min_top_qty = 1
+chaotic_spread_changes = 40
+trend_min_move_ticks = 4
+trend_efficiency_ppm = 700000
+trend_min_aggressive_qty = 400
+trend_aggression_ppm = 900000
+active_min_moves = 2
+active_min_prints = 2
+
+[policy]
+# Venue-local voids are observed but not traded.
+allowed_scopes = ["multi_venue", "market_wide"]
+entry_levels = 1
+entry_max_abs_net = 2
+harvest_ticks = 1
+rebalance_threshold_units = 1
+rebalance_age_ns = 600000000
+rebalance_improve_ticks = 0
+reprice_ticks = 2
+evidence_ttl_ns = 50000000
+# Environments that force a RegimeChange exit while inventory is held.
+exit_on_environment = ["chaotic"]
+mark_refresh_ns = 100000000
+assess_interval_ns = 10000000
+
+[fills]
+# The only fill rule: a print strictly through a resting price fills it as maker.
+rule = "strict_trade_through"
+maker_rebate_atoms = "1"
+taker_fee_atoms = "3"
+emergency_slippage_ticks = 1
+
+[inventory]
+venues = [1, 2, 3]
+parent_quantity = 100
+quantum_numerator = 1
+quantum_denominator = 10
+target_units = 0
+target_tolerance = 0
+completion_max_gross = 0
+
+[risk]
+max_net_units = 4
+max_gross_units = 8
+max_venue_units = 6
+max_target_deviation = 4
+max_open_orders = 8
+max_liability_atoms = "300"
+max_drawdown_atoms = "1000"
+max_position_age_ns = 20000000000
+max_episode_ns = 30000000000
+max_adverse_episodes = 3
+mark_stale_ns = 1000000000

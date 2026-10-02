@@ -1,6 +1,6 @@
 # Project working rules
 
-- Implement in tested, executable milestones. Current delivery includes Phase 6 inventory accounting; see docs/milestones.md and docs/phase6.md before extending it.
+- Implement in tested, executable milestones. Current delivery includes Phase 7 synthetic scenarios through one engine; see docs/milestones.md, docs/phase7.md and docs/providers.md before extending it.
 - Rust stable only in engine paths. No AI/ML/inference, floating-point execution money, databases, message brokers, or per-decision async scheduling.
 - Use checked integer arithmetic, explicit units, bounded memory, and single ownership. Share production modules with replay.
 - Native venue adapters must validate native sequence ranges and atomic depth batches before canonicalizing events. Do not treat canonical sequence IDs as native protocol validation.
@@ -15,3 +15,4 @@
 - Structure benchmarks: cargo bench -p liquidity --bench structures --locked and cargo bench -p liquidity --bench profile --locked. Keep coverage, sampling, corridor and source-mask assumptions explicit.
 - Flow benchmarks: cargo bench -p orderflow --bench flow --locked and cargo bench -p orderflow --bench profile --locked. Preserve unknown cancellation attribution; Poisson event probability is not queue-fill probability. Time-window overflow must fail visibly.
 - Inventory benchmarks: cargo bench -p inventory --bench ledger --locked and cargo bench -p inventory --bench profile --locked. Ledger commands are all-or-nothing; append-only history is committed only after success. A normal close must contribute net profit or improve the projected balance including committed closes; emergency exits after a halt must always remain possible. Acknowledged fills are never refused. Revisit evidence is a caller attestation until Phase 7 connects it.
+- Engine benchmarks: cargo bench -p engine --bench engine --locked and cargo bench -p engine --bench profile --locked. Engine::apply is the only entry point for direct input and replay. Fills are simulated by strict trade-through only; never present scenario PnL as edge. Entries require an allowed revisited zone AND balanced-active environment. Keep engine tests checking invariants after every event, and box engines in tests (debug stack).

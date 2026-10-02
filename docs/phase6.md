@@ -201,7 +201,7 @@ The reader rejects any mismatch, including a different configuration text.
 | 36 | 1 | Evidence qualified |
 | 37 | 1 | Close mode: 1 emergency |
 | 38 | 1 | Maker |
-| 39 | 1 | Kill reason code 0–13, in `risk::KillReason` declaration order |
+| 39 | 1 | Kill reason code 0–14, in `risk::KillReason` declaration order (14 `RegimeChange` added in Phase 7) |
 | 40 | 8 | Price, bid, or expected price |
 | 48 | 8 | Ask |
 | 56 | 16 | Rebate |

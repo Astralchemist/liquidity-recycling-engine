@@ -33,20 +33,37 @@ Commands are all-or-nothing transactions; history is committed only after succes
 
 Revisit evidence is still a caller attestation, fills are stipulated, and no executor yet performs the kill procedure.
 
-## Next: Phase 7 synthetic scenarios
+## Completed: Phase 7 synthetic scenarios
 
-Drive the Phase 4–6 engines together from synthetic markets A–F:
+One synchronous engine connects the Phase 4–5 research path, an explicit five-state environment classifier, the Phase 6 ledger, a rule-based recycling policy and the kill executor:
 
-- Derive `RevisitEvidence` from observed void revisits and an explicit environment state machine.
-- Execute the kill procedure from `safety_work_remaining`: cancel resting reservations, then emergency-flatten.
-- Assert portfolio recovery or forced exit per scenario.
+- **Classifier:** dead, balanced-active, trending, liquidity shock and chaotic, with transparent toxicity components.
+- **Policy:** zone-gated entries, harvest, age- or threshold-triggered rebalance, and quote hysteresis.
+- **Kill executor:** cancels entries, cancels normal closes, then emergency-flattens from the majority side.
 
-Keep fills stipulated or rule-based and explicit until the Phase 9 queue simulator exists.
+Revisit evidence now comes from observed void revisits. Specification scenarios A–F are scripted on a synthetic three-venue L2 generator.
+
+Tests check engine-wide invariants after every event. Recorded-market replay reproduces the complete engine state and inventory journal, a seeded policy sweep preserves the invariants, and zero allocations occur after startup. See [Phase 7 contracts](phase7.md), [validation](phase7-validation.md) and the [provider documentation review](providers.md).
+
+Fills follow one simulated rule (strict trade-through); scenario PnL is not evidence of edge. The engine quotes one venue per zone and supports one active episode at a time.
+
+## Next: Phase 8 native public feeds
+
+Binance, Bybit and OKX public adapters following [providers](providers.md):
+
+- documented snapshot, sequence and keepalive rules
+- atomic depth batches through `apply_depth_batch`
+- a versioned batch envelope in the recording format
+- bounded threaded ingress with SPSC transport
+- local monotonic receive stamps
+- exact live/replay comparison
+- lead/lag cross-correlation tooling and stage latency measurement
+
+No account or contact is required, except OKX tick-by-tick L2 (VIP4); start with `books` and `bbo-tbt`.
 
 ## Following deliveries
 
-- Phase 8: documented native public Binance/Bybit/OKX feeds, snapshot synchronization, batch-aware recording, bounded transport, exact live/replay comparison, synchronized-clock metadata.
-- Phase 9: configurable maker/queue simulator, explicit fees/rebates/slippage/funding, markout horizons and episode metrics.
-- Phase 10: demo exchange routing after risk gates, kill procedure, order lifecycle and fault injection.
+- Phase 9: configurable maker/queue/size simulator replacing strict trade-through. Explicit fees with positive retail maker fees as the base case, rebates only by programme, slippage, funding, markout horizons, net maker yield, and the objective J(a).
+- Phase 10: demo exchange routing after risk gates, using the kill executor, order lifecycle and fault injection. Account and jurisdiction prerequisites are in [providers](providers.md).
 
-Full latency stages, inventory safety/flattening, lead/lag research and real exchange connectivity remain unimplemented. No real-money gateway is enabled.
+Full latency stages, lead/lag research, realistic fills and real exchange connectivity remain unimplemented. No real-money gateway is enabled.

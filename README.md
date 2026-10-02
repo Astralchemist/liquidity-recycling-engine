@@ -1,6 +1,20 @@
 # Liquidity & Inventory Recycling Engine
 
-Rust-only deterministic research engine. Completed: Phase 1–2 arithmetic and bounded L2 books; Phase 3 exact multi-venue normalization and weighted consolidation, with synthetic recording/replay; Phase 4 configurable liquidity pools, historical voids, touch/partial revisits and refill statistics; Phase 5 bounded OFI, queue imbalance and flow intensity; Phase 6 exact one-quantum inventory ledger, hard limits, recovery accounts and episodes. Live feeds, action selection, simulated execution and order submission remain later milestones.
+Rust-only deterministic research engine. Completed: Phase 1–2 arithmetic and bounded L2 books; Phase 3 exact multi-venue normalization and weighted consolidation, with synthetic recording/replay; Phase 4 configurable liquidity pools, historical voids, touch/partial revisits and refill statistics; Phase 5 bounded OFI, queue imbalance and flow intensity; Phase 6 exact one-quantum inventory ledger, hard limits, recovery accounts and episodes; Phase 7 one engine with environment classification, a rule-based recycling policy, simulated strict trade-through fills, the kill procedure and specification scenarios A–F. Live feeds, realistic fill simulation and order submission remain later milestones.
+
+## Run Phase 7
+
+```sh
+cargo run -p cli --release --locked -- scenario-suite config/phase4-market.toml config/phase7-structures.toml config/phase7-flow.toml config/phase7-engine.toml
+cargo run -p cli --release --locked -- scenario-demo config/phase4-market.toml config/phase7-structures.toml config/phase7-flow.toml config/phase7-engine.toml /tmp/lre-phase7-e e
+cargo run -p cli --release --locked -- scenario-replay /tmp/lre-phase7-e
+```
+
+The suite runs scenarios A–F in memory and prints one row each: halt, flat, cycles, fills, peak liability, PnL, recovery yield and zone scope.
+
+`scenario-demo` takes a letter `a`–`f` and a fresh directory. It records three venue streams and the inventory journal, then requires the replay to reproduce the complete engine state and the identical command stream.
+
+Fills are simulated by one rule (strict trade-through), so PnL is not evidence of edge. See [Phase 7 contracts](docs/phase7.md) and the [provider documentation review](docs/providers.md).
 
 ## Run Phase 6
 
@@ -46,6 +60,8 @@ Use a fresh output directory. The demo records three synthetic venue streams wit
 cargo test --workspace --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo fmt --all -- --check
+cargo bench -p engine --bench engine --locked
+cargo bench -p engine --bench profile --locked
 cargo bench -p inventory --bench ledger --locked
 cargo bench -p inventory --bench profile --locked
 cargo bench -p orderflow --bench flow --locked
@@ -69,6 +85,9 @@ The single-venue demo refuses to overwrite a file. Replay modes: `max`, `step`, 
 
 ## Documentation
 
+- [Provider documentation review: Binance, Bybit, OKX, Tiingo access and sync rules](docs/providers.md)
+- [Phase 7 engine, environment, policy, fills, kill procedure and scenarios](docs/phase7.md)
+- [Phase 7 validation and benchmarks](docs/phase7-validation.md)
 - [Phase 6 inventory ledger, limits, accounts and episodes](docs/phase6.md)
 - [Phase 6 validation and benchmarks](docs/phase6-validation.md)
 - [Phase 5 flow definitions and integration](docs/phase5.md)

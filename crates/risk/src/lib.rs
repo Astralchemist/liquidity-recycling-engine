@@ -17,6 +17,8 @@ pub enum KillReason {
     EpisodeDuration,
     AdverseEpisodes,
     StructureInvalidated,
+    /// Configured environment states (for example a liquidity shock) while inventory is held.
+    RegimeChange,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InventoryLimits {

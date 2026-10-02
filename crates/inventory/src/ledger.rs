@@ -199,6 +199,10 @@ impl<const V: usize, const L: usize, const E: usize> Ledger<V, L, E> {
             .checked_sub(self.state.episode_net_total)?
             .checked_sub(self.state.active_episode.map_or(Money(0), |e| e.net_pnl))?)
     }
+    /// Last accepted mark for a venue; emergency pricing uses it after market data faults.
+    pub fn mark(&self, venue: VenueId) -> Result<Option<Mark>, InventoryError> {
+        Ok(self.state.marks[self.state.venue(venue)?])
+    }
     pub fn venue_exposure(&self, venue: VenueId) -> Result<(i64, i64), InventoryError> {
         let v = self.state.venue(venue)?;
         Ok((self.state.venue_gross[v], self.state.venue_pending[v]))

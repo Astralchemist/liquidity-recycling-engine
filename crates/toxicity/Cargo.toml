@@ -10,5 +10,3 @@ workspace = true
 
 [dependencies]
 common.workspace = true
-fixed-point.workspace = true
-market-events.workspace = true

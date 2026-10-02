@@ -265,7 +265,7 @@ python3 scripts/figures.py
 python3 scripts/render-evidence.py
 ```
 
-The engine is Rust (stable, `unsafe` forbidden, integer money, zero allocations after start-up) with 160 tests. Analysis scripts use the Python standard library only. Pre-registration: commit `94dbd07`; results: `00cc725`. An interactive version of this evidence is [`docs/evidence/index.html`](../evidence/index.html); download it and open it in a browser.
+The engine is Rust (stable, `unsafe` forbidden, integer money, zero allocations after start-up) with 160 tests. Analysis scripts use the Python standard library only. Pre-registration: commit `94dbd07`; results: `00cc725`. An interactive version of this evidence is published at [https://astralchemist.github.io/liquidity-recycling-engine/evidence/](https://astralchemist.github.io/liquidity-recycling-engine/evidence/), built from [`docs/evidence/index.html`](../evidence/index.html).
 
 ## References
 

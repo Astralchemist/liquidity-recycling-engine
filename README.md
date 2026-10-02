@@ -8,7 +8,7 @@ A deterministic Rust research engine for multi-venue BTC/USDT perpetual order bo
 - simulates passive execution in an L2 queue model with retail fees
 - runs a revisit-gated inventory-recycling strategy behind hard risk limits
 
-**Result: the strategy does not work at retail fees.** See the [study](docs/study/README.md), with eleven figures, and the [evidence data](docs/evidence/). `docs/evidence/index.html` is an interactive page: download it and open it in a browser.
+**Result: the strategy does not work at retail fees.** Read the [study](docs/study/README.md) (eleven figures) or open the **[interactive evidence page](https://astralchemist.github.io/liquidity-recycling-engine/evidence/)**.
 
 - **Cont, Kukanov & Stoikov (2014) replicates.** Order-flow imbalance explains 47–67% of short-interval price variance; trade imbalance explains 11–21%. Price impact scales with 1/depth.
 - **Farmer et al. (2004) partly replicates.** Book flow, not order size, drives large moves. But BTC books have one-tick gaps, so large moves arrive as flurries of small orders.
@@ -16,6 +16,20 @@ A deterministic Rust research engine for multi-venue BTC/USDT perpetual order bo
 - **One lead remains.** A pick-off filter that skips a venue's stale side halves adverse selection. It is still negative at retail fees and would need a market-maker rebate tier and its own pre-registered test.
 
 This is research code. Fills are simulated against recorded public data, no order is ever sent, and nothing here is investment advice. Recorded exchange data is not included, because exchange terms forbid redistribution; record your own with `live-record` (below). Licensed under MIT or Apache-2.0, at your option.
+
+## Results at a glance
+
+![Figure 1: pre-registered test](docs/study/figures/fig01-preregistered-test.svg)
+
+![Figure 7: Cont, Kukanov and Stoikov replication](docs/study/figures/fig07-cks-replication.svg)
+
+![Figure 8: Farmer et al. replication](docs/study/figures/fig08-farmer-replication.svg)
+
+![Figure 6: pick-off filter](docs/study/figures/fig06-pickoff-filter.svg)
+
+![Figure 4: session E within the research corridor](docs/study/figures/fig04-corridor.svg)
+
+All eleven figures, with methods and caveats, are in the [study](docs/study/README.md). The [interactive evidence page](https://astralchemist.github.io/liquidity-recycling-engine/evidence/) has per-session charts, every round trip, and the recording checksums.
 
 ## Status
 
@@ -137,7 +151,7 @@ The single-venue demo refuses to overwrite a file. Replay modes: `max`, `step`, 
 ## Documentation
 
 - [Study: replicating Cont–Kukanov–Stoikov and Farmer et al., and a pre-registered strategy test](docs/study/README.md)
-- [Evidence data and interactive page (open `index.html` in a browser)](docs/evidence/)
+- [Interactive evidence page](https://astralchemist.github.io/liquidity-recycling-engine/evidence/) and its [data](docs/evidence/)
 - [Calibration and pre-registered strategy test, loosening ladder, momentum study](docs/calibration.md)
 - [Phase 9 execution simulation: queue model, fees, funding, markouts, J(a), fill study](docs/phase9.md)
 - [Phase 9 validation, live fill study and benchmarks](docs/phase9-validation.md)

@@ -85,7 +85,19 @@ pub fn check_invariants(e: &SyntheticEngine) {
     // Every simulated resting order is exactly one ledger reservation or pending normal close.
     let mut entries = 0;
     let mut closes = 0;
+    let queued = matches!(e.config().fills.model, FillModel::Queue(_));
     for o in e.orders().iter().flatten() {
+        // Queue state exists exactly under the queue model, is never complete while resting
+        // and never holds more ahead than the venue displays at the order price.
+        assert_eq!(o.queue.is_some(), queued);
+        if let Some(q) = o.queue {
+            assert!(q.ahead >= 0 && q.pending_execution >= 0);
+            assert!(q.filled >= 0 && q.filled < q.size);
+            let v = (o.venue.0 - 1) as usize;
+            if let Some(shown) = e.displayed(v, o.side, o.price).unwrap() {
+                assert!(q.ahead <= shown || q.ahead >= i64::MAX / 4);
+            }
+        }
         match o.kind {
             OrderKind::Entry { .. } => {
                 entries += 1;

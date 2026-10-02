@@ -1,7 +1,8 @@
 use engine::{
-    EngineConfig, FillConfig, MARKET_WIDE, MULTI_VENUE, PolicyConfig, VENUE_LOCAL,
-    fixtures::SyntheticEngine,
+    EngineConfig, FillConfig, FillModel, FundingConfig, MARKET_WIDE, MULTI_VENUE, ObjectiveConfig,
+    PolicyConfig, VENUE_LOCAL, fixtures::SyntheticEngine,
 };
+use execution::{fees::FeeSchedule, markout::MarkoutConfig, queue::CancelModel};
 use inventory::{
     InventoryConfig, InventoryEvent, Ledger,
     journal::{Reader, Writer},
@@ -24,6 +25,37 @@ struct Config {
     fills: Fills,
     inventory: super::inventory_demo::Settings,
     risk: super::inventory_demo::Limits,
+    /// Phase 9 sections are optional: absent means disabled, or the §18 horizons.
+    funding: Option<FundingToml>,
+    markout: Option<MarkoutToml>,
+    objective: Option<ObjectiveToml>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FundingToml {
+    rate_ppm: i64,
+    interval_ns: u64,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct MarkoutToml {
+    horizons_ns: Vec<u64>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ObjectiveToml {
+    w_rebate: u32,
+    w_spread: u32,
+    w_rebalance: u32,
+    w_adverse: u32,
+    w_inventory: u32,
+    w_queue: u32,
+    adverse_horizon: usize,
+    adverse_min_samples: u64,
+    adverse_prior_x2: i64,
+    inventory_risk_x2: i64,
+    queue_cost_x2: i64,
+    min_edge_x2: String,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -58,11 +90,40 @@ struct Policy {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Fills {
+    /// `strict_trade_through` or `queue` (which needs `cancel_model`).
     rule: String,
+    cancel_model: Option<String>,
     maker_rebate_atoms: String,
     maker_fee_atoms: String,
     taker_fee_atoms: String,
+    #[serde(default)]
+    maker_fee_ppm: u32,
+    #[serde(default)]
+    maker_rebate_ppm: u32,
+    #[serde(default)]
+    taker_fee_ppm: u32,
     emergency_slippage_ticks: i64,
+}
+pub(super) fn cancel_model(name: &str) -> Result<CancelModel, String> {
+    Ok(match name {
+        "pessimistic" => CancelModel::Pessimistic,
+        "proportional" => CancelModel::Proportional,
+        "optimistic" => CancelModel::Optimistic,
+        _ => return Err(format!("unknown cancel model {name}")),
+    })
+}
+fn fill_model(f: &Fills) -> Result<FillModel, String> {
+    match (f.rule.as_str(), f.cancel_model.as_deref()) {
+        ("strict_trade_through", None) => Ok(FillModel::StrictTradeThrough),
+        ("queue", Some(m)) => Ok(FillModel::Queue(cancel_model(m)?)),
+        ("queue", None) => Err("fills.rule = queue needs fills.cancel_model".into()),
+        ("strict_trade_through", Some(_)) => {
+            Err("fills.cancel_model applies only to the queue rule".into())
+        }
+        (r, _) => Err(format!(
+            "fills.rule {r}: expected strict_trade_through or queue"
+        )),
+    }
 }
 fn scope(name: &str) -> Result<u8, String> {
     Ok(match name {
@@ -84,9 +145,34 @@ fn environment(name: &str) -> Result<Environment, String> {
 }
 pub(super) fn parse(text: &str) -> Result<(InventoryConfig<3>, EngineConfig), String> {
     let c: Config = toml::from_str(text).map_err(|e| e.to_string())?;
-    if c.fills.rule != "strict_trade_through" {
-        return Err("fills.rule must be strict_trade_through (the only implemented rule)".into());
-    }
+    let model = fill_model(&c.fills)?;
+    let markout = match &c.markout {
+        None => MarkoutConfig::spec(),
+        Some(m) => MarkoutConfig::new(&m.horizons_ns).ok_or(
+            "markout.horizons_ns: 1 to 10 strictly increasing positive horizons".to_string(),
+        )?,
+    };
+    let objective = match c.objective {
+        None => None,
+        Some(o) => Some(ObjectiveConfig {
+            w_rebate: o.w_rebate,
+            w_spread: o.w_spread,
+            w_rebalance: o.w_rebalance,
+            w_adverse: o.w_adverse,
+            w_inventory: o.w_inventory,
+            w_queue: o.w_queue,
+            adverse_horizon: o.adverse_horizon,
+            adverse_min_samples: o.adverse_min_samples,
+            adverse_prior_x2: o.adverse_prior_x2,
+            inventory_risk_x2: o.inventory_risk_x2,
+            queue_cost_x2: o.queue_cost_x2,
+            // Signed: a negative edge quotes even when J is negative.
+            min_edge_x2: o
+                .min_edge_x2
+                .parse()
+                .map_err(|e| format!("objective.min_edge_x2: {e}"))?,
+        }),
+    };
     let e = c.environment;
     let p = c.policy;
     let mut allowed_scopes = 0;
@@ -125,11 +211,25 @@ pub(super) fn parse(text: &str) -> Result<(InventoryConfig<3>, EngineConfig), St
             assess_interval_ns: p.assess_interval_ns,
         },
         fills: FillConfig {
+            model,
+            schedule: FeeSchedule {
+                maker_fee_ppm: c.fills.maker_fee_ppm,
+                maker_rebate_ppm: c.fills.maker_rebate_ppm,
+                taker_fee_ppm: c.fills.taker_fee_ppm,
+            },
             maker_rebate: super::inventory_demo::money(&c.fills.maker_rebate_atoms)?,
             maker_fee: super::inventory_demo::money(&c.fills.maker_fee_atoms)?,
             taker_fee: super::inventory_demo::money(&c.fills.taker_fee_atoms)?,
             emergency_slippage_ticks: c.fills.emergency_slippage_ticks,
         },
+        funding: c
+            .funding
+            .map_or(FundingConfig::default(), |f| FundingConfig {
+                rate_ppm: f.rate_ppm,
+                interval_ns: f.interval_ns,
+            }),
+        markout,
+        objective,
     };
     let inventory = super::inventory_demo::inventory_config(c.inventory, c.risk)?;
     Ok((inventory, engine))
@@ -267,7 +367,66 @@ pub(super) fn summary<
             e.toxicity().map_err(|e| format!("{e:?}"))?
         );
     }
+    let c = e.config();
+    println!(
+        "execution model={:?} schedule_ppm maker_fee={} maker_rebate={} taker_fee={} maker_notional={} taker_notional={} maker_fees={} taker_fees={} rebates={} queue_fills_at_price={} queue_fills_through={} partial_prints={} abandoned_partial_qty={} funding_events={} funding_cost={} net_maker_yield_ppm={}",
+        c.fills.model,
+        c.fills.schedule.maker_fee_ppm,
+        c.fills.schedule.maker_rebate_ppm,
+        c.fills.schedule.taker_fee_ppm,
+        m.maker_notional,
+        m.taker_notional,
+        m.maker_fees,
+        m.taker_fees,
+        m.rebates,
+        m.queue_fills_at_price,
+        m.queue_fills_through,
+        m.partial_prints,
+        m.abandoned_partial_qty,
+        m.funding_events,
+        m.funding_cost,
+        e.net_maker_yield_ppm()
+            .map_err(|e| format!("{e:?}"))?
+            .map_or("-".into(), |y| y.to_string())
+    );
+    if c.objective.is_some() {
+        println!(
+            "objective evaluations={} holds={} keeps={} cancels={} unpriced={}",
+            m.objective_evaluations,
+            m.objective_holds,
+            m.objective_keeps,
+            m.objective_cancels,
+            m.objective_unpriced
+        );
+    }
+    markout_lines("markout", e.markouts());
     super::inventory_demo::summary(e.ledger())
+}
+pub(super) fn ticks(x: Option<f64>) -> String {
+    x.map_or("-".into(), |v| format!("{v:.3}"))
+}
+/// One line per horizon: samples, mean markout (realized spread), mean drift, adverse share.
+pub(super) fn markout_lines<const C: usize>(
+    label: &str,
+    t: &execution::markout::MarkoutTracker<C>,
+) {
+    println!(
+        "{label} fills={} overflows={} pending={}",
+        t.fills,
+        t.overflows,
+        t.pending()
+    );
+    for (h, s) in t.stats().iter().enumerate() {
+        println!(
+            "{label} horizon_ms={} samples={} missing={} mean_ticks={} drift_ticks={} adverse_fraction={}",
+            t.config().horizons_ns[h] as f64 / 1e6,
+            s.samples,
+            s.missing,
+            ticks(s.mean_ticks()),
+            ticks(s.mean_drift_ticks()),
+            ticks(s.adverse_fraction())
+        );
+    }
 }
 fn replay_at(dir: &Path, t: &Texts) -> Result<(Box<SyntheticEngine>, Vec<InventoryEvent>), String> {
     let (_, venues) = super::multi::parse(&t.market)?;
@@ -463,6 +622,28 @@ mod tests {
             Ok(fixtures::flow())
         );
         assert!(parse(&text.replace("strict_trade_through", "touch")).is_err());
+        // Phase 9 rule options: the queue rule needs a known cancel model, strict takes none.
+        let queue = text.replace(
+            "rule = \"strict_trade_through\"",
+            "rule = \"queue\"\ncancel_model = \"optimistic\"",
+        );
+        assert_eq!(
+            parse(&queue).map(|c| c.1.fills.model),
+            Ok(FillModel::Queue(CancelModel::Optimistic))
+        );
+        assert!(parse(&queue.replace("optimistic", "lucky")).is_err());
+        assert!(
+            parse(&text.replace("rule = \"strict_trade_through\"", "rule = \"queue\"")).is_err()
+        );
+        assert!(
+            parse(&text.replace(
+                "rule = \"strict_trade_through\"",
+                "rule = \"strict_trade_through\"\ncancel_model = \"pessimistic\""
+            ))
+            .is_err()
+        );
+        assert!(parse(&format!("{text}\n[markout]\nhorizons_ns = [5, 5]\n")).is_err());
+        assert!(parse(&format!("{text}\n[funding]\nrate_ppm = 1\n")).is_err());
         assert!(parse(&text.replace("\"chaotic\"]", "\"stormy\"]")).is_err());
         assert!(parse(&text.replace("\"market_wide\"]", "\"global\"]")).is_err());
         assert!(parse(&format!("extra = true\n{text}")).is_err());

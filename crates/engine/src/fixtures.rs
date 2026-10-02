@@ -3,7 +3,7 @@
 use super::*;
 use common::InstrumentId;
 use consolidator::normalization::{ContractKind, MarketIdentity, UnitScale};
-use fixed_point::{InventoryUnits, QtyUnits, Quantum};
+use fixed_point::{InventoryUnits, Quantum};
 use liquidity::PriceReference;
 use risk::InventoryLimits;
 use toxicity::Environment;
@@ -130,11 +130,16 @@ pub fn engine() -> EngineConfig {
             assess_interval_ns: 10_000_000,
         },
         fills: FillConfig {
+            model: FillModel::StrictTradeThrough,
+            schedule: FeeSchedule::default(),
             maker_rebate: Money(1),
             maker_fee: Money(0),
             taker_fee: Money(3),
             emergency_slippage_ticks: 1,
         },
+        funding: FundingConfig::default(),
+        markout: MarkoutConfig::spec(),
+        objective: None,
     }
 }
 pub fn build() -> Result<SyntheticEngine, EngineError> {

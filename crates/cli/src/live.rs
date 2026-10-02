@@ -303,21 +303,15 @@ fn session(
         let mut book_withdrawn = false;
         let result = sequencer
             .sequence(&frame, dequeued, |c| -> Result<(), String> {
-                // The engine may have withdrawn this venue (staleness). Only a snapshot can
-                // restore it; anything else would be invalid input, so drop it and resync.
+                // The engine may have withdrawn this venue (staleness), possibly at THIS frame's
+                // own timestamp after a silent gap. Only a snapshot can restore it; anything else
+                // would be invalid input, so drop it and resync.
                 let first = match c {
                     Canonical::Event(e) => e,
                     Canonical::Batch(b) => b[0],
                 };
                 let snapshot = frame.kind == FrameKind::Snapshot;
-                let live = engine
-                    .research()
-                    .research()
-                    .market()
-                    .venue_book(first.venue)
-                    .map(|b| b.state() == book::BookState::Live)
-                    .unwrap_or(false);
-                if !snapshot && !live {
+                if !engine.accepts(first.venue, first.receive_ts, snapshot) {
                     book_withdrawn = true;
                     return Ok(());
                 }
@@ -551,6 +545,104 @@ pub fn replay(directory: &str) -> Result<(), String> {
     );
     super::scenarios::summary(&engine, "live-replay")
 }
+/// Fill study (Phase 9) over a recorded session: shadow maker probes at every venue touch
+/// under each fill model (see `study`). The recorded engine configuration is replayed
+/// unchanged; probes never reach its ledger.
+pub fn fill_study(
+    directory: &str,
+    requote_ticks: &str,
+    maker_fee_ppm: &str,
+    latency_ms: &str,
+) -> Result<(), String> {
+    let requote: i64 = requote_ticks
+        .parse()
+        .ok()
+        .filter(|&t| t >= 1)
+        .ok_or("REQUOTE_TICKS must be a positive integer")?;
+    let fee: u32 = maker_fee_ppm
+        .parse()
+        .ok()
+        .filter(|&f| f <= 100_000)
+        .ok_or("MAKER_FEE_PPM must be an integer in 0..=100000")?;
+    let latency: u64 = latency_ms
+        .parse::<u64>()
+        .ok()
+        .filter(|&l| l <= 10_000)
+        .ok_or("LATENCY_MS must be an integer in 0..=10000")?;
+    let dir = Path::new(directory);
+    let t = read_dir_texts(dir)?;
+    let (grid, _) = super::multi::parse(&t.market)?;
+    let units_per_base =
+        10_f64.powi(i32::from(grid.quantity.decimals)) / grid.quantity.atoms as f64;
+    let files: Vec<_> = (1..=3)
+        .map(|v| File::open(dir.join(format!("venue-{v}.lre"))).map(BufReader::new))
+        .collect::<std::io::Result<_>>()
+        .map_err(|e| e.to_string())?;
+    let files: [BufReader<File>; 3] = files.try_into().map_err(|_| "expected three files")?;
+    let mut merged = MergedFrames::new(files, true).map_err(|e| format!("{e:?}"))?;
+    let mut engine = build(&t)?;
+    merged
+        .validate(engine.research().research().market())
+        .map_err(|e| format!("{e:?}"))?;
+    // Probe prices are grid prices looked up in native books.
+    if engine
+        .normalizers()
+        .iter()
+        .any(|n| n.price(PriceTicks(1)) != Ok(PriceTicks(1)))
+    {
+        return Err("the fill study needs venue price scales equal to the grid".into());
+    }
+    let size = engine.ledger().config().quantum.unit_quantity().0;
+    let mut study = super::study::Study::new(
+        3,
+        requote,
+        latency * 1_000_000,
+        size,
+        engine.config().markout,
+    );
+    let (mut first, mut last) = (None, 0);
+    while let Some(frame) = merged.next_frame().map_err(|e| format!("{e:?}"))? {
+        let (venue, now) = match frame {
+            MergedFrame::Event(e) => (e.venue, e.receive_ts.0),
+            MergedFrame::Batch(b) => (b[0].venue, b[0].receive_ts.0),
+        };
+        first.get_or_insert(now);
+        last = now;
+        let v = engine.venue_position(venue).ok_or("unknown venue")?;
+        let print = matches!(frame, MergedFrame::Event(e) if e.event_type == market_events::MarketEventType::Trade);
+        let before = if print {
+            None
+        } else {
+            Some(study.depths(&*engine, v)?)
+        };
+        match frame {
+            MergedFrame::Event(e) => engine.apply(&e, &mut |_| {}),
+            MergedFrame::Batch(b) => engine.apply_depth_batch(venue, b, &mut |_| {}),
+        }
+        .map_err(|e| format!("engine: {e:?}"))?;
+        match (frame, before) {
+            (MergedFrame::Event(e), None) => {
+                study.on_trade(&*engine, v, now, e.side, e.price_ticks, e.qty_units)?
+            }
+            (_, Some(before)) => study.after_depth(&*engine, v, &before)?,
+            (MergedFrame::Batch(_), None) => unreachable!("batches carry no prints"),
+        }
+        study.after_frame(&*engine, now)?;
+    }
+    let seconds = (last - first.unwrap_or(last)) as f64 / 1e9;
+    println!(
+        "fill_study directory={directory} seconds={seconds:.1} requote_ticks={requote} latency_ms={latency} probe_units={size} maker_fee_ppm={fee} engine_research_fault={:?}",
+        engine.research_fault()
+    );
+    super::study::report(
+        &mut study,
+        &["binance", "bybit", "okx"],
+        seconds,
+        units_per_base,
+        fee,
+    );
+    Ok(())
+}
 /// Lead/lag (specification §28) on ONE local monotonic clock: per-venue midpoint changes and
 /// signed aggressive volume are binned by sequencer receive time, then correlated at lags.
 /// This measures lead/lag AS OBSERVED HERE, including each venue's network path; it is not
@@ -704,6 +796,42 @@ mod tests {
             .join()
             .unwrap()
             .unwrap();
+    }
+    #[test]
+    fn phase9_configuration_builds_the_queue_model_with_retail_fees() {
+        let texts = Texts {
+            market: include_str!("../../../config/phase8-market.toml").into(),
+            structures: include_str!("../../../config/phase8-structures.toml").into(),
+            flow: include_str!("../../../config/phase8-flow.toml").into(),
+            engine: include_str!("../../../config/phase9-engine.toml").into(),
+        };
+        let config = thread::Builder::new()
+            .stack_size(256 << 20)
+            .spawn(move || build(&texts).map(|e| e.config()))
+            .unwrap()
+            .join()
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            config.fills.model,
+            engine::FillModel::Queue(execution::queue::CancelModel::Proportional)
+        );
+        assert_eq!(
+            (
+                config.fills.schedule.maker_fee_ppm,
+                config.fills.schedule.taker_fee_ppm
+            ),
+            (200, 500)
+        );
+        assert_eq!(config.markout, execution::markout::MarkoutConfig::spec());
+        assert_eq!(config.funding.interval_ns, 8 * 3_600 * 1_000_000_000);
+        assert_eq!(config.objective.map(|o| o.adverse_horizon), Some(8));
+        // The Phase 8 file still parses to the strict rule with no schedule or objective.
+        let (_, phase8) =
+            super::super::scenarios::parse(include_str!("../../../config/phase8-engine.toml"))
+                .unwrap();
+        assert_eq!(phase8.fills.model, engine::FillModel::StrictTradeThrough);
+        assert!(phase8.objective.is_none() && phase8.funding.interval_ns == 0);
     }
     #[test]
     fn correlation_finds_a_known_lead() {

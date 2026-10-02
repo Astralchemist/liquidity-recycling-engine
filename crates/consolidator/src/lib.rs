@@ -157,6 +157,18 @@ impl<const V: usize, const N: usize, const G: usize> Consolidator<V, N, G> {
             && v.last_depth
                 .is_some_and(|t| now.0 - t.0 <= v.config.stale_after_ns))
     }
+    /// Whether `venue`'s book is live and STAYS live once the clock advances to `now`: the
+    /// staleness withdrawal every `apply` performs before the event itself. A live caller must
+    /// check this, not the current state, or the first frame after a silent gap reaches a book
+    /// that its own timestamp has just withdrawn.
+    pub fn live_at(&self, venue: VenueId, now: Timestamp) -> Result<bool, ConsolidationError> {
+        self.healthy()?;
+        let v = &self.venues[self.index(venue)?];
+        Ok(v.book.state() == BookState::Live
+            && !v
+                .last_depth
+                .is_some_and(|t| now.0.saturating_sub(t.0) > v.config.stale_after_ns))
+    }
     pub fn included(&self, venue: VenueId) -> Result<bool, ConsolidationError> {
         self.healthy()?;
         Ok(self.venues[self.index(venue)?].included)

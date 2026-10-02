@@ -24,6 +24,7 @@ voids.workspace = true
 simulation.workspace = true
 toxicity.workspace = true
 engine.workspace = true
+execution.workspace = true
 feeds.workspace = true
 wire.workspace = true
 venue-binance.workspace = true

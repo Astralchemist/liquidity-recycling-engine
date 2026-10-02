@@ -117,6 +117,7 @@ The single-venue demo refuses to overwrite a file. Replay modes: `max`, `step`, 
 
 ## Documentation
 
+- [Study: replicating Cont–Kukanov–Stoikov and Farmer et al., and a pre-registered strategy test](docs/study/README.md)
 - [Evidence page: graphs of every test, regenerated from the recordings](docs/evidence/index.html)
 - [Calibration and pre-registered strategy test, loosening ladder, momentum study](docs/calibration.md)
 - [Phase 9 execution simulation: queue model, fees, funding, markouts, J(a), fill study](docs/phase9.md)

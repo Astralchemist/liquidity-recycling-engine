@@ -89,7 +89,9 @@ Each command is run once on E with the files committed alongside this document:
 | H2. Is the strategy viable at retail fees? | P2 mean net per cycle | Above 0 with t > 2 |
 | H3. Does it hold beyond one session? | The H1 difference has the same sign in D and E | Same sign |
 
-All variants and both sessions are reported whatever they show. A cycle is one child from fill to close. The control's cycles are serially correlated (one price path, six cyclers), so its standard error is optimistic.
+All variants and both sessions are reported whatever they show. A cycle is one child from fill to close. The control's cycles are serially correlated (one price path, six cyclers).
+
+Later correction: a moving-block bootstrap (`scripts/robustness.py`) shows consecutive control trips are *negatively* correlated, as long and short cyclers offset each other. The plain standard error is therefore conservative, not optimistic as this section first said. Bootstrap intervals are in [the study](study/README.md#44-the-pre-registered-strategy-test-fails).
 
 ## Results (session E, recorded 18:22–19:22 EAT)
 

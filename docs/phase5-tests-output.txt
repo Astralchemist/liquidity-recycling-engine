@@ -1,5 +1,5 @@
-   Compiling orderflow v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/orderflow)
-   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+   Compiling orderflow v0.1.0 (<repo>/crates/orderflow)
+   Compiling cli v0.1.0 (<repo>/crates/cli)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.58s
      Running unittests src/lib.rs (target/debug/deps/book-49cfa17f287d2d82)
 

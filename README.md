@@ -1,5 +1,24 @@
 # Liquidity & Inventory Recycling Engine
 
+A deterministic Rust research engine for multi-venue BTC/USDT perpetual order books on Binance, Bybit and OKX. It:
+
+- records public L2 depth and trades, and replays them exactly
+- detects liquidity voids and their revisits
+- measures order-flow imbalance
+- simulates passive execution in an L2 queue model with retail fees
+- runs a revisit-gated inventory-recycling strategy behind hard risk limits
+
+**Result: the strategy does not work at retail fees.** See the [study](docs/study/README.md), with eleven figures, and the [evidence data](docs/evidence/). `docs/evidence/index.html` is an interactive page: download it and open it in a browser.
+
+- **Cont, Kukanov & Stoikov (2014) replicates.** Order-flow imbalance explains 47–67% of short-interval price variance; trade imbalance explains 11–21%. Price impact scales with 1/depth.
+- **Farmer et al. (2004) partly replicates.** Book flow, not order size, drives large moves. But BTC books have one-tick gaps, so large moves arrive as flurries of small orders.
+- **The pre-registered strategy test fails.** Its hypotheses were committed before the holdout was replayed (tag `prereg-session-E`). Void-revisit-gated round trips are indistinguishable from ungated ones with the same exits: about −46 USDT per BTC each after fees.
+- **One lead remains.** A pick-off filter that skips a venue's stale side halves adverse selection. It is still negative at retail fees and would need a market-maker rebate tier and its own pre-registered test.
+
+This is research code. Fills are simulated against recorded public data, no order is ever sent, and nothing here is investment advice. Recorded exchange data is not included, because exchange terms forbid redistribution; record your own with `live-record` (below). Licensed under MIT or Apache-2.0, at your option.
+
+## Status
+
 Rust-only deterministic research engine. Completed: Phase 1–2 arithmetic and bounded L2 books; Phase 3 exact multi-venue normalization and weighted consolidation, with synthetic recording/replay; Phase 4 configurable liquidity pools, historical voids, touch/partial revisits and refill statistics; Phase 5 bounded OFI, queue imbalance and flow intensity; Phase 6 exact one-quantum inventory ledger, hard limits, recovery accounts and episodes; Phase 7 one engine with environment classification, a rule-based recycling policy, simulated strict trade-through fills, the kill procedure and specification scenarios A–F; Phase 8 live public feeds from Binance, Bybit and OKX with atomic batches, recording format v2 and exact live-versus-replay comparison; Phase 9 execution simulation with an L2 queue model under three cancellation assumptions, exact ppm fee schedules, funding, §18 markouts split into spread and drift, net maker yield, the objective J(a) as an entry gate, and a fill study on recorded live sessions. Order submission remains a later milestone; no order is ever sent.
 
 ## Run Phase 9 (execution simulation)
@@ -118,7 +137,7 @@ The single-venue demo refuses to overwrite a file. Replay modes: `max`, `step`, 
 ## Documentation
 
 - [Study: replicating Cont–Kukanov–Stoikov and Farmer et al., and a pre-registered strategy test](docs/study/README.md)
-- [Evidence page: graphs of every test, regenerated from the recordings](docs/evidence/index.html)
+- [Evidence data and interactive page (open `index.html` in a browser)](docs/evidence/)
 - [Calibration and pre-registered strategy test, loosening ladder, momentum study](docs/calibration.md)
 - [Phase 9 execution simulation: queue model, fees, funding, markouts, J(a), fill study](docs/phase9.md)
 - [Phase 9 validation, live fill study and benchmarks](docs/phase9-validation.md)

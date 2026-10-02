@@ -1,4 +1,4 @@
-   Compiling feeds v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/feeds)
+   Compiling feeds v0.1.0 (<repo>/crates/feeds)
     Finished `bench` profile [optimized] target(s) in 4.31s
      Running benches/decode.rs (target/release/deps/decode-ddcc7a8855783b1d)
 Benchmarking decode_and_window_diff/binance_depth20_snapshot_message

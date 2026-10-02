@@ -1,4 +1,4 @@
-   Compiling orderflow v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/orderflow)
+   Compiling orderflow v0.1.0 (<repo>/crates/orderflow)
     Finished `bench` profile [optimized] target(s) in 2.67s
      Running benches/profile.rs (target/release/deps/profile-a2b99bdeb5c9154d)
 Three books (capacity 128/side, 3-4 occupied), 64 ticks, 16 cells, one active zone: startup allocates six fixed flow buffers. No buffer growth during processing.

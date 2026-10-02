@@ -1,5 +1,5 @@
-   Compiling execution v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/execution)
-   Compiling engine v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/engine)
+   Compiling execution v0.1.0 (<repo>/crates/execution)
+   Compiling engine v0.1.0 (<repo>/crates/engine)
     Finished `bench` profile [optimized] target(s) in 4.05s
      Running benches/engine.rs (target/release/deps/engine-817dea15f3d825ce)
 scenario_A/research_only
@@ -58,7 +58,7 @@ scenario_E/engine_phase9
                         Performance has improved.
 Found 1 outliers among 20 measurements (5.00%)
   1 (5.00%) high mild
-   Compiling execution v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/execution)
+   Compiling execution v0.1.0 (<repo>/crates/execution)
     Finished `bench` profile [optimized] target(s) in 2.99s
      Running benches/execution.rs (target/release/deps/execution-f88ed2ef33695d8a)
 queue/Pessimistic       time:   [833.42 ns 838.26 ns 845.32 ns]

@@ -1,6 +1,6 @@
-   Compiling voids v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/voids)
-   Compiling liquidity v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/liquidity)
-   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+   Compiling voids v0.1.0 (<repo>/crates/voids)
+   Compiling liquidity v0.1.0 (<repo>/crates/liquidity)
+   Compiling cli v0.1.0 (<repo>/crates/cli)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.89s
      Running unittests src/lib.rs (target/debug/deps/book-49cfa17f287d2d82)
 

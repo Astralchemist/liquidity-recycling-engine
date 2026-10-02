@@ -1,7 +1,7 @@
-   Compiling consolidator v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/consolidator)
-   Compiling liquidity v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/liquidity)
-   Compiling replay v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/replay)
-   Compiling orderflow v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/orderflow)
+   Compiling consolidator v0.1.0 (<repo>/crates/consolidator)
+   Compiling liquidity v0.1.0 (<repo>/crates/liquidity)
+   Compiling replay v0.1.0 (<repo>/crates/replay)
+   Compiling orderflow v0.1.0 (<repo>/crates/orderflow)
     Finished `bench` profile [optimized] target(s) in 4.44s
      Running benches/flow.rs (target/release/deps/flow-5fe69cafa2a664ad)
 Benchmarking best_quote_ofi

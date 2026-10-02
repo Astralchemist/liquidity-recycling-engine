@@ -1,4 +1,4 @@
-   Compiling book v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/book)
+   Compiling book v0.1.0 (<repo>/crates/book)
     Finished `bench` profile [optimized] target(s) in 2.67s
      Running benches/profile.rs (target/release/deps/profile-b540869833ee71c8)
 Unpinned local release profile; 128 levels/side, capacity 256. Times include event preparation.

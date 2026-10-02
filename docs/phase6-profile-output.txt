@@ -1,4 +1,4 @@
-   Compiling inventory v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/inventory)
+   Compiling inventory v0.1.0 (<repo>/crates/inventory)
     Finished `bench` profile [optimized] target(s) in 2.81s
      Running benches/profile.rs (target/release/deps/profile-b09959cda83f2fee)
 Ledger sizes: <3 venues, 32 slots, 8 episodes>=18960 bytes (rollback image 7664); <3, 256, 128>=167696 bytes (rollback image 48880). History is committed after success and never copied.

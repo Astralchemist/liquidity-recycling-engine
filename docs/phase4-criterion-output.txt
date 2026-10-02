@@ -1,8 +1,8 @@
-   Compiling consolidator v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/consolidator)
-   Compiling voids v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/voids)
-   Compiling simulation v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/simulation)
-   Compiling replay v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/replay)
-   Compiling liquidity v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/liquidity)
+   Compiling consolidator v0.1.0 (<repo>/crates/consolidator)
+   Compiling voids v0.1.0 (<repo>/crates/voids)
+   Compiling simulation v0.1.0 (<repo>/crates/simulation)
+   Compiling replay v0.1.0 (<repo>/crates/replay)
+   Compiling liquidity v0.1.0 (<repo>/crates/liquidity)
     Finished `bench` profile [optimized] target(s) in 4.55s
      Running benches/structures.rs (target/release/deps/structures-d398fa2b842fc7da)
 Benchmarking liquidity_grid_update_64_ticks

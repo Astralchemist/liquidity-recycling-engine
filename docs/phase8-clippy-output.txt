@@ -1,7 +1,7 @@
-    Checking wire v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/wire)
-    Checking venue-okx v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/venue-okx)
-    Checking venue-bybit v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/venue-bybit)
-    Checking venue-binance v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/venue-binance)
-    Checking feeds v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/feeds)
-    Checking cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+    Checking wire v0.1.0 (<repo>/crates/wire)
+    Checking venue-okx v0.1.0 (<repo>/crates/venue-okx)
+    Checking venue-bybit v0.1.0 (<repo>/crates/venue-bybit)
+    Checking venue-binance v0.1.0 (<repo>/crates/venue-binance)
+    Checking feeds v0.1.0 (<repo>/crates/feeds)
+    Checking cli v0.1.0 (<repo>/crates/cli)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.12s

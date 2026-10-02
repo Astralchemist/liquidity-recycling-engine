@@ -1,4 +1,4 @@
-   Compiling consolidator v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/consolidator)
+   Compiling consolidator v0.1.0 (<repo>/crates/consolidator)
     Finished `bench` profile [optimized] target(s) in 4.29s
      Running benches/consolidation.rs (target/release/deps/consolidation-94d97e86e787e72a)
 Benchmarking three_venue_incremental_128_levels/modify

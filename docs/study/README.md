@@ -251,21 +251,21 @@ The only forecast we found that comes close is avoiding fills on a venue's stale
 
 ## 7. Reproducibility
 
-Every number and figure here is regenerated from the recordings by committed code:
+Every number and figure here is regenerated from the recordings by committed code. `$RECORDINGS` is a directory of `session-A` … `session-E` recordings (not published; record your own with `lre live-record`), and `$EVIDENCE` is its parent:
 
 ```sh
 cargo build --release -p cli --locked
-python3 scripts/momentum.py     ~/Desktop/Development/lre-evidence/recordings docs/evidence/momentum.json
-python3 scripts/build-evidence.py ~/Desktop/Development/lre-evidence/recordings
-python3 scripts/replications.py ~/Desktop/Development/lre-evidence/recordings
-python3 scripts/pickoff.py      ~/Desktop/Development/lre-evidence/recordings
-python3 scripts/funding.py      ~/Desktop/Development/lre-evidence --offline
+python3 scripts/momentum.py     $RECORDINGS docs/evidence/momentum.json
+python3 scripts/build-evidence.py $RECORDINGS
+python3 scripts/replications.py $RECORDINGS
+python3 scripts/pickoff.py      $RECORDINGS
+python3 scripts/funding.py      $EVIDENCE --offline
 python3 scripts/robustness.py
 python3 scripts/figures.py
 python3 scripts/render-evidence.py
 ```
 
-The engine is Rust (stable, `unsafe` forbidden, integer money, zero allocations after start-up) with 160 tests. Analysis scripts use the Python standard library only. Pre-registration: commit `94dbd07`; results: `00cc725`. The interactive version of this evidence is [`docs/evidence/index.html`](../evidence/index.html).
+The engine is Rust (stable, `unsafe` forbidden, integer money, zero allocations after start-up) with 160 tests. Analysis scripts use the Python standard library only. Pre-registration: commit `94dbd07`; results: `00cc725`. An interactive version of this evidence is [`docs/evidence/index.html`](../evidence/index.html); download it and open it in a browser.
 
 ## References
 

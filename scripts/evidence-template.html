@@ -291,14 +291,14 @@ footer { color: var(--muted); font-size: 0.85rem; display: grid; gap: 8px; borde
     <div class="section-head">
       <div class="eyebrow">Evidence ledger</div>
       <h2>Recordings behind every number</h2>
-      <p class="caption">The recordings stay on this machine in <span class="num">~/Desktop/Development/lre-evidence/recordings</span>, outside the repository; exchange terms forbid redistributing them. Each replays to the identical engine state and inventory journal, and its SHA-256 is listed here and in <span class="num">MANIFEST.sha256</span>.</p>
+      <p class="caption">The recordings are not published: exchange terms forbid redistributing them. Each replays to the identical engine state and inventory journal, and its SHA-256 is listed here and in <span class="num">docs/evidence/recordings.sha256</span>, so anyone holding the files can verify them.</p>
     </div>
     <div class="panel scroll"><table id="t-ledger"></table></div>
     <div class="panel">
       <h3>Regenerate this page</h3>
       <pre id="repro">cargo build --release -p cli --locked
-python3 scripts/momentum.py ~/Desktop/Development/lre-evidence/recordings docs/evidence/momentum.json
-python3 scripts/build-evidence.py ~/Desktop/Development/lre-evidence/recordings
+python3 scripts/momentum.py $RECORDINGS docs/evidence/momentum.json
+python3 scripts/build-evidence.py $RECORDINGS
 python3 scripts/render-evidence.py</pre>
       <button class="copy" type="button" id="copy">Copy commands</button>
     </div>

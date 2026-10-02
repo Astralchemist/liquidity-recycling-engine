@@ -1,2 +1,2 @@
-    Checking engine v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/engine)
+    Checking engine v0.1.0 (<repo>/crates/engine)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.20s

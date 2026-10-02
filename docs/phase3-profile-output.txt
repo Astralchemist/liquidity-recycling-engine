@@ -1,4 +1,4 @@
-   Compiling consolidator v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/consolidator)
+   Compiling consolidator v0.1.0 (<repo>/crates/consolidator)
     Finished `bench` profile [optimized] target(s) in 2.68s
      Running benches/profile.rs (target/release/deps/profile-35afcea566f78e65)
 Three books, 128 levels per side, common capacity 384: initialization and snapshots allocate zero times.

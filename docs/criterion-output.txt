@@ -1,4 +1,4 @@
-   Compiling book v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/book)
+   Compiling book v0.1.0 (<repo>/crates/book)
     Finished `bench` profile [optimized] target(s) in 4.18s
      Running benches/book.rs (target/release/deps/book-9e1a623cdbfafb2f)
 Benchmarking book_modify_128_levels/1

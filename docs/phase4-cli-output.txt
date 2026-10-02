@@ -1,4 +1,4 @@
-   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+   Compiling cli v0.1.0 (<repo>/crates/cli)
     Finished `release` profile [optimized] target(s) in 3.44s
      Running `target/release/lre structure-demo config/phase4-market.toml config/phase4-structures.toml /private/tmp/lre-phase4-final-20261002 revisit`
 Direct and recorded/replayed complete research state match.

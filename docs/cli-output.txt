@@ -1,5 +1,5 @@
-   Compiling replay v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/replay)
-   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
+   Compiling replay v0.1.0 (<repo>/crates/replay)
+   Compiling cli v0.1.0 (<repo>/crates/cli)
     Finished `release` profile [optimized] target(s) in 2.80s
      Running `target/release/lre demo /private/tmp/lre-phase12-validation-20261001.lre`
 Recorded 10004 synthetic events to /private/tmp/lre-phase12-validation-20261001.lre

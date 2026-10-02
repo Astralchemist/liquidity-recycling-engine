@@ -1,7 +1,7 @@
-   Compiling venue-bybit v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/venue-bybit)
-   Compiling cli v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/cli)
-   Compiling venue-okx v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/venue-okx)
-   Compiling venue-binance v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/venue-binance)
+   Compiling venue-bybit v0.1.0 (<repo>/crates/venue-bybit)
+   Compiling cli v0.1.0 (<repo>/crates/cli)
+   Compiling venue-okx v0.1.0 (<repo>/crates/venue-okx)
+   Compiling venue-binance v0.1.0 (<repo>/crates/venue-binance)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.75s
      Running unittests src/lib.rs (target/debug/deps/book-5572d3363b7984c4)
 

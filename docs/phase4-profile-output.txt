@@ -1,4 +1,4 @@
-   Compiling liquidity v0.1.0 (/Users/bob/Desktop/Development/liquidity-recycling-engine/crates/liquidity)
+   Compiling liquidity v0.1.0 (<repo>/crates/liquidity)
     Finished `bench` profile [optimized] target(s) in 2.67s
      Running benches/profile.rs (target/release/deps/profile-cb65c58f364735b0)
 Three books (capacity 128/side, 3-4 occupied), 64 ticks, 16 cells, 16 zone slots: initialization, snapshots and void formation allocate zero times.

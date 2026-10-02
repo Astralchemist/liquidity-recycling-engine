@@ -34,7 +34,7 @@ This is an engineering summary, **not legal advice**. Read the terms yourself be
 2. **Phase 10 demo trading is self-service, but needs accounts.**
    - Binance Spot testnet needs only GitHub.
    - Bybit Demo needs a mainnet account; OKX demo keys come from an OKX account.
-   - If you are resident in Canada, Bybit and OKX accounts, and therefore their demo trading, appear to be outside their terms. This is your decision; I can't determine your legal position.
+   - Bybit and OKX list Canada as restricted (see the table), which covers their demo trading too. Check each venue's terms for your jurisdiction before opening an account.
 3. **The specification's "maker economics" do not exist at retail tiers.** At entry level every venue charges a **positive** maker fee:
    - Binance Spot 0.100%, USDⓈ-M 0.020%
    - Bybit perps 0.020%

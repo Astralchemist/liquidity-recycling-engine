@@ -1,0 +1,257 @@
+===== Session E (3,600.4 s), pre-registered commands AS REGISTERED (build 94dbd07; P2/P3 faulted at 714.4 s)
+cycle_control seconds=3598.6 harvest_ticks=450 age_s=60 reprice_ticks=5 maker_fee_ppm=200 probe_units=10 research_fault=None
+control_cycles venue=1 cycles=130 harvests=42 wins=44 mean_net_atoms=-4582.3 sd=5331.8 se=467.6 total_net_atoms=-595700 mean_gross_ticks=-116.8 mean_hold_s=51.8 open_at_end=0 open_mtm_atoms=0
+control_cycles venue=2 cycles=131 harvests=42 wins=43 mean_net_atoms=-4678.2 sd=5430.9 se=474.5 total_net_atoms=-612850 mean_gross_ticks=-126.4 mean_hold_s=51.7 open_at_end=0 open_mtm_atoms=0
+control_cycles venue=3 cycles=127 harvests=44 wins=45 mean_net_atoms=-5069.5 sd=5768.9 se=511.9 total_net_atoms=-643832 mean_gross_ticks=-165.6 mean_hold_s=51.7 open_at_end=0 open_mtm_atoms=0
+control_cycles all cycles=388 harvests=128 wins=132 mean_net_atoms=-4774.2 sd=5501.2 se=279.3 total_net_atoms=-1852382 mean_gross_ticks=-136.0 mean_hold_s=51.7 open_at_end=3 open_mtm_atoms=-32890
+--- p0
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=49167
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+cross_venue max_abs_divergence_x2=517 research_fault=None environment_fault=None
+--- p1
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=49174
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+cross_venue max_abs_divergence_x2=517 research_fault=None environment_fault=None
+--- p2
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=35480
+cycle venue=2 side=Buy entry=854841 exit=854442 hold_ms=61350 net_atoms=-7409 harvest=false
+cycle venue=2 side=Buy entry=854960 exit=854841 hold_ms=31529 net_atoms=-4610 harvest=false
+cycle venue=2 side=Sell entry=854827 exit=854377 hold_ms=80522 net_atoms=1081 harvest=true
+cycle venue=2 side=Buy entry=855091 exit=854004 hold_ms=98639 net_atoms=-14290 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854144 hold_ms=12925 net_atoms=-9349 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854367 hold_ms=60110 net_atoms=-7119 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=854515 hold_ms=16976 net_atoms=-8313 harvest=false
+engine_cycles cycles=7 harvests=1 wins=1 mean_net_atoms=-7144.1 sd=4680.4 se=1769.0 total_net_atoms=-50009 mean_gross_ticks=-335.9 mean_hold_s=51.7 open_at_end=0 open_mtm_atoms=0
+cross_venue max_abs_divergence_x2=476 research_fault=Some(Research(Voids(InvalidObservation))) environment_fault=None
+--- p3
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=35517
+cycle venue=2 side=Buy entry=854841 exit=854442 hold_ms=61350 net_atoms=-7409 harvest=false
+cycle venue=2 side=Sell entry=854827 exit=854894 hold_ms=4044 net_atoms=-4090 harvest=false
+cycle venue=2 side=Sell entry=854957 exit=854507 hold_ms=25839 net_atoms=1080 harvest=true
+cycle venue=2 side=Buy entry=855091 exit=854502 hold_ms=73695 net_atoms=-9311 harvest=false
+cycle venue=1 side=Sell entry=854734 exit=854284 hold_ms=138631 net_atoms=1081 harvest=true
+cycle venue=2 side=Buy entry=854960 exit=854004 hold_ms=69097 net_atoms=-12979 harvest=false
+cycle venue=2 side=Buy entry=854868 exit=854144 hold_ms=22194 net_atoms=-10659 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854367 hold_ms=60110 net_atoms=-7119 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=854583 hold_ms=1604 net_atoms=-5070 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=854515 hold_ms=16976 net_atoms=-8313 harvest=false
+engine_cycles cycles=10 harvests=2 wins=2 mean_net_atoms=-6278.9 sd=4642.4 se=1468.0 total_net_atoms=-62789 mean_gross_ticks=-260.3 mean_hold_s=47.4 open_at_end=0 open_mtm_atoms=0
+cross_venue max_abs_divergence_x2=476 research_fault=Some(Research(Voids(InvalidObservation))) environment_fault=None
+--- p3-nofee
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=35517
+cycle venue=2 side=Buy entry=854841 exit=854442 hold_ms=61350 net_atoms=-3990 harvest=false
+cycle venue=2 side=Sell entry=854827 exit=854894 hold_ms=4044 net_atoms=-670 harvest=false
+cycle venue=2 side=Sell entry=854957 exit=854507 hold_ms=25839 net_atoms=4500 harvest=true
+cycle venue=2 side=Buy entry=855091 exit=854502 hold_ms=73695 net_atoms=-5890 harvest=false
+cycle venue=1 side=Sell entry=854734 exit=854284 hold_ms=138631 net_atoms=4500 harvest=true
+cycle venue=2 side=Buy entry=854960 exit=854004 hold_ms=69097 net_atoms=-9560 harvest=false
+cycle venue=2 side=Buy entry=854868 exit=854144 hold_ms=22194 net_atoms=-7240 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854367 hold_ms=60110 net_atoms=-3700 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=854583 hold_ms=1604 net_atoms=-1650 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=854515 hold_ms=16976 net_atoms=-2330 harvest=false
+engine_cycles cycles=10 harvests=2 wins=2 mean_net_atoms=-2603.0 sd=4588.1 se=1450.9 total_net_atoms=-26030 mean_gross_ticks=-260.3 mean_hold_s=47.4 open_at_end=0 open_mtm_atoms=0
+cross_venue max_abs_divergence_x2=476 research_fault=Some(Research(Voids(InvalidObservation))) environment_fault=None
+
+===== All sessions WITH THE FIX (post-registration deviation; see docs/calibration.md)
+### live3
+control_cycles all cycles=7 harvests=7 wins=7 mean_net_atoms=1027.3 sd=1.8 se=0.7 total_net_atoms=7191 mean_gross_ticks=450.0 mean_hold_s=16.3 open_at_end=5 open_mtm_atoms=-64756
+--- p0
+policy_replay seconds=58.6 lower_price=866744 refused_frames=[0, 0, 0] commands=888 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p1
+policy_replay seconds=58.6 lower_price=866744 refused_frames=[0, 0, 0] commands=888 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p2
+policy_replay seconds=58.6 lower_price=866744 refused_frames=[0, 0, 0] commands=888 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p3
+policy_replay seconds=58.6 lower_price=866744 refused_frames=[0, 0, 0] commands=888 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p3-nofee
+policy_replay seconds=58.6 lower_price=866744 refused_frames=[0, 0, 0] commands=888 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+### live-5min
+control_cycles all cycles=34 harvests=22 wins=22 mean_net_atoms=-4846.6 sd=8214.5 se=1408.8 total_net_atoms=-164785 mean_gross_ticks=-138.2 mean_hold_s=42.1 open_at_end=6 open_mtm_atoms=-29171
+--- p0
+policy_replay seconds=294.6 lower_price=867137 refused_frames=[0, 0, 0] commands=4134 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p1
+policy_replay seconds=294.6 lower_price=867137 refused_frames=[0, 0, 0] commands=4134 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p2
+policy_replay seconds=294.6 lower_price=867137 refused_frames=[0, 0, 0] commands=4140 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p3
+policy_replay seconds=294.6 lower_price=867137 refused_frames=[0, 0, 0] commands=4162 research_fault_at_s=-
+cycle venue=3 side=Buy entry=867672 exit=867345 hold_ms=1592 net_atoms=-6741 harvest=false
+cycle venue=3 side=Buy entry=867671 exit=866480 hold_ms=62505 net_atoms=-15379 harvest=false
+engine_cycles cycles=2 harvests=0 wins=0 mean_net_atoms=-11060.0 sd=6108.0 se=4319.0 total_net_atoms=-22120 mean_gross_ticks=-759.0 mean_hold_s=32.0 open_at_end=0 open_mtm_atoms=0
+--- p3-nofee
+policy_replay seconds=294.6 lower_price=867137 refused_frames=[0, 0, 0] commands=4162 research_fault_at_s=-
+cycle venue=3 side=Buy entry=867672 exit=867345 hold_ms=1592 net_atoms=-3270 harvest=false
+cycle venue=3 side=Buy entry=867671 exit=866480 hold_ms=62505 net_atoms=-11910 harvest=false
+engine_cycles cycles=2 harvests=0 wins=0 mean_net_atoms=-7590.0 sd=6109.4 se=4320.0 total_net_atoms=-15180 mean_gross_ticks=-759.0 mean_hold_s=32.0 open_at_end=0 open_mtm_atoms=0
+### live9
+control_cycles all cycles=79 harvests=44 wins=46 mean_net_atoms=-4324.4 sd=8321.4 se=936.2 total_net_atoms=-341625 mean_gross_ticks=-89.5 mean_hold_s=38.2 open_at_end=6 open_mtm_atoms=-34766
+--- p0
+policy_replay seconds=598.4 lower_price=859499 refused_frames=[0, 1, 0] commands=8380 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p1
+policy_replay seconds=598.4 lower_price=859499 refused_frames=[0, 1, 0] commands=8380 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p2
+policy_replay seconds=598.4 lower_price=859499 refused_frames=[0, 1, 0] commands=8384 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p3
+policy_replay seconds=598.4 lower_price=859499 refused_frames=[0, 1, 0] commands=8384 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p3-nofee
+policy_replay seconds=598.4 lower_price=859499 refused_frames=[0, 1, 0] commands=8384 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+### live9b
+control_cycles all cycles=68 harvests=34 wins=34 mean_net_atoms=-4580.0 sd=6606.9 se=801.2 total_net_atoms=-311439 mean_gross_ticks=-115.8 mean_hold_s=47.8 open_at_end=6 open_mtm_atoms=-33766
+--- p0
+policy_replay seconds=598.7 lower_price=854602 refused_frames=[0, 0, 0] commands=8286 research_fault_at_s=-
+cycle venue=1 side=Buy entry=854994 exit=854965 hold_ms=74 net_atoms=-6275 harvest=false
+engine_cycles cycles=1 harvests=0 wins=0 mean_net_atoms=-6275.0 sd=0.0 se=0.0 total_net_atoms=-6275 mean_gross_ticks=-29.0 mean_hold_s=0.1 open_at_end=0 open_mtm_atoms=0
+--- p1
+policy_replay seconds=598.7 lower_price=854602 refused_frames=[0, 0, 0] commands=8304 research_fault_at_s=-
+cycle venue=1 side=Buy entry=854994 exit=855444 hold_ms=20215 net_atoms=1079 harvest=true
+engine_cycles cycles=1 harvests=1 wins=1 mean_net_atoms=1079.0 sd=0.0 se=0.0 total_net_atoms=1079 mean_gross_ticks=450.0 mean_hold_s=20.2 open_at_end=0 open_mtm_atoms=0
+--- p2
+policy_replay seconds=598.7 lower_price=854602 refused_frames=[0, 0, 0] commands=8371 research_fault_at_s=-
+cycle venue=2 side=Buy entry=855487 exit=855937 hold_ms=49313 net_atoms=1077 harvest=true
+cycle venue=2 side=Sell entry=855497 exit=855047 hold_ms=22980 net_atoms=1078 harvest=true
+cycle venue=2 side=Sell entry=855099 exit=855114 hold_ms=6 net_atoms=-3572 harvest=false
+cycle venue=2 side=Sell entry=855100 exit=854650 hold_ms=12965 net_atoms=1079 harvest=true
+cycle venue=1 side=Buy entry=854994 exit=855444 hold_ms=20215 net_atoms=1079 harvest=true
+cycle venue=2 side=Buy entry=855440 exit=855123 hold_ms=60997 net_atoms=-6592 harvest=false
+engine_cycles cycles=6 harvests=4 wins=4 mean_net_atoms=-975.2 sd=3321.4 se=1356.0 total_net_atoms=-5851 mean_gross_ticks=244.7 mean_hold_s=27.7 open_at_end=0 open_mtm_atoms=0
+--- p3
+policy_replay seconds=598.7 lower_price=854602 refused_frames=[0, 0, 0] commands=8429 research_fault_at_s=-
+cycle venue=2 side=Buy entry=854900 exit=854776 hold_ms=4054 net_atoms=-4660 harvest=false
+cycle venue=2 side=Buy entry=855487 exit=855937 hold_ms=49313 net_atoms=1077 harvest=true
+cycle venue=2 side=Sell entry=855497 exit=855047 hold_ms=22980 net_atoms=1078 harvest=true
+cycle venue=2 side=Sell entry=855099 exit=855114 hold_ms=6 net_atoms=-3572 harvest=false
+cycle venue=2 side=Sell entry=855100 exit=854650 hold_ms=12965 net_atoms=1079 harvest=true
+cycle venue=1 side=Buy entry=854994 exit=854967 hold_ms=1582 net_atoms=-3690 harvest=false
+cycle venue=1 side=Buy entry=854994 exit=855444 hold_ms=20215 net_atoms=1079 harvest=true
+cycle venue=2 side=Buy entry=855440 exit=855123 hold_ms=60997 net_atoms=-6592 harvest=false
+engine_cycles cycles=8 harvests=4 wins=4 mean_net_atoms=-1775.1 sd=3184.5 se=1125.9 total_net_atoms=-14201 mean_gross_ticks=164.6 mean_hold_s=21.5 open_at_end=0 open_mtm_atoms=0
+--- p3-nofee
+policy_replay seconds=598.7 lower_price=854602 refused_frames=[0, 0, 0] commands=8429 research_fault_at_s=-
+cycle venue=2 side=Buy entry=854900 exit=854776 hold_ms=4054 net_atoms=-1240 harvest=false
+cycle venue=2 side=Buy entry=855487 exit=855937 hold_ms=49313 net_atoms=4500 harvest=true
+cycle venue=2 side=Sell entry=855497 exit=855047 hold_ms=22980 net_atoms=4500 harvest=true
+cycle venue=2 side=Sell entry=855099 exit=855114 hold_ms=6 net_atoms=-150 harvest=false
+cycle venue=2 side=Sell entry=855100 exit=854650 hold_ms=12965 net_atoms=4500 harvest=true
+cycle venue=1 side=Buy entry=854994 exit=854967 hold_ms=1582 net_atoms=-270 harvest=false
+cycle venue=1 side=Buy entry=854994 exit=855444 hold_ms=20215 net_atoms=4500 harvest=true
+cycle venue=2 side=Buy entry=855440 exit=855123 hold_ms=60997 net_atoms=-3170 harvest=false
+engine_cycles cycles=8 harvests=4 wins=4 mean_net_atoms=1646.2 sd=3184.8 se=1126.0 total_net_atoms=13170 mean_gross_ticks=164.6 mean_hold_s=21.5 open_at_end=0 open_mtm_atoms=0
+### live60
+control_cycles all cycles=388 harvests=128 wins=132 mean_net_atoms=-4774.2 sd=5501.2 se=279.3 total_net_atoms=-1852382 mean_gross_ticks=-136.0 mean_hold_s=51.7 open_at_end=3 open_mtm_atoms=-32890
+--- p0
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=49167 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p1
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=49174 research_fault_at_s=-
+engine_cycles cycles=0 harvests=0 wins=0 mean_net_atoms=-0.0 sd=0.0 se=0.0 total_net_atoms=-0 mean_gross_ticks=-0.0 mean_hold_s=-0.0 open_at_end=0 open_mtm_atoms=0
+--- p2
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=49399 research_fault_at_s=-
+cycle venue=2 side=Buy entry=854841 exit=854442 hold_ms=61350 net_atoms=-7409 harvest=false
+cycle venue=2 side=Buy entry=854960 exit=854841 hold_ms=31529 net_atoms=-4610 harvest=false
+cycle venue=2 side=Sell entry=854827 exit=854377 hold_ms=80522 net_atoms=1081 harvest=true
+cycle venue=2 side=Buy entry=855091 exit=854004 hold_ms=98639 net_atoms=-14290 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854144 hold_ms=12925 net_atoms=-9349 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854367 hold_ms=60110 net_atoms=-7119 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=853891 hold_ms=60870 net_atoms=-11988 harvest=false
+engine_cycles cycles=7 harvests=1 wins=1 mean_net_atoms=-7669.1 sd=5026.7 se=1899.9 total_net_atoms=-53684 mean_gross_ticks=-425.0 mean_hold_s=58.0 open_at_end=0 open_mtm_atoms=0
+--- p3
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=49444 research_fault_at_s=-
+cycle venue=2 side=Buy entry=854841 exit=854442 hold_ms=61350 net_atoms=-7409 harvest=false
+cycle venue=2 side=Sell entry=854827 exit=854894 hold_ms=4044 net_atoms=-4090 harvest=false
+cycle venue=2 side=Sell entry=854957 exit=854507 hold_ms=25839 net_atoms=1080 harvest=true
+cycle venue=2 side=Buy entry=855091 exit=854502 hold_ms=73695 net_atoms=-9311 harvest=false
+cycle venue=1 side=Sell entry=854734 exit=854284 hold_ms=138631 net_atoms=1081 harvest=true
+cycle venue=2 side=Buy entry=854960 exit=854004 hold_ms=69097 net_atoms=-12979 harvest=false
+cycle venue=2 side=Buy entry=854868 exit=854144 hold_ms=22194 net_atoms=-10659 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854367 hold_ms=60110 net_atoms=-7119 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=854583 hold_ms=1604 net_atoms=-5070 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=853891 hold_ms=60870 net_atoms=-11988 harvest=false
+engine_cycles cycles=10 harvests=2 wins=2 mean_net_atoms=-6646.4 sd=4956.1 se=1567.3 total_net_atoms=-66464 mean_gross_ticks=-322.7 mean_hold_s=51.7 open_at_end=0 open_mtm_atoms=0
+--- p3-nofee
+policy_replay seconds=3598.6 lower_price=854569 refused_frames=[0, 0, 0] commands=49444 research_fault_at_s=-
+cycle venue=2 side=Buy entry=854841 exit=854442 hold_ms=61350 net_atoms=-3990 harvest=false
+cycle venue=2 side=Sell entry=854827 exit=854894 hold_ms=4044 net_atoms=-670 harvest=false
+cycle venue=2 side=Sell entry=854957 exit=854507 hold_ms=25839 net_atoms=4500 harvest=true
+cycle venue=2 side=Buy entry=855091 exit=854502 hold_ms=73695 net_atoms=-5890 harvest=false
+cycle venue=1 side=Sell entry=854734 exit=854284 hold_ms=138631 net_atoms=4500 harvest=true
+cycle venue=2 side=Buy entry=854960 exit=854004 hold_ms=69097 net_atoms=-9560 harvest=false
+cycle venue=2 side=Buy entry=854868 exit=854144 hold_ms=22194 net_atoms=-7240 harvest=false
+cycle venue=2 side=Buy entry=854737 exit=854367 hold_ms=60110 net_atoms=-3700 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=854583 hold_ms=1604 net_atoms=-1650 harvest=false
+cycle venue=2 side=Buy entry=854748 exit=853891 hold_ms=60870 net_atoms=-8570 harvest=false
+engine_cycles cycles=10 harvests=2 wins=2 mean_net_atoms=-3227.0 sd=4956.4 se=1567.4 total_net_atoms=-32270 mean_gross_ticks=-322.7 mean_hold_s=51.7 open_at_end=0 open_mtm_atoms=0
+
+===== Session E timeline, variant P3 (fixed build)
+timeline minute=0 mid_offset_ticks=- revisits=0 active_zones=0 entries=0 maker_fills=0 unqualified_steps=0 disallowed_steps=0 environment=LiquidityShock halt=None
+timeline minute=1 mid_offset_ticks=-299 revisits=1 active_zones=8 entries=2 maker_fills=1 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=2 mid_offset_ticks=-350 revisits=1 active_zones=8 entries=2 maker_fills=2 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=3 mid_offset_ticks=-1287 revisits=1 active_zones=8 entries=2 maker_fills=2 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=4 mid_offset_ticks=-606 revisits=1 active_zones=8 entries=2 maker_fills=2 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=5 mid_offset_ticks=181 revisits=2 active_zones=5 entries=6 maker_fills=3 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=6 mid_offset_ticks=399 revisits=9 active_zones=19 entries=18 maker_fills=7 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=7 mid_offset_ticks=-412 revisits=19 active_zones=13 entries=22 maker_fills=11 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=8 mid_offset_ticks=-94 revisits=20 active_zones=11 entries=23 maker_fills=12 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=9 mid_offset_ticks=240 revisits=23 active_zones=19 entries=29 maker_fills=15 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=10 mid_offset_ticks=-388 revisits=23 active_zones=3 entries=29 maker_fills=16 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=11 mid_offset_ticks=-380 revisits=23 active_zones=2 entries=29 maker_fills=16 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=12 mid_offset_ticks=-344 revisits=25 active_zones=5 entries=34 maker_fills=19 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=13 mid_offset_ticks=-605 revisits=25 active_zones=5 entries=34 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=14 mid_offset_ticks=-93 revisits=28 active_zones=5 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=15 mid_offset_ticks=-440 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=16 mid_offset_ticks=-759 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=17 mid_offset_ticks=-528 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=18 mid_offset_ticks=-1022 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=19 mid_offset_ticks=-1595 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=20 mid_offset_ticks=-696 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=21 mid_offset_ticks=-677 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=22 mid_offset_ticks=-1631 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=23 mid_offset_ticks=-1279 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=24 mid_offset_ticks=-1796 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=25 mid_offset_ticks=-1314 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=26 mid_offset_ticks=-487 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=27 mid_offset_ticks=-1308 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=28 mid_offset_ticks=-1145 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=29 mid_offset_ticks=-697 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=30 mid_offset_ticks=-1162 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=31 mid_offset_ticks=-1667 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=32 mid_offset_ticks=-1766 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=33 mid_offset_ticks=-2898 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=34 mid_offset_ticks=-2525 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Dead halt=None
+timeline minute=35 mid_offset_ticks=-2192 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Dead halt=None
+timeline minute=36 mid_offset_ticks=-2083 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=37 mid_offset_ticks=-2260 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=38 mid_offset_ticks=-1489 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=39 mid_offset_ticks=-590 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=40 mid_offset_ticks=-265 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=41 mid_offset_ticks=-752 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=42 mid_offset_ticks=-656 revisits=28 active_zones=2 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=43 mid_offset_ticks=-494 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=44 mid_offset_ticks=-903 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=45 mid_offset_ticks=-1214 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=46 mid_offset_ticks=-2122 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=47 mid_offset_ticks=-2162 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=48 mid_offset_ticks=-2094 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=49 mid_offset_ticks=-3052 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=50 mid_offset_ticks=-3371 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=51 mid_offset_ticks=-2471 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=52 mid_offset_ticks=-2826 revisits=28 active_zones=1 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=53 mid_offset_ticks=-2347 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=54 mid_offset_ticks=-2052 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=55 mid_offset_ticks=-2028 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=56 mid_offset_ticks=-1595 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None
+timeline minute=57 mid_offset_ticks=-1912 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=58 mid_offset_ticks=-2098 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=Trending halt=None
+timeline minute=59 mid_offset_ticks=-1968 revisits=28 active_zones=0 entries=40 maker_fills=20 unqualified_steps=0 disallowed_steps=0 environment=BalancedActive halt=None

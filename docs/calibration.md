@@ -91,6 +91,73 @@ Each command is run once on E with the files committed alongside this document:
 
 All variants and both sessions are reported whatever they show. A cycle is one child from fill to close. The control's cycles are serially correlated (one price path, six cyclers), so its standard error is optimistic.
 
-## Results
+## Results (session E, recorded 18:22–19:22 EAT)
 
-Pending: session E is still recording.
+Session E ran 3,600.4 s with 4–6 reconnects per venue and no fault. Its live replay reproduced all 49,159 commands exactly. [Raw output](calibration-output.txt).
+
+### As registered
+
+The commands were run exactly as committed (build `94dbd07`). Variants P2 and P3 **faulted at 714.4 s**: `Research(Voids(InvalidObservation))`.
+
+This was a bug in the `suspend` change. While a zone was out of view, the price inside it was recorded as the side it was last seen on. A revisit then had no valid entry side.
+
+| Session E, as registered | Cycles | Take-profit exits | Mean net per cycle | Std. error |
+|---|---:|---:|---:|---:|
+| Control | 388 | 128 | −4,774 atoms | 279 |
+| P2 (to 714 s) | 7 | 1 | −7,144 atoms | 1,769 |
+
+- **H1: fails.** P2 minus control is −2,370 atoms, t = −1.32: the wrong direction.
+- **H2: fails.** P2's mean is negative.
+- **H3: fails.** The difference was +3,605 in D and −2,370 in E.
+
+### Deviation: crash fix, then rerun
+
+The fix records only an outside side while a zone is unobserved. It changes no strategy parameter. Two regression tests, a targeted case and 2,000 generated sequences, fail without it.
+
+With the fix, all variants were rerun on all sessions. D is unchanged.
+
+| Session E, fixed build | Cycles | Take-profit exits | Mean net per cycle | Std. error | Mean gross per unit |
+|---|---:|---:|---:|---:|---:|
+| Control | 388 | 128 | −4,774 atoms | 279 | −136 ticks |
+| P0, P1 (spec scopes) | 0 | — | — | — | — |
+| **P2 (primary)** | 7 | 1 | −7,669 atoms | 1,900 | −425 ticks |
+| P3 (diagnostic) | 10 | 2 | −6,646 atoms | 1,567 | −323 ticks |
+| P3, no fees | 10 | 2 | −3,227 atoms | 1,567 | −323 ticks |
+
+**H1, H2 and H3 all fail**; H1's t is −1.51.
+
+### Why E produced only seven engine cycles
+
+The research corridor is fixed at session start to 1,024 ticks (102.4 USDT). In E, BTC fell below it from about minute 12, and was at times 290 USDT under its floor. Outside the corridor no structure is visible, so no void formed.
+
+- All 28 revisits happened in the first 15 minutes.
+- Active zones were 0–2 for the remaining 45 minutes.
+- No risk limit, halt or denial stopped the engine; see the timeline in the raw output.
+
+The strategy was therefore tested on about 15 minutes of E. The ungated control trades on venue books and ran the full hour.
+
+### Pooled (post hoc, not pre-registered)
+
+Sessions B to E. A is excluded because positions still open at its 60 s end dominate it.
+
+| | Cycles | Mean net per cycle |
+|---|---:|---:|
+| Control, ungated | 569 | −4,693 atoms |
+| P2, revisit-gated | 13 | −4,580 atoms |
+| P3, diagnostic | 20 | −5,139 atoms |
+
+### Conclusion
+
+- **The revisit gate adds no detectable value.** Within what top-20 public windows can observe, gated cycles are indistinguishable from ungated entries with the same exits.
+- **The economics are negative.** Both lose about 4,600–4,700 atoms per 0.001 BTC cycle: about 47 USDT per BTC, roughly 0.054% of notional per round trip, at retail fees.
+- **There is no gross edge before fees either.** P3 without fees lost 3,227 atoms per cycle in E and was positive only in D. Session D's encouraging result did not replicate.
+
+What this does **not** rule out is equally specific:
+
+- deeper books (top-200 or full depth)
+- a re-centring corridor
+- other exits, which were deliberately not fitted
+- other assets or longer horizons
+- programme rebates
+
+Each would need its own pre-registered test.

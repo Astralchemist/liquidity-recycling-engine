@@ -589,6 +589,8 @@ pub fn policy_replay(directory: &str, structures: &str, engine_file: &str) -> Re
     let (mut first, mut last) = (None, 0);
     let harvest_ticks = engine.config().policy.harvest_ticks;
     let (mut cycles, mut seen, mut completed) = (Vec::new(), std::collections::HashSet::new(), 0);
+    let mut fault_at: Option<u64> = None;
+    let mut next_tick = 0_u64;
     while let Some(frame) = merged.next_frame().map_err(|e| format!("{e:?}"))? {
         let head = match frame {
             MergedFrame::Event(e) => e,
@@ -613,6 +615,39 @@ pub fn policy_replay(directory: &str, structures: &str, engine_file: &str) -> Re
             }
         }
         .map_err(|e| format!("engine: {e:?}"))?;
+        let elapsed = head.receive_ts.0 - first.unwrap_or(0);
+        if elapsed >= next_tick {
+            next_tick += 60_000_000_000;
+            let m = engine.metrics();
+            let vm = engine.research().research().voids().metrics();
+            let active = engine
+                .research()
+                .research()
+                .voids()
+                .zones()
+                .iter()
+                .flatten()
+                .filter(|z| z.state.active())
+                .count();
+            println!(
+                "timeline minute={} mid_offset_ticks={} revisits={} active_zones={} entries={} maker_fills={} unqualified_steps={} disallowed_steps={} environment={:?} halt={:?}",
+                elapsed / 60_000_000_000,
+                engine
+                    .reference_mid_x2()
+                    .map_or("-".into(), |m| (m / 2 - i128::from(lower)).to_string()),
+                vm.revisits,
+                active,
+                m.entries_placed,
+                m.maker_fills,
+                m.unqualified_revisit_steps,
+                m.disallowed_scope_steps,
+                engine.environment().state(),
+                engine.ledger().halt_reason()
+            );
+        }
+        if fault_at.is_none() && engine.research_fault().is_some() {
+            fault_at = Some(head.receive_ts.0 - first.unwrap_or(0));
+        }
         // Collect every closed child as it happens: the ledger keeps a bounded window only.
         if engine.ledger().counts().completed_cycles != completed {
             completed = engine.ledger().counts().completed_cycles;
@@ -637,8 +672,9 @@ pub fn policy_replay(directory: &str, structures: &str, engine_file: &str) -> Re
         }
     }
     println!(
-        "policy_replay seconds={:.1} lower_price={lower} refused_frames={refused:?} commands={commands}",
-        (last - first.unwrap_or(last)) as f64 / 1e9
+        "policy_replay seconds={:.1} lower_price={lower} refused_frames={refused:?} commands={commands} research_fault_at_s={}",
+        (last - first.unwrap_or(last)) as f64 / 1e9,
+        fault_at.map_or("-".into(), |t| format!("{:.1}", t as f64 / 1e9))
     );
     for c in &cycles {
         println!(

@@ -366,10 +366,14 @@ impl<const Z: usize> VoidEngine<Z> {
                     return Ok(());
                 }
                 let here = location(z.region, price_x2);
-                if z.state == VoidState::Revisited && here != Location::Inside {
-                    z.state = VoidState::Exited;
+                if here != Location::Inside {
+                    if z.state == VoidState::Revisited {
+                        z.state = VoidState::Exited;
+                    }
+                    // Only an OUTSIDE side is recorded: an entry is judged when observed, and
+                    // its side must be the last side the price was seen on.
+                    z.previous = here;
                 }
-                z.previous = here;
                 self.metrics.unobserved += 1;
                 return Ok(());
             }

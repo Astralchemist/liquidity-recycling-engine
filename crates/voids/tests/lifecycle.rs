@@ -228,3 +228,41 @@ fn suspended_zones_still_expire_and_candidates_still_invalidate() {
     // The default keeps Phase 4 behaviour.
     assert_eq!(CoverageLoss::default(), CoverageLoss::Invalidate);
 }
+/// Regression (calibration, session E): the price inside a zone while it is out of view must
+/// not become the revisit's entry side, or the first observed revisit fails.
+#[test]
+fn an_unobserved_inside_price_is_not_an_entry_side() {
+    let mut e = suspended();
+    e.observe(0, Timestamp(20), 216, 0, false).unwrap();
+    assert_eq!(e.zones()[0].unwrap().state, VoidState::Exited);
+    e.observe(0, Timestamp(21), 214, 0, true).unwrap();
+    let z = e.zones()[0].unwrap();
+    assert_eq!((z.state, e.metrics().revisits), (VoidState::Revisited, 1));
+    // Entered from above (the last observed side): penetration is measured from the top.
+    assert!(z.max_penetration_ppm > 0);
+}
+/// Generated covered/uncovered observation sequences under `Suspend` never fail and keep the
+/// metric identities.
+#[test]
+fn suspended_sequences_never_fail() {
+    let mut state = 5_u64;
+    let mut draw = |n: u64| {
+        state = state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        (state >> 33) % n
+    };
+    for _ in 0..2_000 {
+        let mut e = suspended();
+        let mut now = 11;
+        for _ in 0..60 {
+            now += 1;
+            let price = 190 + draw(40) as i128;
+            let depth = if draw(10) == 0 { 90 } else { 0 };
+            e.observe(0, Timestamp(now), price, depth, draw(3) != 0)
+                .unwrap();
+        }
+        let m = e.metrics();
+        assert!(m.revisited_zones <= m.registered && m.revisits >= m.revisited_zones);
+    }
+}

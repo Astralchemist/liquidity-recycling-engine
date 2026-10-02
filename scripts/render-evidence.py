@@ -4,7 +4,7 @@
 The page embeds a trimmed copy of the data and loads Chart.js from jsDelivr. Prices appear only
 relative to each session's research corridor; P&L is per BTC traded.
 """
-import json, math, os
+import json, math, os, sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data = json.load(open(os.path.join(REPO, 'docs/evidence/data.json')))
@@ -112,8 +112,18 @@ t_E = (E_p['mean'] - E_c['mean']) / math.sqrt(E_p['se'] ** 2 + E_c['se'] ** 2)
 t_D = (D_p['mean'] - D_c['mean']) / math.sqrt(D_p['se'] ** 2 + D_c['se'] ** 2)
 D['tests'] = dict(tE=round(t_E, 2), tD=round(t_D, 2))
 
-html = open(os.path.join(REPO, 'scripts/evidence-template.html')).read()
-html = html.replace('/*__DATA__*/null', json.dumps(D, separators=(',', ':')))
+fragment = open(os.path.join(REPO, 'scripts/evidence-template.html')).read()
+fragment = fragment.replace('/*__DATA__*/null', json.dumps(D, separators=(',', ':')))
+# The repository copy is a complete document (served by GitHub Pages); `--fragment PATH` also
+# writes the bare page content, which hosts that add their own document skeleton expect.
+document = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+            '<style>html{color-scheme:light dark}body{margin:0}[hidden]{display:none!important}</style>\n'
+            + fragment + '\n</html>\n')
 out = os.path.join(REPO, 'docs/evidence/index.html')
-open(out, 'w').write(html)
+open(out, 'w').write(document)
+if '--fragment' in sys.argv:
+    path = sys.argv[sys.argv.index('--fragment') + 1]
+    open(path, 'w').write(fragment)
+    print('wrote fragment', path)
 print('wrote', out, f'{os.path.getsize(out) / 1e3:.0f} kB', 'tE', round(t_E, 2), 'tD', round(t_D, 2))

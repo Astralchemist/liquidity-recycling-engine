@@ -784,3 +784,76 @@ fn phase9_runs_are_deterministic_and_journals_rebuild_the_ledger() {
         assert_eq!(ledger, *a.engine.ledger());
     }
 }
+#[test]
+fn levels_beyond_the_visible_window_are_unobserved_not_empty() {
+    let mut engine = build_with(engine());
+    for e in generate(Scenario::RevisitOscillation).iter().take(600) {
+        engine.apply(e, &mut |_| {}).unwrap();
+    }
+    let book = engine
+        .research()
+        .research()
+        .market()
+        .venue_book(VenueId(1))
+        .unwrap();
+    let deepest_bid = book.levels(Side::Buy).unwrap().last().unwrap().price;
+    let deepest_ask = book.levels(Side::Sell).unwrap().last().unwrap().price;
+    assert!(
+        engine
+            .displayed(0, Side::Buy, deepest_bid)
+            .unwrap()
+            .is_some()
+    );
+    assert_eq!(
+        engine
+            .displayed(0, Side::Buy, PriceTicks(deepest_bid.0 - 1))
+            .unwrap(),
+        None
+    );
+    assert!(
+        engine
+            .displayed(0, Side::Sell, deepest_ask)
+            .unwrap()
+            .is_some()
+    );
+    assert_eq!(
+        engine
+            .displayed(0, Side::Sell, PriceTicks(deepest_ask.0 + 1))
+            .unwrap(),
+        None
+    );
+}
+#[test]
+fn entry_environments_gate_entries_and_are_validated() {
+    use toxicity::Environment;
+    let (grid, venues) = market();
+    let (liquidity, voids) = structures();
+    let mut bad = [engine(); 3];
+    bad[0].policy.entry_environments = 0;
+    bad[1].policy.entry_environments = 32;
+    bad[2].policy.entry_environments = Environment::Chaotic.bit();
+    for config in bad {
+        assert_eq!(
+            SyntheticEngine::new(grid, venues, liquidity, voids, flow(), inventory(), config).err(),
+            Some(EngineError::InvalidConfig)
+        );
+    }
+    // Allowing every non-chaotic environment leaves no revisit unqualified by environment.
+    let mut open = engine();
+    open.policy.entry_environments = [
+        Environment::Dead,
+        Environment::BalancedActive,
+        Environment::Trending,
+        Environment::LiquidityShock,
+    ]
+    .iter()
+    .fold(0, |m, e| m | e.bit());
+    for scenario in [Scenario::OneWayContinuation, Scenario::ToxicRecovery] {
+        let strict = run_with(scenario, engine()).engine.metrics();
+        let wide = run_with(scenario, open).engine.metrics();
+        assert_eq!(wide.unqualified_revisit_steps, 0);
+        assert!(
+            strict.unqualified_revisit_steps > 0 || wide.entries_placed >= strict.entries_placed
+        );
+    }
+}

@@ -84,6 +84,8 @@ struct Policy {
     reprice_ticks: i64,
     evidence_ttl_ns: u64,
     exit_on_environment: Vec<String>,
+    /// Defaults to balanced-active only (§13); anything else is a diagnostic.
+    entry_environments: Option<Vec<String>>,
     mark_refresh_ns: u64,
     assess_interval_ns: u64,
 }
@@ -183,6 +185,14 @@ pub(super) fn parse(text: &str) -> Result<(InventoryConfig<3>, EngineConfig), St
     for name in &p.exit_on_environment {
         exit_on_environment |= environment(name)?.bit();
     }
+    let mut entry_environments = 0;
+    for name in p
+        .entry_environments
+        .as_deref()
+        .unwrap_or(&["balanced_active".to_string()])
+    {
+        entry_environments |= environment(name)?.bit();
+    }
     let engine = EngineConfig {
         environment: EnvironmentConfig {
             window_ns: e.window_ns,
@@ -207,6 +217,7 @@ pub(super) fn parse(text: &str) -> Result<(InventoryConfig<3>, EngineConfig), St
             reprice_ticks: p.reprice_ticks,
             evidence_ttl_ns: p.evidence_ttl_ns,
             exit_on_environment,
+            entry_environments,
             mark_refresh_ns: p.mark_refresh_ns,
             assess_interval_ns: p.assess_interval_ns,
         },
@@ -644,6 +655,17 @@ mod tests {
         );
         assert!(parse(&format!("{text}\n[markout]\nhorizons_ns = [5, 5]\n")).is_err());
         assert!(parse(&format!("{text}\n[funding]\nrate_ppm = 1\n")).is_err());
+        // Entry environments default to balanced-active and accept the environment names.
+        let diag = text.replace(
+            "exit_on_environment = [\"chaotic\"]",
+            "exit_on_environment = [\"chaotic\"]\nentry_environments = [\"balanced_active\", \"trending\"]",
+        );
+        let mask = parse(&diag).unwrap().1.policy.entry_environments;
+        assert_eq!(
+            mask,
+            Environment::BalancedActive.bit() | Environment::Trending.bit()
+        );
+        assert!(parse(&diag.replace("\"trending\"]", "\"windy\"]")).is_err());
         assert!(parse(&text.replace("\"chaotic\"]", "\"stormy\"]")).is_err());
         assert!(parse(&text.replace("\"market_wide\"]", "\"global\"]")).is_err());
         assert!(parse(&format!("extra = true\n{text}")).is_err());

@@ -545,6 +545,239 @@ pub fn replay(directory: &str) -> Result<(), String> {
     );
     super::scenarios::summary(&engine, "live-replay")
 }
+/// Policy replay (calibration): replays a recorded session through a FRESH engine built from
+/// the recording's market and flow files with OVERRIDE structure and engine files. The corridor
+/// (`lower_price`) is the recording's, since it is fixed per session. Input the live loop would
+/// refuse (`Engine::accepts`) is skipped and counted, as live. There is no journal comparison:
+/// the policy differs from the recorded one by design.
+pub fn policy_replay(directory: &str, structures: &str, engine_file: &str) -> Result<(), String> {
+    let dir = Path::new(directory);
+    let recorded = read_dir_texts(dir)?;
+    let read = |f: &str| fs::read_to_string(f).map_err(|e| format!("{f}: {e}"));
+    let lower = super::structures::parse(&recorded.structures)?
+        .0
+        .lower_price
+        .0;
+    let structures = read(structures)?
+        .lines()
+        .map(|l| {
+            if l.trim_start().starts_with("lower_price") {
+                format!("lower_price = {lower}")
+            } else {
+                l.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let t = Texts {
+        market: recorded.market,
+        structures,
+        flow: recorded.flow,
+        engine: read(engine_file)?,
+    };
+    let files: Vec<_> = (1..=3)
+        .map(|v| File::open(dir.join(format!("venue-{v}.lre"))).map(BufReader::new))
+        .collect::<std::io::Result<_>>()
+        .map_err(|e| e.to_string())?;
+    let files: [BufReader<File>; 3] = files.try_into().map_err(|_| "expected three files")?;
+    let mut merged = MergedFrames::new(files, true).map_err(|e| format!("{e:?}"))?;
+    let mut engine = build(&t)?;
+    merged
+        .validate(engine.research().research().market())
+        .map_err(|e| format!("{e:?}"))?;
+    let (mut refused, mut in_snapshot, mut commands) = ([0_u64; 3], [false; 3], 0_u64);
+    let (mut first, mut last) = (None, 0);
+    let harvest_ticks = engine.config().policy.harvest_ticks;
+    let (mut cycles, mut seen, mut completed) = (Vec::new(), std::collections::HashSet::new(), 0);
+    while let Some(frame) = merged.next_frame().map_err(|e| format!("{e:?}"))? {
+        let head = match frame {
+            MergedFrame::Event(e) => e,
+            MergedFrame::Batch(b) => b[0],
+        };
+        first.get_or_insert(head.receive_ts.0);
+        last = head.receive_ts.0;
+        let v = engine.venue_position(head.venue).ok_or("unknown venue")?;
+        let start = head.event_type == market_events::MarketEventType::SnapshotStart;
+        in_snapshot[v] |= start;
+        if !engine.accepts(head.venue, head.receive_ts, in_snapshot[v]) {
+            refused[v] += 1;
+            continue;
+        }
+        if head.event_type == market_events::MarketEventType::SnapshotEnd {
+            in_snapshot[v] = false;
+        }
+        match frame {
+            MergedFrame::Event(e) => engine.apply(&e, &mut |_| commands += 1),
+            MergedFrame::Batch(b) => {
+                engine.apply_depth_batch(head.venue, b, &mut |_| commands += 1)
+            }
+        }
+        .map_err(|e| format!("engine: {e:?}"))?;
+        // Collect every closed child as it happens: the ledger keeps a bounded window only.
+        if engine.ledger().counts().completed_cycles != completed {
+            completed = engine.ledger().counts().completed_cycles;
+            for c in engine.ledger().closed_lots().iter().flatten() {
+                if !seen.insert(c.lot.id) {
+                    continue;
+                }
+                let target = match c.lot.side {
+                    common::Side::Buy => c.lot.entry_price.0 + harvest_ticks,
+                    common::Side::Sell => c.lot.entry_price.0 - harvest_ticks,
+                };
+                cycles.push(super::cycles::Cycle {
+                    venue: engine.venue_position(c.lot.venue).ok_or("unknown venue")?,
+                    side: c.lot.side,
+                    entry: c.lot.entry_price.0,
+                    exit: c.exit_price.0,
+                    hold_ns: c.exited_at.0 - c.lot.entered_at.0,
+                    net_atoms: c.net_pnl.0,
+                    harvest: c.mode == inventory::CloseMode::Normal && c.exit_price.0 == target,
+                });
+            }
+        }
+    }
+    println!(
+        "policy_replay seconds={:.1} lower_price={lower} refused_frames={refused:?} commands={commands}",
+        (last - first.unwrap_or(last)) as f64 / 1e9
+    );
+    for c in &cycles {
+        println!(
+            "cycle venue={} side={:?} entry={} exit={} hold_ms={} net_atoms={} harvest={}",
+            c.venue + 1,
+            c.side,
+            c.entry,
+            c.exit,
+            c.hold_ns / 1_000_000,
+            c.net_atoms,
+            c.harvest
+        );
+    }
+    let open = engine.ledger().lots().iter().flatten().count();
+    super::cycles::report(
+        "engine_cycles",
+        &cycles,
+        open,
+        engine.ledger().unrealized().0,
+    );
+    super::scenarios::summary(&engine, "policy-replay")
+}
+/// Cycle control (calibration): the engine's exit rules on UNGATED passive entries at every
+/// venue touch, one long and one short cycler per venue, over a recorded session replayed
+/// through its recorded configuration. See `cycles`.
+pub fn cycle_control(
+    directory: &str,
+    harvest_ticks: &str,
+    age_s: &str,
+    reprice_ticks: &str,
+    maker_fee_ppm: &str,
+) -> Result<(), String> {
+    let number = |s: &str, name: &str| -> Result<i64, String> {
+        s.parse::<i64>()
+            .ok()
+            .filter(|&x| x >= 0)
+            .ok_or(format!("{name} must be a non-negative integer"))
+    };
+    let harvest = number(harvest_ticks, "HARVEST_TICKS")?.max(1);
+    let age = u64::try_from(number(age_s, "AGE_S")?).map_err(|e| e.to_string())?;
+    let reprice = number(reprice_ticks, "REPRICE_TICKS")?.max(1);
+    let fee = u32::try_from(number(maker_fee_ppm, "MAKER_FEE_PPM")?)
+        .ok()
+        .filter(|&f| f <= 100_000)
+        .ok_or("MAKER_FEE_PPM must be at most 100000")?;
+    let dir = Path::new(directory);
+    let t = read_dir_texts(dir)?;
+    let files: Vec<_> = (1..=3)
+        .map(|v| File::open(dir.join(format!("venue-{v}.lre"))).map(BufReader::new))
+        .collect::<std::io::Result<_>>()
+        .map_err(|e| e.to_string())?;
+    let files: [BufReader<File>; 3] = files.try_into().map_err(|_| "expected three files")?;
+    let mut merged = MergedFrames::new(files, true).map_err(|e| format!("{e:?}"))?;
+    let mut engine = build(&t)?;
+    merged
+        .validate(engine.research().research().market())
+        .map_err(|e| format!("{e:?}"))?;
+    if engine
+        .normalizers()
+        .iter()
+        .any(|n| n.price(PriceTicks(1)) != Ok(PriceTicks(1)))
+    {
+        return Err("the cycle control needs venue price scales equal to the grid".into());
+    }
+    let size = engine.ledger().config().quantum.unit_quantity().0;
+    let mut control = super::cycles::Control::new(
+        3,
+        super::cycles::ControlConfig {
+            harvest_ticks: harvest,
+            age_ns: age * 1_000_000_000,
+            reprice_ticks: reprice,
+            model: execution::queue::CancelModel::Proportional,
+            schedule: execution::fees::FeeSchedule {
+                maker_fee_ppm: fee,
+                maker_rebate_ppm: 0,
+                taker_fee_ppm: 0,
+            },
+            size,
+        },
+    );
+    let (mut in_snapshot, mut first, mut last) = ([false; 3], None, 0);
+    while let Some(frame) = merged.next_frame().map_err(|e| format!("{e:?}"))? {
+        let head = match frame {
+            MergedFrame::Event(e) => e,
+            MergedFrame::Batch(b) => b[0],
+        };
+        let (venue, now) = (head.venue, head.receive_ts.0);
+        first.get_or_insert(now);
+        last = now;
+        let v = engine.venue_position(venue).ok_or("unknown venue")?;
+        in_snapshot[v] |= head.event_type == market_events::MarketEventType::SnapshotStart;
+        if !engine.accepts(venue, head.receive_ts, in_snapshot[v]) {
+            continue;
+        }
+        if head.event_type == market_events::MarketEventType::SnapshotEnd {
+            in_snapshot[v] = false;
+        }
+        let print = head.event_type == market_events::MarketEventType::Trade;
+        let before = if print {
+            None
+        } else {
+            Some(control.depths(&*engine, v)?)
+        };
+        match frame {
+            MergedFrame::Event(e) => engine.apply(&e, &mut |_| {}),
+            MergedFrame::Batch(b) => engine.apply_depth_batch(venue, b, &mut |_| {}),
+        }
+        .map_err(|e| format!("engine: {e:?}"))?;
+        match before {
+            None => control.on_trade(
+                &*engine,
+                v,
+                now,
+                head.side,
+                head.price_ticks,
+                head.qty_units,
+            )?,
+            Some(before) => control.after_depth(&*engine, v, &before)?,
+        }
+        control.after_frame(&*engine, now)?;
+    }
+    println!(
+        "cycle_control seconds={:.1} harvest_ticks={harvest} age_s={age} reprice_ticks={reprice} maker_fee_ppm={fee} probe_units={size} research_fault={:?}",
+        (last - first.unwrap_or(last)) as f64 / 1e9,
+        engine.research_fault()
+    );
+    let (open, mtm) = control.open(&*engine)?;
+    for v in 0..3 {
+        let by: Vec<_> = control
+            .cycles
+            .iter()
+            .filter(|c| c.venue == v)
+            .copied()
+            .collect();
+        super::cycles::report(&format!("control_cycles venue={}", v + 1), &by, 0, 0);
+    }
+    super::cycles::report("control_cycles all", &control.cycles, open, mtm);
+    Ok(())
+}
 /// Fill study (Phase 9) over a recorded session: shadow maker probes at every venue touch
 /// under each fill model (see `study`). The recorded engine configuration is replayed
 /// unchanged; probes never reach its ledger.

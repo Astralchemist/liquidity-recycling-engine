@@ -46,11 +46,23 @@ struct Void {
     low_depth_ppm: u32,
     refill_depth_ppm: u32,
     minimum_score_ppm: u32,
+    /// `invalidate` (default, Phase 4) or `suspend`; see `voids::CoverageLoss`.
+    #[serde(default)]
+    coverage_loss: Option<String>,
 }
 pub(super) fn parse(input: &str) -> Result<(LiquidityConfig<6>, VoidConfig), String> {
     let cfg: Config = toml::from_str(input).map_err(|e| e.to_string())?;
     let l = cfg.liquidity;
     let v = cfg.void;
+    let coverage_loss = match v.coverage_loss.as_deref() {
+        None | Some("invalidate") => voids::CoverageLoss::Invalidate,
+        Some("suspend") => voids::CoverageLoss::Suspend,
+        Some(other) => {
+            return Err(format!(
+                "void.coverage_loss {other}: expected invalidate or suspend"
+            ));
+        }
+    };
     let price_reference = match l.price_reference.as_str() {
         "midpoint" => PriceReference::Midpoint,
         "last_trade" => PriceReference::LastTrade,
@@ -81,6 +93,7 @@ pub(super) fn parse(input: &str) -> Result<(LiquidityConfig<6>, VoidConfig), Str
             low_depth_ppm: v.low_depth_ppm,
             refill_depth_ppm: v.refill_depth_ppm,
             minimum_score_ppm: v.minimum_score_ppm,
+            coverage_loss,
         },
     ))
 }
@@ -240,6 +253,23 @@ pub fn demo(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn coverage_loss_defaults_to_invalidate_and_accepts_suspend() {
+        let text = include_str!("../../../config/phase8-structures.toml");
+        assert_eq!(
+            parse(text).unwrap().1.coverage_loss,
+            voids::CoverageLoss::Invalidate
+        );
+        let suspend = text.replace(
+            "minimum_score_ppm = 750000",
+            "minimum_score_ppm = 750000\ncoverage_loss = \"suspend\"",
+        );
+        assert_eq!(
+            parse(&suspend).unwrap().1.coverage_loss,
+            voids::CoverageLoss::Suspend
+        );
+        assert!(parse(&suspend.replace("\"suspend\"", "\"ignore\"")).is_err());
+    }
     #[test]
     fn configuration_is_strict() {
         let text = include_str!("../../../config/phase4-structures.toml");

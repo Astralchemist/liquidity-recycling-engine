@@ -61,6 +61,7 @@ pub fn vc() -> VoidConfig {
         low_depth_ppm: 250_000,
         refill_depth_ppm: 800_000,
         minimum_score_ppm: 750_000,
+        coverage_loss: voids::CoverageLoss::Invalidate,
     }
 }
 pub type Engine = FlowResearchEngine<3, 128, 384, 64, 3, 16, 128>;

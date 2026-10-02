@@ -68,6 +68,9 @@ pub struct PolicyConfig {
     pub evidence_ttl_ns: u64,
     /// `Environment::bit` mask that forces a `RegimeChange` halt while inventory is held.
     pub exit_on_environment: u8,
+    /// `Environment::bit` mask in which entries may be quoted. The specification (§13) and
+    /// every shipped configuration use balanced-active only; other masks are diagnostics.
+    pub entry_environments: u8,
     /// Re-mark an unchanged venue touch after this long; must be below the ledger stale limit.
     pub mark_refresh_ns: u64,
     /// Issue a ledger `Tick` when no command has run for this long.
@@ -348,6 +351,9 @@ impl<
             || p.allowed_scopes == 0
             || p.allowed_scopes > 7
             || p.exit_on_environment > 31
+            || p.entry_environments == 0
+            || p.entry_environments > 31
+            || p.entry_environments & p.exit_on_environment != 0
             || p.evidence_ttl_ns == 0
             || p.assess_interval_ns == 0
             || p.mark_refresh_ns == 0
@@ -489,7 +495,9 @@ impl<
         self.research.research().reference().ok().and_then(|r| r.0)
     }
     /// Displayed grid quantity at `price` on `side` of venue index `v` (everyone else's size;
-    /// our simulated orders are not in the book). `None` while that book is not live.
+    /// our simulated orders are not in the book). `None` while that book is not live, and for
+    /// a price beyond the deepest visible level on that side: a top-K window shows only K
+    /// levels, so such a level is UNOBSERVED, not empty.
     pub fn displayed(
         &self,
         v: usize,
@@ -502,6 +510,17 @@ impl<
             .market()
             .venue_book(self.venues[v])?;
         if book.state() != BookState::Live {
+            return Ok(None);
+        }
+        let Some(deepest) = book.levels(side)?.last() else {
+            return Ok(None);
+        };
+        let deepest = self.normalizers[v].price(deepest.price)?;
+        let beyond = match side {
+            Side::Buy => price.0 < deepest.0,
+            Side::Sell => price.0 > deepest.0,
+        };
+        if beyond {
             return Ok(None);
         }
         let qty = book.level(side, price)?.map_or(QtyUnits(0), |l| l.qty);
@@ -1152,10 +1171,11 @@ impl<
         if disallowed {
             self.metrics.disallowed_scope_steps += 1;
         }
-        if target.is_some() && environment != Environment::BalancedActive {
+        let qualified = p.entry_environments & environment.bit() != 0;
+        if target.is_some() && !qualified {
             self.metrics.unqualified_revisit_steps += 1;
         }
-        let Some(zone) = target.filter(|_| environment == Environment::BalancedActive) else {
+        let Some(zone) = target.filter(|_| qualified) else {
             return self.cancel_entries(sink);
         };
         let v = zone.venue_mask.trailing_zeros() as usize;

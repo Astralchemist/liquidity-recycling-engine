@@ -10,6 +10,7 @@ use std::{
     process::ExitCode,
 };
 const CAPACITY: usize = 256;
+mod cycles;
 mod flow;
 mod inventory_demo;
 mod live;
@@ -38,6 +39,8 @@ fn run() -> Result<(), String> {
         Some("live-replay") if args.len() == 2 => live::replay(&args[1])?,
         Some("leadlag") if args.len() == 4 => live::leadlag(&args[1], &args[2], &args[3])?,
         Some("fill-study") if args.len() == 5 => live::fill_study(&args[1], &args[2], &args[3], &args[4])?,
+        Some("policy-replay") if args.len() == 4 => live::policy_replay(&args[1], &args[2], &args[3])?,
+        Some("cycle-control") if args.len() == 6 => live::cycle_control(&args[1], &args[2], &args[3], &args[4], &args[5])?,
         Some("scenario-demo") if args.len() == 7 => scenarios::demo(&args[1], &args[2], &args[3], &args[4], &args[5], &args[6])?,
         Some("scenario-replay") if args.len() == 2 => scenarios::replay(&args[1])?,
         Some("scenario-suite") if args.len() == 5 => scenarios::suite(&args[1], &args[2], &args[3], &args[4])?,
@@ -139,7 +142,7 @@ fn run() -> Result<(), String> {
                 book.midpoint_x2()
             );
         }
-        _ => return Err("usage: lre live-record MARKET STRUCTURE FLOW ENGINE DIRECTORY SECONDS | lre live-replay DIRECTORY | lre leadlag DIRECTORY BIN_MS MAX_LAG | lre fill-study DIRECTORY REQUOTE_TICKS MAKER_FEE_PPM LATENCY_MS | lre scenario-demo MARKET STRUCTURE FLOW ENGINE DIRECTORY a|b|c|d|e|f | lre scenario-replay DIRECTORY | lre scenario-suite MARKET STRUCTURE FLOW ENGINE | lre inventory-demo CONFIG DIRECTORY [recovery|forced] | lre inventory-replay DIRECTORY | lre flow-demo MARKET_CONFIG STRUCTURE_CONFIG FLOW_CONFIG DIRECTORY | lre flow-replay DIRECTORY | lre demo FILE | lre replay FILE [max|step|1x|2x|10x|100x] | lre multi-demo CONFIG DIRECTORY | lre multi-replay DIRECTORY | lre structure-demo MARKET_CONFIG STRUCTURE_CONFIG DIRECTORY [revisit|local|refill|continuation] | lre structure-replay DIRECTORY".into()),
+        _ => return Err("usage: lre live-record MARKET STRUCTURE FLOW ENGINE DIRECTORY SECONDS | lre live-replay DIRECTORY | lre leadlag DIRECTORY BIN_MS MAX_LAG | lre fill-study DIRECTORY REQUOTE_TICKS MAKER_FEE_PPM LATENCY_MS | lre policy-replay DIRECTORY STRUCTURES ENGINE | lre cycle-control DIRECTORY HARVEST_TICKS AGE_S REPRICE_TICKS MAKER_FEE_PPM | lre scenario-demo MARKET STRUCTURE FLOW ENGINE DIRECTORY a|b|c|d|e|f | lre scenario-replay DIRECTORY | lre scenario-suite MARKET STRUCTURE FLOW ENGINE | lre inventory-demo CONFIG DIRECTORY [recovery|forced] | lre inventory-replay DIRECTORY | lre flow-demo MARKET_CONFIG STRUCTURE_CONFIG FLOW_CONFIG DIRECTORY | lre flow-replay DIRECTORY | lre demo FILE | lre replay FILE [max|step|1x|2x|10x|100x] | lre multi-demo CONFIG DIRECTORY | lre multi-replay DIRECTORY | lre structure-demo MARKET_CONFIG STRUCTURE_CONFIG DIRECTORY [revisit|local|refill|continuation] | lre structure-replay DIRECTORY".into()),
     }
     Ok(())
 }

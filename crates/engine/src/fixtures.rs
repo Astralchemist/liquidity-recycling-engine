@@ -68,6 +68,7 @@ pub fn structures() -> (LiquidityConfig<6>, VoidConfig) {
             low_depth_ppm: 250_000,
             refill_depth_ppm: 800_000,
             minimum_score_ppm: 750_000,
+            coverage_loss: voids::CoverageLoss::Invalidate,
         },
     )
 }
@@ -126,6 +127,7 @@ pub fn engine() -> EngineConfig {
             reprice_ticks: 2,
             evidence_ttl_ns: 50_000_000,
             exit_on_environment: Environment::Chaotic.bit(),
+            entry_environments: Environment::BalancedActive.bit(),
             mark_refresh_ns: 100_000_000,
             assess_interval_ns: 10_000_000,
         },

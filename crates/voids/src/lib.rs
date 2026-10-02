@@ -86,6 +86,21 @@ pub struct VoidConfig {
     pub low_depth_ppm: u32,
     pub refill_depth_ppm: u32,
     pub minimum_score_ppm: u32,
+    pub coverage_loss: CoverageLoss,
+}
+/// What losing sight of a REGISTERED zone means. Candidates still forming are always
+/// invalidated: their formation cannot be confirmed out of view.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum CoverageLoss {
+    /// The zone is invalidated (Phase 4 behaviour). With top-K windows a zone the price has
+    /// left drops out of view within a few ticks, so revisits are rarely observable.
+    #[default]
+    Invalidate,
+    /// The zone is suspended: no depth judgement is made while unobserved, age expiry still
+    /// applies, and the price side is still tracked (a revisited zone the price leaves returns
+    /// to Exited). A price back inside the region is normally back in view, where refill is
+    /// judged BEFORE any revisit, so a void that refilled unseen is still classified refilled.
+    Suspend,
 }
 impl VoidConfig {
     pub fn validate(self) -> Result<(), VoidError> {
@@ -150,6 +165,8 @@ pub struct VoidMetrics {
     pub overlap_rejections: u64,
     pub evicted_terminal: u64,
     pub skipped_crossings: u64,
+    /// Observations of registered zones out of view under `CoverageLoss::Suspend`.
+    pub unobserved: u64,
     /// Each revisit contributes exactly one bin: its largest observed penetration so far.
     pub penetration_distribution: [u64; 6],
 }
@@ -339,6 +356,23 @@ impl<const Z: usize> VoidEngine<Z> {
         };
         if !z.state.active() {
             return Ok(());
+        }
+        if !covered && self.config.coverage_loss == CoverageLoss::Suspend {
+            if let Some(origin) = z.registered_at {
+                if now.0 - origin.0 >= self.config.maximum_age_ns {
+                    z.state = VoidState::Expired;
+                    z.ended_at = Some(now);
+                    self.metrics.expired += 1;
+                    return Ok(());
+                }
+                let here = location(z.region, price_x2);
+                if z.state == VoidState::Revisited && here != Location::Inside {
+                    z.state = VoidState::Exited;
+                }
+                z.previous = here;
+                self.metrics.unobserved += 1;
+                return Ok(());
+            }
         }
         z.current_depth = depth;
         if !covered {

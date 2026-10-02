@@ -35,6 +35,7 @@ pub(super) const MODELS: [FillModel; 4] = [
     FillModel::Queue(CancelModel::Optimistic),
 ];
 const PENDING: usize = 4096;
+const UNKNOWN_AHEAD: i64 = i64::MAX / 4;
 const SIDES: [Side; 2] = [Side::Buy, Side::Sell];
 /// What the study needs from the engine's market state, in grid units.
 pub(super) trait Market {
@@ -103,6 +104,8 @@ pub(super) struct Cell {
     pub stale_blocks: u64,
     /// Arrivals rejected as post-only: crossing the touch, or behind a sweep.
     pub rejects: u64,
+    /// Arrivals beyond the visible window (unknown queue; excluded from `ahead_at_entry`).
+    pub unobserved_entries: u64,
     pub abandoned_partial_qty: i64,
     pub waits_ns: Vec<u64>,
     pub ahead_at_entry: i128,
@@ -157,6 +160,7 @@ impl Study {
             suspensions: 0,
             stale_blocks: 0,
             rejects: 0,
+            unobserved_entries: 0,
             abandoned_partial_qty: 0,
             waits_ns: Vec::new(),
             ahead_at_entry: 0,
@@ -297,13 +301,14 @@ impl Study {
         if let Some(old) = cell.slots[s].live {
             cell.abandoned_partial_qty += old.order.filled;
         }
-        let shown = market
-            .depth(v, side, PriceTicks(d.price))?
-            .ok_or("a usable touch implies a live book")?;
+        // A price beyond the visible window (the market moved during the latency) is
+        // unobserved: the probe joins behind whatever is displayed when the level comes into view.
+        let shown = market.depth(v, side, PriceTicks(d.price))?;
         cell.placed += 1;
-        cell.ahead_at_entry += i128::from(shown);
+        cell.ahead_at_entry += i128::from(shown.unwrap_or(0));
+        cell.unobserved_entries += u64::from(shown.is_none());
         cell.slots[s].live = Some(Probe {
-            order: QueuedOrder::place(side, d.price, size, shown),
+            order: QueuedOrder::place(side, d.price, size, shown.unwrap_or(UNKNOWN_AHEAD)),
             placed_at: now,
         });
         Ok(())
@@ -397,7 +402,7 @@ pub(super) fn report(
                 }
             };
             println!(
-                "study venue={} model={:?} placed={} fills={} buys={} at_price={} through={} while_replacing={} fills_per_min={:.2} fill_ratio={} partial_prints={} requotes={} rejects={} stale_blocks={} suspensions={} abandoned_partial_qty={} wait_ms p50={} p90={} mean_ahead_at_entry_base={} fee_ticks_per_unit={}",
+                "study venue={} model={:?} placed={} fills={} buys={} at_price={} through={} while_replacing={} fills_per_min={:.2} fill_ratio={} partial_prints={} requotes={} rejects={} unobserved_entries={} stale_blocks={} suspensions={} abandoned_partial_qty={} wait_ms p50={} p90={} mean_ahead_at_entry_base={} fee_ticks_per_unit={}",
                 names[v],
                 cell.model,
                 cell.placed,
@@ -411,6 +416,7 @@ pub(super) fn report(
                 cell.partial_prints,
                 cell.requotes,
                 cell.rejects,
+                cell.unobserved_entries,
                 cell.stale_blocks,
                 cell.suspensions,
                 cell.abandoned_partial_qty,

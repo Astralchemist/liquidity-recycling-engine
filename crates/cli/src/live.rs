@@ -802,6 +802,18 @@ pub fn cycle_control(
         engine.research_fault()
     );
     let (open, mtm) = control.open(&*engine)?;
+    for c in &control.cycles {
+        println!(
+            "cycle venue={} side={:?} entry={} exit={} hold_ms={} net_atoms={} harvest={}",
+            c.venue + 1,
+            c.side,
+            c.entry,
+            c.exit,
+            c.hold_ns / 1_000_000,
+            c.net_atoms,
+            c.harvest
+        );
+    }
     for v in 0..3 {
         let by: Vec<_> = control
             .cycles
@@ -812,6 +824,83 @@ pub fn cycle_control(
         super::cycles::report(&format!("control_cycles venue={}", v + 1), &by, 0, 0);
     }
     super::cycles::report("control_cycles all", &control.cycles, open, mtm);
+    Ok(())
+}
+/// Time series for reports: every `interval_ms` of session time, the composite and venue
+/// midpoints as tick offsets from the corridor floor (prices relative to the research corridor,
+/// not absolute), the environment, cumulative revisits and active zones. Replays through the
+/// recorded configuration, skipping input `Engine::accepts` refuses, as live.
+pub fn series(directory: &str, interval_ms: &str) -> Result<(), String> {
+    let step = interval_ms
+        .parse::<u64>()
+        .ok()
+        .filter(|&s| s >= 100)
+        .ok_or("INTERVAL_MS must be an integer of at least 100")?
+        * 1_000_000;
+    let dir = Path::new(directory);
+    let t = read_dir_texts(dir)?;
+    let lower = i128::from(super::structures::parse(&t.structures)?.0.lower_price.0);
+    let files: Vec<_> = (1..=3)
+        .map(|v| File::open(dir.join(format!("venue-{v}.lre"))).map(BufReader::new))
+        .collect::<std::io::Result<_>>()
+        .map_err(|e| e.to_string())?;
+    let files: [BufReader<File>; 3] = files.try_into().map_err(|_| "expected three files")?;
+    let mut merged = MergedFrames::new(files, true).map_err(|e| format!("{e:?}"))?;
+    let mut engine = build(&t)?;
+    merged
+        .validate(engine.research().research().market())
+        .map_err(|e| format!("{e:?}"))?;
+    println!("t_s,corridor_ticks,mid,binance,bybit,okx,environment,revisits,active_zones");
+    let (mut in_snapshot, mut first, mut next) = ([false; 3], None, 0_u64);
+    while let Some(frame) = merged.next_frame().map_err(|e| format!("{e:?}"))? {
+        let head = match frame {
+            MergedFrame::Event(e) => e,
+            MergedFrame::Batch(b) => b[0],
+        };
+        let start = *first.get_or_insert(head.receive_ts.0);
+        let v = engine.venue_position(head.venue).ok_or("unknown venue")?;
+        in_snapshot[v] |= head.event_type == market_events::MarketEventType::SnapshotStart;
+        if !engine.accepts(head.venue, head.receive_ts, in_snapshot[v]) {
+            continue;
+        }
+        if head.event_type == market_events::MarketEventType::SnapshotEnd {
+            in_snapshot[v] = false;
+        }
+        match frame {
+            MergedFrame::Event(e) => engine.apply(&e, &mut |_| {}),
+            MergedFrame::Batch(b) => engine.apply_depth_batch(head.venue, b, &mut |_| {}),
+        }
+        .map_err(|e| format!("engine: {e:?}"))?;
+        let elapsed = head.receive_ts.0 - start;
+        if elapsed < next {
+            continue;
+        }
+        next = elapsed - elapsed % step + step;
+        let offset = |x2: Option<i128>| {
+            x2.map_or(String::new(), |m| {
+                format!("{:.1}", m as f64 / 2.0 - lower as f64)
+            })
+        };
+        let market = engine.research().research().market();
+        let venue = |id| market.venue_midpoint_x2(common::VenueId(id)).ok().flatten();
+        let voids = engine.research().research().voids();
+        println!(
+            "{:.1},{CORRIDOR},{},{},{},{},{:?},{},{}",
+            elapsed as f64 / 1e9,
+            offset(engine.reference_mid_x2()),
+            offset(venue(1)),
+            offset(venue(2)),
+            offset(venue(3)),
+            engine.environment().state(),
+            voids.metrics().revisits,
+            voids
+                .zones()
+                .iter()
+                .flatten()
+                .filter(|z| z.state.active())
+                .count()
+        );
+    }
     Ok(())
 }
 /// Fill study (Phase 9) over a recorded session: shadow maker probes at every venue touch
